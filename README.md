@@ -20,5 +20,6 @@
      
 - [ ] Compile using mars
 - [ ] Documantation !!!
+- [ ] graphs using draw.io
 
       
