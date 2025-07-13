@@ -15,6 +15,10 @@
      
 - [ ] HW accel
   - [ ] FIR
-  - [ ] 
+  - [ ] Timers
+  - [ ] UART
+     
+- [ ] Compile using mars
+- [ ] Documantation !!!
 
       
