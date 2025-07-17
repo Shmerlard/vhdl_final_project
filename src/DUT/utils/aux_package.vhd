@@ -177,23 +177,27 @@ package aux_package is
     end component;
 ---------------------------------------------------------
     component WRITE_BACK IS
-    PORT( 
-        MemtoReg_ctl_i, RegDst_ctl_i: IN  STD_LOGIC_VECTOR(1 DOWNTO 0);
-        RegWrite_ctl_i, WDSel_ctl_i : IN  STD_LOGIC;
-        ALU_Result_i, dtcm_data_i   : IN  STD_LOGIC_VECTOR(31 DOWNTO 0);
-        imm_i                       : IN  STD_LOGIC_VECTOR(15 DOWNTO 0);
-        PC_plus_4_i                 : IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
-        rt_rd_i                     : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
-        write_data_o                : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        write_reg_addr_o            : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
+        PORT
+        ( 
+            MemtoReg_ctl_i, RegDst_ctl_i: in  std_logic_vector(1 DOWNTO 0);
+            RegWrite_ctl_i, WDSel_ctl_i : in  std_logic;
+            ALU_Result_i, dtcm_data_i   : in  std_logic_vector(31 DOWNTO 0);
+            imm_i                       : in  std_logic_vector(15 DOWNTO 0);
+            PC_plus_4_i                 : in  std_logic_vector(7 DOWNTO 0);
+            rt_rd_i                     : in  std_logic_vector(9 DOWNTO 0);
+            write_data_o                : out std_logic_vector(31 DOWNTO 0);
+            write_reg_addr_o            : out std_logic_vector(4 DOWNTO 0)
         );
     END component;
 ---------------------------------------------------------
-    component PLL port(
-        areset      : IN STD_LOGIC  := '0';
-        inclk0      : IN STD_LOGIC  := '0';
-        c0          : OUT STD_LOGIC ;
-        locked      : OUT STD_LOGIC );
+    component PLL is 
+        port
+        (
+            areset      : IN STD_LOGIC  := '0';
+            inclk0      : IN STD_LOGIC  := '0';
+            c0          : OUT STD_LOGIC ;
+            locked      : OUT STD_LOGIC 
+        );
     end component;
 ---------------------------------------------------------   
     component nbit_dff is
@@ -298,8 +302,42 @@ package aux_package is
         );
     end component;
 ---------------------------------------------------------
+    component nbit_timer is
+        generic ( n : integer := 8 );
+        port
+        (
+            clk    : in  std_logic;
+            rst    : in  std_logic;  -- asynchronous reset
+            en     : in  std_logic;
+            equy   : in  std_logic;  -- synchronous reset
+            q_out  : out std_logic_vector(n-1 downto 0)
+        );
+    end component nbit_timer;
 ---------------------------------------------------------
+    component timer_output_unit is
+        generic( n : integer := 8);
+        port (
+        -- inputs
+        x_i, y_i                : in std_logic_vector(n-1 downto 0);
+        btcnt_i                 : in std_logic_vector(n-1 downto 0);
+        clk_i                   : in STD_LOGIC;
+        en_i                    : in STD_LOGIC;
+        mode_i                  : in STD_LOGIC;
+
+        -- outpus
+        pwm_out_o               : out std_logic;
+        hue0_o                  : out STD_LOGIC
+    );
+end component timer_output_unit;
 ---------------------------------------------------------
+component nbit_latch is
+    generic ( n : integer := 8 ); -- bus width
+    port (
+             en   :      in  std_logic;
+             d_in :      in  std_logic_vector(n-1 downto 0);       -- Data input
+             q_out:      out std_logic_vector(n-1 downto 0)
+         );
+end component nbit_latch;
 ---------------------------------------------------------
 ---------------------------------------------------------
 end aux_package;
