@@ -9,6 +9,8 @@ USE work.cond_comilation_package.all;
 
 package aux_package is
     type t_hex_array is array (natural range <>) of std_logic_vector(6 downto 0);
+    type t_fir_reg_arr is array (natural range <>) of std_logic_vector;
+    type t_vec_array is array (natural range <>) of std_logic_vector;
 
     component MIPS is
         generic( 
@@ -92,7 +94,6 @@ package aux_package is
         num_out:OUT std_logic_vector(6 downto 0)
         );
     end component;
-
 ---------------------------------------------------------       
     component Execute is
         generic(
@@ -188,12 +189,12 @@ package aux_package is
         );
     END component;
 ---------------------------------------------------------
-    COMPONENT PLL port(
+    component PLL port(
         areset      : IN STD_LOGIC  := '0';
         inclk0      : IN STD_LOGIC  := '0';
         c0          : OUT STD_LOGIC ;
         locked      : OUT STD_LOGIC );
-    END COMPONENT;
+    end component;
 ---------------------------------------------------------   
     component nbit_dff is
     generic (
@@ -219,6 +220,87 @@ package aux_package is
         lw_hazard_rd2_o : out std_logic
     );
     end component;
+---------------------------------------------------------
+    component timer_unit is
+        port(
+            mclk_i     : in std_logic
+        );
+    end component;
+---------------------------------------------------------
+    component fir_base_unit is
+    generic(
+        w: integer := 24;
+        q: integer := 8
+    );
+    port (
+        clk_i   : in STD_LOGIC;
+        rst_i   : in STD_LOGIC;
+        x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
+        sum_i   : in STD_LOGIC_VECTOR(w+q-1 downto 0);
+        coef_i  : in STD_LOGIC_VECTOR(q-1 downto 0);
+
+        x_o     : out STD_LOGIC_VECTOR(w-1 downto 0);
+        sum_o   : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+    );
+    end component;
+---------------------------------------------------------
+    component fir_reg_arr is
+        generic(
+            w: integer := 24;
+            m: integer := 8;
+            q: integer := 8
+        );
+        port (
+            clk_i   : in STD_LOGIC;
+            rst_i   : in STD_LOGIC;
+            x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
+            coeff_i : in t_vec_array(0 to M-2)(q-1 downto 0);
+            y_o     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+        );
+    end component fir_reg_arr;
+---------------------------------------------------------
+    component nbit_sr is
+        generic
+        (
+            n: integer := 1;            -- size of data
+            k: integer := 8             -- number of dff
+        );
+        port
+        (
+            clk_i : in std_logic;
+            rst_i : in std_logic;
+
+            d_in : in std_logic_vector(n-1 downto 0);
+            q_out: out std_logic_vector(n-1 downto 0)
+        );
+    end component;
+---------------------------------------------------------
+    component fir_sync_fifo is
+        generic
+        (
+            w: integer := 24;
+            q: integer := 8;
+            k: integer := 8
+        );
+        port
+        (
+            FIFOCLK : in STD_LOGIC;
+            FIFORST : in STD_LOGIC;
+            FIFOWEN : in STD_LOGIC;
+            FIFOREN : in STD_LOGIC;
+
+            FIFOIN : in STD_LOGIC_VECTOR(w+q-1 downto 0);
+
+            FIFOFULL : out STD_LOGIC;
+            FIFOEMPTY : out STD_LOGIC;
+
+            DATAOUT     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+        );
+    end component;
+---------------------------------------------------------
+---------------------------------------------------------
+---------------------------------------------------------
+---------------------------------------------------------
 ---------------------------------------------------------
 end aux_package;
 

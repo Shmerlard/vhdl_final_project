@@ -4,23 +4,23 @@ USE IEEE.STD_LOGIC_ARITH.ALL;
 USE IEEE.STD_LOGIC_SIGNED.ALL;
 
 ENTITY control IS
-    PORT( 	
-        Op  			: IN 	STD_LOGIC_VECTOR(5 DOWNTO 0);
-        Funct			: IN 	STD_LOGIC_VECTOR(5 DOWNTO 0);
-        MemtoReg 		: OUT 	STD_LOGIC_VECTOR(1 DOWNTO 0);
-        MemWrite 		: OUT 	STD_LOGIC;
-        jump            : OUT 	STD_LOGIC;
-        beq             : OUT 	STD_LOGIC;
-        bne             : OUT 	STD_LOGIC;
+    PORT(
+        Op              : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
+        Funct           : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
+        MemtoReg        : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);
+        MemWrite        : OUT   STD_LOGIC;
+        jump            : OUT   STD_LOGIC;
+        beq             : OUT   STD_LOGIC;
+        bne             : OUT   STD_LOGIC;
         ALUFN           : OUT   STD_LOGIC_VECTOR(4 DOWNTO 0);
-        ALUSrc 			: OUT 	STD_LOGIC_VECTOR(1 DOWNTO 0);
-        RegDst 			: OUT 	STD_LOGIC_VECTOR(1 DOWNTO 0);
-        RegWrite 		: OUT 	STD_LOGIC;
-        WDSel           : OUT 	STD_LOGIC;
-        jr              : OUT 	STD_LOGIC;
-        lw_o            : OUT 	STD_LOGIC;
-        sw_o            : OUT 	STD_LOGIC;
-        Shamt_ctl       : OUT 	STD_LOGIC;
+        ALUSrc          : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);
+        RegDst          : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);
+        RegWrite        : OUT   STD_LOGIC;
+        WDSel           : OUT   STD_LOGIC;
+        jr              : OUT   STD_LOGIC;
+        lw_o            : OUT   STD_LOGIC;
+        sw_o            : OUT   STD_LOGIC;
+        Shamt_ctl       : OUT   STD_LOGIC;
         hazard_unit_type_o : out STD_LOGIC_VECTOR(2 DOWNTO 0)
     );
 end control;
@@ -29,7 +29,7 @@ Architecture dataflow of control is
     -----------------------------------------------------------------
     --                  Signals Declerations
     -----------------------------------------------------------------
-	signal  R_type, jump_sig, jal, beq_sig, bne_sig, addi, slti, andi, ori,
+    signal  R_type, jump_sig, jal, beq_sig, bne_sig, addi, slti, andi, ori,
             xori, lui, lw, sw, addiu   : STD_LOGIC := '0';
     signal  sll_f, srl_f, mult, add, addu, sub, and_f, or_f, 
             xor_f, slt, jr_sig  : STD_LOGIC := '0';
