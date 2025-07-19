@@ -1,7 +1,7 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-USE IEEE.STD_LOGIC_SIGNED.ALL;
+-- USE IEEE.STD_LOGIC_ARITH.ALL;
+-- USE IEEE.STD_LOGIC_SIGNED.ALL;
 use ieee.numeric_std.all;
 use work.aux_package.all;
 
@@ -42,7 +42,7 @@ BEGIN
     -- btcnt_eq_0_s <= '1' when (btcnt_out_s = (others => '0')) else '0';
     btcnt_eq_0_s <= '1' when btcnt_out_s = std_logic_vector(to_unsigned(0, btcnt_out_s'length)) else '0';
 
-    BTCNT : nbit_timer
+    BTCNT : entity work.nbit_counter
     generic map (n => n)
     port map
     (

@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 
-entity nbit_timer is
+entity nbit_counter is
     generic (
         n : integer := 8  -- default size = 8 bits
     );
@@ -13,9 +13,9 @@ entity nbit_timer is
         equy   : in  std_logic;
         q_out  : out std_logic_vector(n-1 downto 0)
     );
-end entity nbit_timer;
+end entity nbit_counter;
 
-architecture behavioral of nbit_timer is
+architecture behavioral of nbit_counter is
     signal q_reg : std_logic_vector(n-1 downto 0) := (others => '0');
 begin
 

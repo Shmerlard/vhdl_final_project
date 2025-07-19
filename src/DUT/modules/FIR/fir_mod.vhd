@@ -64,4 +64,6 @@ BEGIN
         FIFOEMPTY => FIFOEMPTY,
         DATAOUT => syn_fifo_d_s
     );
+
+    
 END ARCHITECTURE rtl;

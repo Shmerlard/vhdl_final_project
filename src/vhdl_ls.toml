@@ -13,3 +13,6 @@ altera_mf.files = [
 ]
 
 altera_mf.is_third_party = true
+
+[format]
+provider = "vsg"
