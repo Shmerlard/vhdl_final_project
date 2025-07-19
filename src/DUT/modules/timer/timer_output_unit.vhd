@@ -14,7 +14,7 @@ entity  timer_output_unit is
         mode_i                  : in STD_LOGIC;
         -- outpus
         pwm_out_o               : out std_logic;
-        hue0_o                  : out STD_LOGIC     -- TODO: connect it?
+        heu0_o                  : out STD_LOGIC     -- TODO: connect it?
     );
 end entity  timer_output_unit;
 
@@ -35,5 +35,7 @@ begin
     selected_out_s <= btcnt_between_s when mode_i = '0' else not btcnt_between_s;
     -- outputing just when en == '1'
     pwm_out_o <= selected_out_s and en_i;
+    -- outputing heu0
+    heu0_o <= '1' when btcnt_i = x_i else '0';
 
 end architecture behavioral;

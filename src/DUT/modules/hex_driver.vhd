@@ -8,11 +8,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity hex_driver is
-    port(
-        num_in: IN std_logic_vector(3 downto 0);
-        en:     IN std_logic;
-        num_out:OUT std_logic_vector(6 downto 0)
-        );
+    port
+    (
+        num_in:     IN std_logic_vector(3 downto 0);
+        en:         IN std_logic;
+        num_out:    OUT std_logic_vector(6 downto 0)
+    );
 end entity;
 
 ARCHITECTURE rtl OF hex_driver IS

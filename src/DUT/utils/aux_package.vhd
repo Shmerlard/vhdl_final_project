@@ -326,7 +326,7 @@ package aux_package is
 
         -- outpus
         pwm_out_o               : out std_logic;
-        hue0_o                  : out STD_LOGIC
+        heu0_o                  : out STD_LOGIC
     );
 end component timer_output_unit;
 ---------------------------------------------------------

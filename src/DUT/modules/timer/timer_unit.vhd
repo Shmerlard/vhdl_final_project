@@ -2,6 +2,7 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.STD_LOGIC_ARITH.ALL;
 USE IEEE.STD_LOGIC_SIGNED.ALL;
+use ieee.numeric_std.all;
 use work.aux_package.all;
 
 entity timer_unit is
@@ -36,18 +37,19 @@ ARCHITECTURE rtl OF timer_unit IS
     signal btcnt_q24_s : STD_LOGIC;
     signal btcnt_q28_s : STD_LOGIC;
     signal btcnt_q32_s : STD_LOGIC;
-    signal btctn_eq_0_s: STD_LOGIC;
+    signal btcnt_eq_0_s: STD_LOGIC;
 BEGIN
-    btctn_eq_0_s <= '1' when (btcnt_out_s = (others => '0')) else '0';
+    -- btcnt_eq_0_s <= '1' when (btcnt_out_s = (others => '0')) else '0';
+    btcnt_eq_0_s <= '1' when btcnt_out_s = std_logic_vector(to_unsigned(0, btcnt_out_s'length)) else '0';
 
     BTCNT : nbit_timer
     generic map (n => n)
     port map
     (
         clk => sel_clk_src_s,
-        rst => BTCLR,
+        rst => hue0_s,
         en => not BTHOLD,
-        equy => '0',                    --- TODO: check wether clk or equy
+        equy => BTCLR,                    --- TODO: check wether clk or equy
         q_out => btcnt_out_s            --- TODO: imlement hue0
                                         --- TODO: implement Q24 Q28 Q32
     );
@@ -63,14 +65,14 @@ BEGIN
         en_i => BTOUTEN,
         mode_i => BTOUTMD,
         pwm_out_o => PWMOUT,
-        hue0_o => hue0_s
+        heu0_o => hue0_s
     );
 
     BTCL0_LATCH: nbit_latch
     generic map( n => n)
     port map
     (
-        en => '1',
+        en => btcnt_eq_0_s,
         d_in => BTCCR0,
         q_out => btccr0_latched_s
     );
@@ -79,7 +81,7 @@ BEGIN
     generic map( n => n)
     port map
     (
-        en => '1',
+        en => btcnt_eq_0_s,
         d_in => BTCCR1,
         q_out => btccr1_latched_s
     );
