@@ -4,22 +4,25 @@ USE IEEE.STD_LOGIC_1164.ALL;
 -- USE IEEE.STD_LOGIC_SIGNED.ALL;
 use ieee.numeric_std.all;
 use work.aux_package.all;
+use work.memory_map.all;
 
 entity timer_unit is
-    generic ( n: integer := 32);
+    generic
+    (
+        n: integer := 32;
+        TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;
+        ADDRESS_BUS_WIDTH: INTEGER := 12;
+        DATA_BUS_WIDTH: INTEGER := 32
+    );
     port (
         mclk_i : in std_logic;
-        mclk_i2 : in std_logic;
-        mclk_i4 : in std_logic;
-        mclk_i8 : in std_logic;
-        BTCLR: in std_logic;
-        BTHOLD: in std_logic;
-        BTSSEL: in std_logic_vector(1 downto 0);
-        BTOUTMD: in std_logic;
-        BTOUTEN: in std_logic;
-        BTCCR0: in std_logic_vector(n-1 downto 0);
-        BTCCR1: in std_logic_vector(n-1 downto 0);
-        BTIP: in std_logic_vector(1 downto 0);
+        rst_i : in std_logic;
+        mem_write_c_i: in std_logic;
+        mem_read_c_i: in std_logic;
+
+        address_bus_i: in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+        data_bus_i: in std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+
         BTIFG: out std_logic;
         PWMOUT: out std_logic
 
@@ -27,81 +30,92 @@ entity timer_unit is
 end entity timer_unit;
 
 ARCHITECTURE rtl OF timer_unit IS
-    signal sel_clk_src_s : std_logic;                 -- the selected clock source signal
-    signal btcnt_out_s: STD_LOGIC_VECTOR(n-1 downto 0);
+    signal mclk_i2_s : std_logic;
+    signal mclk_i4_s : std_logic;
+    signal mclk_i8_s : std_logic;
+    signal clk_div_counter : std_logic_vector(2 downto 0) := (others => '0');
 
-    signal btccr0_latched_s : STD_LOGIC_VECTOR(n-1 downto 0);
-    signal btccr1_latched_s : STD_LOGIC_VECTOR(n-1 downto 0);
+    signal cs_mem_write_s : std_logic_vector(TIMER_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
+    signal cs_mem_read_s : std_logic_vector(TIMER_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
 
-    signal hue0_s : STD_LOGIC;
-    signal btcnt_q24_s : STD_LOGIC;
-    signal btcnt_q28_s : STD_LOGIC;
-    signal btcnt_q32_s : STD_LOGIC;
-    signal btcnt_eq_0_s: STD_LOGIC;
+    signal btctl_o_s: std_logic_vector(7 downto 0);
+    signal btccr0_o_s: std_logic_vector(31 downto 0);
+    signal btccr1_o_s: std_logic_vector(31 downto 0);
 BEGIN
-    -- btcnt_eq_0_s <= '1' when (btcnt_out_s = (others => '0')) else '0';
-    btcnt_eq_0_s <= '1' when btcnt_out_s = std_logic_vector(to_unsigned(0, btcnt_out_s'length)) else '0';
+    process(mclk_i)
+    begin
+      if rising_edge(mclk_i) then
+        clk_div_counter <= std_logic_vector(unsigned(clk_div_counter) + 1);
+        mclk_i2_s <= clk_div_counter(0);
+        mclk_i4_s <= clk_div_counter(1);        -- TEST: see if works
+        mclk_i8_s <= clk_div_counter(2);
+      end if;
+    end process;
 
-    BTCNT : entity work.nbit_counter
-    generic map (n => n)
-    port map
-    (
-        clk => sel_clk_src_s,
-        rst => hue0_s,
-        en => not BTHOLD,
-        equy => BTCLR,                    --- TODO: check wether clk or equy
-        q_out => btcnt_out_s            --- TODO: imlement hue0
-                                        --- TODO: implement Q24 Q28 Q32
+    timer_core_inst: entity work.timer_core
+    generic map( n => n )
+    port map(
+        mclk_i => mclk_i,
+        mclk_i2 => mclk_i2_s,
+        mclk_i4 => mclk_i4_s,
+        mclk_i8 => mclk_i8_s,
+        BTCLR => btctl_o_s(2),
+        BTHOLD =>  btctl_o_s(5),
+        BTSSEL =>  btctl_o_s(4 downto 3),
+        BTOUTMD =>  btctl_o_s(7),
+        BTOUTEN =>  btctl_o_s(6),
+        BTCCR0 => btccr0_o_s,
+        BTCCR1 => btccr1_o_s,
+        BTIP =>  btctl_o_s(1 downto 0),
+        BTIFG => BTIFG,
+        PWMOUT => PWMOUT
     );
 
-    timer_output_unit_inst: timer_output_unit
-    generic map ( n => n )
+    timer_address_decoder: entity work.address_decoder
+    generic map(
+        ADDRESS_BUS_WIDTH => ADDRESS_BUS_WIDTH,
+        ADDRESS_ARRAY => TIMER_UNIT_ADDRESS_ARRAY
+    )
     port map
     (
-        x_i => btccr0_latched_s,
-        y_i => btccr1_latched_s,
-        btcnt_i => btcnt_out_s,
-        clk_i => sel_clk_src_s,
-        en_i => BTOUTEN,
-        mode_i => BTOUTMD,
-        pwm_out_o => PWMOUT,
-        heu0_o => hue0_s
+        mem_write_c_in => mem_write_c_i,
+        mem_read_c_in => mem_read_c_i,
+        address_bus_i => address_bus_i,
+        cs_mem_write_o => cs_mem_write_s,
+        cs_mem_read_o => cs_mem_read_s
     );
 
-    BTCL0_LATCH: nbit_latch
-    generic map( n => n)
+    BTCCR0_ins: entity work.nbit_dff
+    generic map( n => n )
     port map
     (
-        en => btcnt_eq_0_s,
-        d_in => BTCCR0,
-        q_out => btccr0_latched_s
+        clk => mclk_i,
+        rst => rst_i,
+        en =>   cs_mem_write_s(2),      -- TODO: check if 2 is correct and move to constant
+        d_in => data_bus_i,
+        q_out => btccr0_o_s
     );
 
-    BTCL1_LATCH: nbit_latch
-    generic map( n => n)
+    BTCCR1_ins: entity work.nbit_dff
+    generic map( n => n )               -- TODO: move to constants
     port map
     (
-        en => btcnt_eq_0_s,
-        d_in => BTCCR1,
-        q_out => btccr1_latched_s
+        clk => mclk_i,
+        rst => rst_i,
+        en =>   cs_mem_write_s(3),      -- TODO: check if 3 is correct and move to constant
+        d_in => data_bus_i,
+        q_out => btccr1_o_s
     );
 
-    -- input clock selector
-    with BTSSEL select
-        sel_clk_src_s <=
-            mclk_i  when "00",
-            mclk_i2 when "01",
-            mclk_i4 when "10",
-            mclk_i8 when others;
-
-    -- output ifg selector
-    with BTIP select
-        BTIFG <= hue0_s    when "00",
-                 btcnt_q24_s when "01",
-                 btcnt_q28_s when "10",
-                 btcnt_q32_s when others;
+    BTCCTL_ins: entity work.nbit_dff
+    generic map( n => 8 )
+    port map
+    (
+        clk => mclk_i,
+        rst => rst_i,
+        en =>   cs_mem_write_s(0),      -- TODO: check if 3 is correct and move to constant
+        d_in => data_bus_i,
+        q_out => btctl_o_s
+    );
 
 END ARCHITECTURE rtl;
-
-
-

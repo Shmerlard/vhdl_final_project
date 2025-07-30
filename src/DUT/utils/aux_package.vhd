@@ -11,6 +11,7 @@ package aux_package is
     type t_hex_array is array (natural range <>) of std_logic_vector(6 downto 0);
     type t_fir_reg_arr is array (natural range <>) of std_logic_vector;
     type t_vec_array is array (natural range <>) of std_logic_vector;
+    type t_addr_array is array (natural range <>) of natural;
 
     component MIPS is
         generic( 
@@ -225,7 +226,7 @@ package aux_package is
     );
     end component;
 ---------------------------------------------------------
-    component timer_unit is
+    component timer_core is -- TODO: add prots
         port(
             mclk_i     : in std_logic
         );
