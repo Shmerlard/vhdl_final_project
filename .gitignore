@@ -1,3 +1,6 @@
 
 /modelsim
 /Quartus/db
+/Quartus/incremental_db
+/Quartus/output_files
+/Quartus/simulation
