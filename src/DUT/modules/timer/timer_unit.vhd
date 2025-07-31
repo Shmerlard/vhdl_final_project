@@ -1,31 +1,28 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
--- USE IEEE.STD_LOGIC_ARITH.ALL;
--- USE IEEE.STD_LOGIC_SIGNED.ALL;
 use ieee.numeric_std.all;
 use work.aux_package.all;
 use work.memory_map.all;
 
 entity timer_unit is
     generic
-    (
-        n: integer := 32;
-        TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;
-        ADDRESS_BUS_WIDTH: INTEGER := 12;
-        DATA_BUS_WIDTH: INTEGER := 32
+    (           -- NOTE: maybe REG_SIZE is not needed
+        REG_SIZE: integer := 32;                    -- size of btctl, btccr0, btccr1
+        TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;     -- the array of addresses for decoding
+        ADDRESS_BUS_WIDTH: INTEGER := 12;           -- the width of the address bus
+        DATA_BUS_WIDTH: INTEGER := 32               -- width of the data bus
     );
     port (
-        mclk_i : in std_logic;
-        rst_i : in std_logic;
-        mem_write_c_i: in std_logic;
-        mem_read_c_i: in std_logic;
+        mclk_i          : in std_logic;
+        rst_i           : in std_logic;
+        mem_write_c_i   : in std_logic;                -- '1' when we want to write to the registers
+        mem_read_c_i    : in std_logic;                 -- '1' when we want to read from the registers
 
-        address_bus_i: in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
-        data_bus_i: in std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+        address_bus_i   : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+        data_bus_io     : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
 
-        BTIFG: out std_logic;
-        PWMOUT: out std_logic
-
+        BTIFG           : out std_logic;
+        PWMOUT          : out std_logic
     );
 end entity timer_unit;
 
@@ -35,34 +32,40 @@ ARCHITECTURE rtl OF timer_unit IS
     signal mclk_i8_s : std_logic;
     signal clk_div_counter : std_logic_vector(2 downto 0) := (others => '0');
 
+    -- chip select signals for read/write for each register
     signal cs_mem_write_s : std_logic_vector(TIMER_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
     signal cs_mem_read_s : std_logic_vector(TIMER_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
 
-    signal btctl_o_s: std_logic_vector(7 downto 0);
-    signal btccr0_o_s: std_logic_vector(31 downto 0);
-    signal btccr1_o_s: std_logic_vector(31 downto 0);
+    signal btctl_o_s: std_logic_vector(7 downto 0);             -- the state of BTCTL reg
+    signal btccr0_o_s: std_logic_vector(REG_SIZE-1 downto 0);   -- the state of BTCCR0 reg
+    signal btccr1_o_s: std_logic_vector(REG_SIZE-1 downto 0);   -- the state of BTCCR1 reg
+
+    signal btccr0_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);    -- the data input to btccr0
+    signal btccr1_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);    -- the data input to btccr1
+    signal btctl_d_in_s: std_logic_vector(7 downto 0);              -- the data input to btctl
 BEGIN
+    -- Clock handling
     process(mclk_i)
     begin
-      if rising_edge(mclk_i) then
-        clk_div_counter <= std_logic_vector(unsigned(clk_div_counter) + 1);
-        mclk_i2_s <= clk_div_counter(0);
-        mclk_i4_s <= clk_div_counter(1);        -- TEST: see if works
-        mclk_i8_s <= clk_div_counter(2);
-      end if;
+        if rising_edge(mclk_i) then
+            clk_div_counter <= std_logic_vector(unsigned(clk_div_counter) + 1);
+            mclk_i2_s <= clk_div_counter(0);
+            mclk_i4_s <= clk_div_counter(1);
+            mclk_i8_s <= clk_div_counter(2);
+        end if;
     end process;
 
     timer_core_inst: entity work.timer_core
-    generic map( n => n )
+    generic map( n => REG_SIZE )
     port map(
         mclk_i => mclk_i,
         mclk_i2 => mclk_i2_s,
         mclk_i4 => mclk_i4_s,
         mclk_i8 => mclk_i8_s,
-        BTCLR => btctl_o_s(2),
+        BTCLR => btctl_o_s(BTCTL_BITS(BTCLR)),
         BTHOLD =>  btctl_o_s(5),
         BTSSEL =>  btctl_o_s(4 downto 3),
-        BTOUTMD =>  btctl_o_s(7),
+        BTOUTMD =>  btctl_o_s(7),               -- FIX: change from numbers to constants
         BTOUTEN =>  btctl_o_s(6),
         BTCCR0 => btccr0_o_s,
         BTCCR1 => btccr1_o_s,
@@ -86,36 +89,60 @@ BEGIN
     );
 
     BTCCR0_ins: entity work.nbit_dff
-    generic map( n => n )
+    generic map( n => REG_SIZE )
     port map
     (
         clk => mclk_i,
         rst => rst_i,
-        en =>   cs_mem_write_s(2),      -- TODO: check if 2 is correct and move to constant
-        d_in => data_bus_i,
+        en =>   cs_mem_write_s(2),
+        d_in => btccr0_d_in_s,
         q_out => btccr0_o_s
+    );
+    BTCCR0_bidir_ins: entity work.nbit_bidir
+    generic map( width => DATA_BUS_WIDTH)
+    port map(
+                Dout => btccr0_o_s,
+                en => cs_mem_read_s(2),
+                Din => btccr0_d_in_s,
+                IOpin => data_bus_io
     );
 
     BTCCR1_ins: entity work.nbit_dff
-    generic map( n => n )               -- TODO: move to constants
+    generic map( n => REG_SIZE )
     port map
     (
         clk => mclk_i,
         rst => rst_i,
         en =>   cs_mem_write_s(3),      -- TODO: check if 3 is correct and move to constant
-        d_in => data_bus_i,
+        d_in => btccr1_d_in_s,
         q_out => btccr1_o_s
     );
+    BTCCR1_bidir_ins: entity work.nbit_bidir
+    generic map( width => DATA_BUS_WIDTH)
+    port map(
+                Dout => btccr1_o_s,
+                en => cs_mem_read_s(3),
+                Din => btccr1_d_in_s,
+                IOpin => data_bus_io
+    );
 
-    BTCCTL_ins: entity work.nbit_dff
+    BTCTL_ins: entity work.nbit_dff
     generic map( n => 8 )
     port map
     (
         clk => mclk_i,
         rst => rst_i,
         en =>   cs_mem_write_s(0),      -- TODO: check if 3 is correct and move to constant
-        d_in => data_bus_i,
+        d_in => btctl_d_in_s,
         q_out => btctl_o_s
+    );
+    BTCTL_bidir_ins: entity work.nbit_bidir
+    generic map( width => 8 )
+    port map(
+                Dout => btctl_o_s,
+                en => cs_mem_read_s(0),
+                Din => btctl_d_in_s,
+                IOpin => data_bus_io(7 downto 0) -- take only the 8 MSB's of the data bus
     );
 
 END ARCHITECTURE rtl;

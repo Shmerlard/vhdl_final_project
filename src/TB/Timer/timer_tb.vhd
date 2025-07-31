@@ -1,6 +1,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
+use work.aux_package.all;
 
 ENTITY timer_unit_tb IS
 END ENTITY;
@@ -27,8 +28,8 @@ ARCHITECTURE tb OF timer_unit_tb IS
 
 BEGIN
 
-    DUT: entity work.timer_unit
-        generic map(n => n)
+    DUT: timer_core
+        generic map(REG_SIZE => n)
         port map (
             mclk_i => mclk_i,
             mclk_i2 => mclk_i2,

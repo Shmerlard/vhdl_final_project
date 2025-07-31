@@ -1,0 +1,117 @@
+|tb_2_bidir
+clk_i => nbit_dff:reg_a.clk
+clk_i => nbit_dff:reg_b.clk
+rst_i => nbit_dff:reg_a.rst
+rst_i => nbit_dff:reg_b.rst
+we_r0 => nbit_dff:reg_a.en
+we_r1 => nbit_dff:reg_b.en
+re_r0 => re_r0_s.DATAB
+re_r1 => re_r1_s.DATAB
+switches[0] => bus_out[0].DATAIN
+switches[1] => bus_out[1].DATAIN
+switches[2] => bus_out[2].DATAIN
+switches[3] => bus_out[3].DATAIN
+switch_en => bus_out[0].OE
+switch_en => bus_out[1].OE
+switch_en => bus_out[2].OE
+switch_en => bus_out[3].OE
+switch_en => re_r1_s.IN0
+switch_en => re_r0_s.IN1
+data_bus[0] <= data_bus[0].DB_MAX_OUTPUT_PORT_TYPE
+data_bus[1] <= data_bus[1].DB_MAX_OUTPUT_PORT_TYPE
+data_bus[2] <= data_bus[2].DB_MAX_OUTPUT_PORT_TYPE
+data_bus[3] <= data_bus[3].DB_MAX_OUTPUT_PORT_TYPE
+reg_leds[0] <= nbit_dff:reg_a.q_out[0]
+reg_leds[1] <= nbit_dff:reg_a.q_out[1]
+reg_leds[2] <= nbit_dff:reg_a.q_out[2]
+reg_leds[3] <= nbit_dff:reg_a.q_out[3]
+reg_leds[4] <= nbit_dff:reg_b.q_out[0]
+reg_leds[5] <= nbit_dff:reg_b.q_out[1]
+reg_leds[6] <= nbit_dff:reg_b.q_out[2]
+reg_leds[7] <= nbit_dff:reg_b.q_out[3]
+
+
+|tb_2_bidir|nbit_dff:reg_a
+clk => q_reg[0].CLK
+clk => q_reg[1].CLK
+clk => q_reg[2].CLK
+clk => q_reg[3].CLK
+rst => q_reg[0].ACLR
+rst => q_reg[1].ACLR
+rst => q_reg[2].ACLR
+rst => q_reg[3].ACLR
+en => q_reg[3].ENA
+en => q_reg[2].ENA
+en => q_reg[1].ENA
+en => q_reg[0].ENA
+d_in[0] => q_reg[0].DATAIN
+d_in[1] => q_reg[1].DATAIN
+d_in[2] => q_reg[2].DATAIN
+d_in[3] => q_reg[3].DATAIN
+q_out[0] <= q_reg[0].DB_MAX_OUTPUT_PORT_TYPE
+q_out[1] <= q_reg[1].DB_MAX_OUTPUT_PORT_TYPE
+q_out[2] <= q_reg[2].DB_MAX_OUTPUT_PORT_TYPE
+q_out[3] <= q_reg[3].DB_MAX_OUTPUT_PORT_TYPE
+
+
+|tb_2_bidir|BidirPin:reg_a_buffer
+Dout[0] => IOpin[0].DATAIN
+Dout[1] => IOpin[1].DATAIN
+Dout[2] => IOpin[2].DATAIN
+Dout[3] => IOpin[3].DATAIN
+en => IOpin[0].OE
+en => IOpin[1].OE
+en => IOpin[2].OE
+en => IOpin[3].OE
+Din[0] <= Din[0].DB_MAX_OUTPUT_PORT_TYPE
+Din[1] <= Din[1].DB_MAX_OUTPUT_PORT_TYPE
+Din[2] <= Din[2].DB_MAX_OUTPUT_PORT_TYPE
+Din[3] <= Din[3].DB_MAX_OUTPUT_PORT_TYPE
+IOpin[0] <> IOpin[0]
+IOpin[1] <> IOpin[1]
+IOpin[2] <> IOpin[2]
+IOpin[3] <> IOpin[3]
+
+
+|tb_2_bidir|nbit_dff:reg_b
+clk => q_reg[0].CLK
+clk => q_reg[1].CLK
+clk => q_reg[2].CLK
+clk => q_reg[3].CLK
+rst => q_reg[0].ACLR
+rst => q_reg[1].ACLR
+rst => q_reg[2].ACLR
+rst => q_reg[3].ACLR
+en => q_reg[3].ENA
+en => q_reg[2].ENA
+en => q_reg[1].ENA
+en => q_reg[0].ENA
+d_in[0] => q_reg[0].DATAIN
+d_in[1] => q_reg[1].DATAIN
+d_in[2] => q_reg[2].DATAIN
+d_in[3] => q_reg[3].DATAIN
+q_out[0] <= q_reg[0].DB_MAX_OUTPUT_PORT_TYPE
+q_out[1] <= q_reg[1].DB_MAX_OUTPUT_PORT_TYPE
+q_out[2] <= q_reg[2].DB_MAX_OUTPUT_PORT_TYPE
+q_out[3] <= q_reg[3].DB_MAX_OUTPUT_PORT_TYPE
+
+
+|tb_2_bidir|BidirPin:reg_b_buffer
+Dout[0] => IOpin[0].DATAIN
+Dout[1] => IOpin[1].DATAIN
+Dout[2] => IOpin[2].DATAIN
+Dout[3] => IOpin[3].DATAIN
+en => IOpin[0].OE
+en => IOpin[1].OE
+en => IOpin[2].OE
+en => IOpin[3].OE
+Din[0] <= Din[0].DB_MAX_OUTPUT_PORT_TYPE
+Din[1] <= Din[1].DB_MAX_OUTPUT_PORT_TYPE
+Din[2] <= Din[2].DB_MAX_OUTPUT_PORT_TYPE
+Din[3] <= Din[3].DB_MAX_OUTPUT_PORT_TYPE
+IOpin[0] <> IOpin[0]
+IOpin[1] <> IOpin[1]
+IOpin[2] <> IOpin[2]
+IOpin[3] <> IOpin[3]
+
+

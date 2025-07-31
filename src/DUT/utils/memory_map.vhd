@@ -58,4 +58,30 @@ package memory_map is
         REG_ADDR(COEF3_0),
         REG_ADDR(COEF7_4)
     );
-end memory_map;
+
+
+
+
+
+
+
+
+
+
+
+    -----------------------------------------------
+    -- BTCTL pinout
+    type t_btctl_bits is (
+        BTOUTMD, BTOUTEN, BTHOLD, BTSSEL_1, BTSSEL_0,
+        BTCLR, BTIP_1, BTIP_0);
+    type t_btctl_bits_array is array(t_btctl_bits) of natural;
+    constant BTCTL_BITS : t_btctl_bits_array := (
+    BTOUTMD   => 7,
+    BTOUTEN   => 6,
+    BTHOLD    => 5,
+    BTSSEL_1  => 4,
+    BTSSEL_0  => 3,
+    BTCLR     => 2,
+    BTIP_1    => 1,
+    BTIP_0    => 0);
+end package memory_map;

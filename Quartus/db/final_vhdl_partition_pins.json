@@ -1,0 +1,101 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "data_bus[0]",
+					"strict" : false
+				},
+				{
+					"name" : "data_bus[1]",
+					"strict" : false
+				},
+				{
+					"name" : "data_bus[2]",
+					"strict" : false
+				},
+				{
+					"name" : "data_bus[3]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_leds[0]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_leds[1]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_leds[2]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_leds[3]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_leds[4]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_leds[5]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_leds[6]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_leds[7]",
+					"strict" : false
+				},
+				{
+					"name" : "switches[0]",
+					"strict" : false
+				},
+				{
+					"name" : "switch_en",
+					"strict" : false
+				},
+				{
+					"name" : "re_r1",
+					"strict" : false
+				},
+				{
+					"name" : "switches[1]",
+					"strict" : false
+				},
+				{
+					"name" : "switches[2]",
+					"strict" : false
+				},
+				{
+					"name" : "switches[3]",
+					"strict" : false
+				},
+				{
+					"name" : "clk_i",
+					"strict" : false
+				},
+				{
+					"name" : "rst_i",
+					"strict" : false
+				},
+				{
+					"name" : "we_r0",
+					"strict" : false
+				},
+				{
+					"name" : "we_r1",
+					"strict" : false
+				},
+				{
+					"name" : "re_r0",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

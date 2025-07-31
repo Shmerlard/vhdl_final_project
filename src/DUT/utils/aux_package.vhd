@@ -329,16 +329,38 @@ package aux_package is
         pwm_out_o               : out std_logic;
         heu0_o                  : out STD_LOGIC
     );
-end component timer_output_unit;
+    end component timer_output_unit;
 ---------------------------------------------------------
-component nbit_latch is
-    generic ( n : integer := 8 ); -- bus width
-    port (
-             en   :      in  std_logic;
-             d_in :      in  std_logic_vector(n-1 downto 0);       -- Data input
-             q_out:      out std_logic_vector(n-1 downto 0)
-         );
-end component nbit_latch;
+    component timer_unit is
+        generic
+        (
+            REG_SIZE: integer := 32;
+            TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;
+            ADDRESS_BUS_WIDTH: INTEGER := 12;
+            DATA_BUS_WIDTH: INTEGER := 32
+        );
+        port (
+            mclk_i : in std_logic;
+            rst_i : in std_logic;
+            mem_write_c_i: in std_logic;
+            mem_read_c_i: in std_logic;
+
+            address_bus_i: in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+            data_bus_io: inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+
+            BTIFG: out std_logic;
+            PWMOUT: out std_logic
+        );
+    end component timer_unit;
+---------------------------------------------------------
+    component nbit_latch is
+        generic ( n : integer := 8 ); -- bus width
+        port (
+                 en   :      in  std_logic;
+                 d_in :      in  std_logic_vector(n-1 downto 0);       -- Data input
+                 q_out:      out std_logic_vector(n-1 downto 0)
+             );
+    end component nbit_latch;
 ---------------------------------------------------------
 ---------------------------------------------------------
 end aux_package;
