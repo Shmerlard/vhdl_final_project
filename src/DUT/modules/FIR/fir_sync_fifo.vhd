@@ -53,21 +53,25 @@ BEGIN
     generic map( n => k_log)
     port map
     (
-        clk => FIFOCLK,
+        clk_i => FIFOCLK,
         rst => FIFORST,
         en => FIFOWEN,
         equy => '0',                                -- NOTE: we might need to replace it with rst
-        q_out => wr_ptr_s
+        q_out => wr_ptr_s,
+        w_en_i => '0',
+        d_in => (others => '0')
     );
     rd_ptr: entity work.nbit_counter
     generic map( n => k_log)
     port map
     (
-        clk => FIFOCLK,
+        clk_i => FIFOCLK,
         rst => FIFORST,
         en => FIFOREN,
         equy => '0',                                -- NOTE: we might need to replace it with rst
-        q_out => rd_ptr_s
+        q_out => rd_ptr_s,
+        w_en_i => '0',
+        d_in => (others => '0')
     );
 
     latched_rd_ptr: entity work.nbit_dff

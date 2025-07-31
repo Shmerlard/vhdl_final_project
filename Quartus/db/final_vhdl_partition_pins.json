@@ -4,75 +4,339 @@
 			"name" : "Top",
 			"pins" : [
 				{
-					"name" : "data_bus[0]",
+					"name" : "data_bus_out[0]",
 					"strict" : false
 				},
 				{
-					"name" : "data_bus[1]",
+					"name" : "data_bus_out[1]",
 					"strict" : false
 				},
 				{
-					"name" : "data_bus[2]",
+					"name" : "data_bus_out[2]",
 					"strict" : false
 				},
 				{
-					"name" : "data_bus[3]",
+					"name" : "data_bus_out[3]",
 					"strict" : false
 				},
 				{
-					"name" : "reg_leds[0]",
+					"name" : "data_bus_out[4]",
 					"strict" : false
 				},
 				{
-					"name" : "reg_leds[1]",
+					"name" : "data_bus_out[5]",
 					"strict" : false
 				},
 				{
-					"name" : "reg_leds[2]",
+					"name" : "data_bus_out[6]",
 					"strict" : false
 				},
 				{
-					"name" : "reg_leds[3]",
+					"name" : "data_bus_out[7]",
 					"strict" : false
 				},
 				{
-					"name" : "reg_leds[4]",
+					"name" : "addr_bus_out[0]",
 					"strict" : false
 				},
 				{
-					"name" : "reg_leds[5]",
+					"name" : "addr_bus_out[1]",
 					"strict" : false
 				},
 				{
-					"name" : "reg_leds[6]",
+					"name" : "addr_bus_out[2]",
 					"strict" : false
 				},
 				{
-					"name" : "reg_leds[7]",
+					"name" : "addr_bus_out[3]",
 					"strict" : false
 				},
 				{
-					"name" : "switches[0]",
+					"name" : "hex_out[7][0]",
 					"strict" : false
 				},
 				{
-					"name" : "switch_en",
+					"name" : "hex_out[7][1]",
 					"strict" : false
 				},
 				{
-					"name" : "re_r1",
+					"name" : "hex_out[7][2]",
 					"strict" : false
 				},
 				{
-					"name" : "switches[1]",
+					"name" : "hex_out[7][3]",
 					"strict" : false
 				},
 				{
-					"name" : "switches[2]",
+					"name" : "hex_out[7][4]",
 					"strict" : false
 				},
 				{
-					"name" : "switches[3]",
+					"name" : "hex_out[7][5]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[7][6]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[6][0]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[6][1]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[6][2]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[6][3]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[6][4]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[6][5]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[6][6]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[5][0]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[5][1]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[5][2]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[5][3]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[5][4]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[5][5]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[5][6]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[4][0]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[4][1]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[4][2]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[4][3]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[4][4]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[4][5]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[4][6]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[3][0]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[3][1]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[3][2]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[3][3]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[3][4]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[3][5]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[3][6]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[2][0]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[2][1]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[2][2]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[2][3]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[2][4]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[2][5]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[2][6]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[1][0]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[1][1]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[1][2]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[1][3]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[1][4]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[1][5]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[1][6]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[0][0]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[0][1]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[0][2]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[0][3]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[0][4]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[0][5]",
+					"strict" : false
+				},
+				{
+					"name" : "hex_out[0][6]",
+					"strict" : false
+				},
+				{
+					"name" : "bt_ifg",
+					"strict" : false
+				},
+				{
+					"name" : "pwm_o",
+					"strict" : false
+				},
+				{
+					"name" : "addr_switches[0]",
+					"strict" : false
+				},
+				{
+					"name" : "addr_switches[1]",
+					"strict" : false
+				},
+				{
+					"name" : "addr_switches[2]",
+					"strict" : false
+				},
+				{
+					"name" : "addr_switches[3]",
+					"strict" : false
+				},
+				{
+					"name" : "mem_read_c_i",
+					"strict" : false
+				},
+				{
+					"name" : "data_switches_en",
+					"strict" : false
+				},
+				{
+					"name" : "data_switches[0]",
+					"strict" : false
+				},
+				{
+					"name" : "data_switches[1]",
+					"strict" : false
+				},
+				{
+					"name" : "data_switches[2]",
+					"strict" : false
+				},
+				{
+					"name" : "data_switches[3]",
+					"strict" : false
+				},
+				{
+					"name" : "data_switches[4]",
+					"strict" : false
+				},
+				{
+					"name" : "data_switches[5]",
+					"strict" : false
+				},
+				{
+					"name" : "data_switches[6]",
+					"strict" : false
+				},
+				{
+					"name" : "data_switches[7]",
 					"strict" : false
 				},
 				{
@@ -84,15 +348,7 @@
 					"strict" : false
 				},
 				{
-					"name" : "we_r0",
-					"strict" : false
-				},
-				{
-					"name" : "we_r1",
-					"strict" : false
-				},
-				{
-					"name" : "re_r0",
+					"name" : "mem_write_c_i",
 					"strict" : false
 				}
 			]

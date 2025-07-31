@@ -52,7 +52,7 @@ begin
         d_in => reg0_q_in,
         q_out => reg0_q_out
     );
-    reg_a_buffer: entity work.BidirPin
+    reg_a_buffer: entity work.nbit_bidir
     generic map( width => 4)
     port map (
         Dout => reg0_q_out,
@@ -69,7 +69,7 @@ begin
         d_in => reg1_q_in,
         q_out => reg1_q_out
     );
-    reg_b_buffer: entity work.BidirPin
+    reg_b_buffer: entity work.nbit_bidir
     generic map( width => 4)
     port map (
         Dout => reg1_q_out,

@@ -1,7 +1,5 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
--- USE IEEE.STD_LOGIC_ARITH.ALL;
--- USE IEEE.STD_LOGIC_SIGNED.ALL;
 use ieee.numeric_std.all;
 use work.aux_package.all;
 use work.const_package.all;
@@ -22,7 +20,11 @@ entity timer_core is
         BTCCR1: in std_logic_vector(n-1 downto 0);
         BTIP: in std_logic_vector(1 downto 0);
         BTIFG: out std_logic;
-        PWMOUT: out std_logic
+        PWMOUT: out std_logic;
+
+        d_bus_i: in std_logic_vector(n-1 downto 0);
+        btcnt_wr_en: in std_logic;
+        d_bus_o: out std_logic_vector(n-1 downto 0)
 
     );
 end entity timer_core;
@@ -42,15 +44,18 @@ ARCHITECTURE rtl OF timer_core IS
 BEGIN
     -- btcnt_eq_0_s <= '1' when (btcnt_out_s = (others => '0')) else '0';
     btcnt_eq_0_s <= '1' when btcnt_out_s = std_logic_vector(to_unsigned(0, btcnt_out_s'length)) else '0';
+    d_bus_o <= btcnt_out_s;
 
     BTCNT : entity work.nbit_counter
     generic map (n => n)
     port map
     (
-        clk => sel_clk_src_s,
+        clk_i => sel_clk_src_s,
         rst => hue0_s,
         en => not BTHOLD,
         equy => BTCLR,                    --- TODO: check wether clk or equy
+        d_in => d_bus_i,
+        w_en_i => btcnt_wr_en,
         q_out => btcnt_out_s            --- TODO: imlement hue0
                                         --- TODO: implement Q24 Q28 Q32
     );

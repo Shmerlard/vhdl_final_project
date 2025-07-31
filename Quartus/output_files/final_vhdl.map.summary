@@ -1,13 +1,13 @@
-Analysis & Synthesis Status : Successful - Thu Jul 31 13:34:22 2025
+Analysis & Synthesis Status : Successful - Thu Jul 31 20:34:15 2025
 Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
 Revision Name : final_vhdl
-Top-level Entity Name : tb_2_bidir
+Top-level Entity Name : tb_timer_unit_3
 Family : Cyclone IV E
-Total logic elements : 19
-    Total combinational functions : 15
-    Dedicated logic registers : 8
-Total registers : 8
-Total pins : 23
+Total logic elements : 186
+    Total combinational functions : 167
+    Dedicated logic registers : 38
+Total registers : 38
+Total pins : 87
 Total virtual pins : 0
 Total memory bits : 0
 Embedded Multiplier 9-bit elements : 0

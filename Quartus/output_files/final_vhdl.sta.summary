@@ -3,39 +3,99 @@ Timing Analyzer Summary
 ------------------------------------------------------------
 
 Type  : Slow 1200mV 85C Model Setup 'clk_i'
-Slack : -0.824
-TNS   : -6.165
+Slack : -5.145
+TNS   : -112.279
+
+Type  : Slow 1200mV 85C Model Setup 'timer_unit:timer_unit_ins|timer_core:timer_core_inst|nbit_counter:BTCNT|q_reg[0]'
+Slack : -1.494
+TNS   : -5.971
+
+Type  : Slow 1200mV 85C Model Hold 'timer_unit:timer_unit_ins|timer_core:timer_core_inst|nbit_counter:BTCNT|q_reg[0]'
+Slack : -0.235
+TNS   : -0.590
 
 Type  : Slow 1200mV 85C Model Hold 'clk_i'
-Slack : 1.142
+Slack : 0.156
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Recovery 'clk_i'
+Slack : -3.976
+TNS   : -31.326
+
+Type  : Slow 1200mV 85C Model Removal 'clk_i'
+Slack : 1.320
 TNS   : 0.000
 
 Type  : Slow 1200mV 85C Model Minimum Pulse Width 'clk_i'
 Slack : -3.000
-TNS   : -13.280
+TNS   : -51.830
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'timer_unit:timer_unit_ins|timer_core:timer_core_inst|nbit_counter:BTCNT|q_reg[0]'
+Slack : 0.428
+TNS   : 0.000
 
 Type  : Slow 1200mV 0C Model Setup 'clk_i'
-Slack : -0.662
-TNS   : -4.858
+Slack : -4.682
+TNS   : -100.971
+
+Type  : Slow 1200mV 0C Model Setup 'timer_unit:timer_unit_ins|timer_core:timer_core_inst|nbit_counter:BTCNT|q_reg[0]'
+Slack : -1.453
+TNS   : -6.245
+
+Type  : Slow 1200mV 0C Model Hold 'timer_unit:timer_unit_ins|timer_core:timer_core_inst|nbit_counter:BTCNT|q_reg[0]'
+Slack : -0.131
+TNS   : -0.256
 
 Type  : Slow 1200mV 0C Model Hold 'clk_i'
-Slack : 1.056
+Slack : 0.113
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Recovery 'clk_i'
+Slack : -3.537
+TNS   : -27.864
+
+Type  : Slow 1200mV 0C Model Removal 'clk_i'
+Slack : 1.099
 TNS   : 0.000
 
 Type  : Slow 1200mV 0C Model Minimum Pulse Width 'clk_i'
 Slack : -3.000
-TNS   : -13.280
+TNS   : -51.830
 
-Type  : Fast 1200mV 0C Model Setup 'clk_i'
-Slack : 0.106
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'timer_unit:timer_unit_ins|timer_core:timer_core_inst|nbit_counter:BTCNT|q_reg[0]'
+Slack : 0.371
 TNS   : 0.000
 
+Type  : Fast 1200mV 0C Model Setup 'clk_i'
+Slack : -2.172
+TNS   : -39.085
+
+Type  : Fast 1200mV 0C Model Setup 'timer_unit:timer_unit_ins|timer_core:timer_core_inst|nbit_counter:BTCNT|q_reg[0]'
+Slack : -0.790
+TNS   : -3.026
+
 Type  : Fast 1200mV 0C Model Hold 'clk_i'
-Slack : 0.503
+Slack : 0.068
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'timer_unit:timer_unit_ins|timer_core:timer_core_inst|nbit_counter:BTCNT|q_reg[0]'
+Slack : 0.295
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Recovery 'clk_i'
+Slack : -1.566
+TNS   : -12.368
+
+Type  : Fast 1200mV 0C Model Removal 'clk_i'
+Slack : 0.405
 TNS   : 0.000
 
 Type  : Fast 1200mV 0C Model Minimum Pulse Width 'clk_i'
 Slack : -3.000
-TNS   : -12.664
+TNS   : -48.555
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'timer_unit:timer_unit_ins|timer_core:timer_core_inst|nbit_counter:BTCNT|q_reg[0]'
+Slack : 0.403
+TNS   : 0.000
 
 ------------------------------------------------------------

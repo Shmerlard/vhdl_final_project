@@ -14,15 +14,20 @@ entity timer_unit is
     );
     port (
         mclk_i          : in std_logic;
-        rst_i           : in std_logic;
-        mem_write_c_i   : in std_logic;                -- '1' when we want to write to the registers
-        mem_read_c_i    : in std_logic;                 -- '1' when we want to read from the registers
+        rst_i           : in std_logic;             -- BUG: rst dont clear the btcnt register
+        mem_write_c_i   : in std_logic;             -- '1' when we want to write to the registers
+        mem_read_c_i    : in std_logic;             -- '1' when we want to read from the registers
 
         address_bus_i   : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
         data_bus_io     : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
 
         BTIFG           : out std_logic;
-        PWMOUT          : out std_logic
+        PWMOUT          : out std_logic;
+
+        debug_btctl_o  : out std_logic_vector(7 downto 0);
+        debug_btcnt_o  : out std_logic_vector(REG_SIZE-1 downto 0);
+        debug_btccr0_o  : out std_logic_vector(REG_SIZE-1 downto 0);
+        debug_btccr1_o  : out std_logic_vector(REG_SIZE-1 downto 0)
     );
 end entity timer_unit;
 
@@ -37,12 +42,14 @@ ARCHITECTURE rtl OF timer_unit IS
     signal cs_mem_read_s : std_logic_vector(TIMER_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
 
     signal btctl_o_s: std_logic_vector(7 downto 0);             -- the state of BTCTL reg
+    signal btcnt_o_s: std_logic_vector(REG_SIZE-1 downto 0);    -- the state of BTCNT reg
     signal btccr0_o_s: std_logic_vector(REG_SIZE-1 downto 0);   -- the state of BTCCR0 reg
     signal btccr1_o_s: std_logic_vector(REG_SIZE-1 downto 0);   -- the state of BTCCR1 reg
 
+    signal btctl_d_in_s: std_logic_vector(7 downto 0);              -- the data input to btctl
+    signal btcnt_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);     -- the data input to btcnt
     signal btccr0_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);    -- the data input to btccr0
     signal btccr1_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);    -- the data input to btccr1
-    signal btctl_d_in_s: std_logic_vector(7 downto 0);              -- the data input to btctl
 BEGIN
     -- Clock handling
     process(mclk_i)
@@ -71,7 +78,10 @@ BEGIN
         BTCCR1 => btccr1_o_s,
         BTIP =>  btctl_o_s(1 downto 0),
         BTIFG => BTIFG,
-        PWMOUT => PWMOUT
+        PWMOUT => PWMOUT,
+        d_bus_i => btcnt_d_in_s,
+        d_bus_o => btcnt_o_s,
+        btcnt_wr_en => cs_mem_write_s(1)
     );
 
     timer_address_decoder: entity work.address_decoder
@@ -86,6 +96,34 @@ BEGIN
         address_bus_i => address_bus_i,
         cs_mem_write_o => cs_mem_write_s,
         cs_mem_read_o => cs_mem_read_s
+    );
+
+    BTCTL_ins: entity work.nbit_dff
+    generic map( n => 8 )
+    port map
+    (
+        clk => mclk_i,
+        rst => rst_i,
+        en =>   cs_mem_write_s(0),      -- TODO: check if 3 is correct and move to constant
+        d_in => btctl_d_in_s,
+        q_out => btctl_o_s
+    );
+    BTCTL_bidir_ins: entity work.nbit_bidir
+    generic map( width => 8 )
+    port map(
+                Dout => btctl_o_s,
+                en => cs_mem_read_s(0),
+                Din => btctl_d_in_s,
+                IOpin => data_bus_io(7 downto 0) -- take only the 8 MSB's of the data bus
+    );
+
+    BTCNT_bidir_ins: entity work.nbit_bidir
+    generic map( width => REG_SIZE )
+    port map(
+                Dout => btcnt_o_s,
+                en => cs_mem_read_s(1),
+                Din => btcnt_d_in_s,
+                IOpin => data_bus_io
     );
 
     BTCCR0_ins: entity work.nbit_dff
@@ -126,23 +164,10 @@ BEGIN
                 IOpin => data_bus_io
     );
 
-    BTCTL_ins: entity work.nbit_dff
-    generic map( n => 8 )
-    port map
-    (
-        clk => mclk_i,
-        rst => rst_i,
-        en =>   cs_mem_write_s(0),      -- TODO: check if 3 is correct and move to constant
-        d_in => btctl_d_in_s,
-        q_out => btctl_o_s
-    );
-    BTCTL_bidir_ins: entity work.nbit_bidir
-    generic map( width => 8 )
-    port map(
-                Dout => btctl_o_s,
-                en => cs_mem_read_s(0),
-                Din => btctl_d_in_s,
-                IOpin => data_bus_io(7 downto 0) -- take only the 8 MSB's of the data bus
-    );
+    ------ DEBUG ------
+    debug_btctl_o  <= btctl_o_s;
+    debug_btcnt_o  <= btcnt_o_s;
+    debug_btccr0_o <= btccr0_o_s;
+    debug_btccr1_o <= btccr1_o_s;
 
 END ARCHITECTURE rtl;

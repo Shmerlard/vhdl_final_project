@@ -7,7 +7,7 @@ ENTITY tb_timer_unit_2 IS
 END ENTITY;
 
 ARCHITECTURE tb OF tb_timer_unit_2 is
-    constant REG_SIZE: integer :=8;
+    -- constant REG_SIZE: integer :=8;
     constant clk_period: time := 1 ns;
     constant address_bus_width: integer := 4;
     constant data_bus_width: integer := 8;
@@ -93,6 +93,9 @@ BEGIN
         wait for 2 ns;
         mem_read_c_s <= '0';
         wait for 2 ns;
+        address_bus_s <= x"D";
+        data_bus_s <= x"CC";
+        mem_write_c_s <= '1';
 
 
         wait;
