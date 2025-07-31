@@ -226,11 +226,31 @@ package aux_package is
     );
     end component;
 ---------------------------------------------------------
-    component timer_core is -- TODO: add prots
-        port(
-            mclk_i     : in std_logic
-        );
-    end component;
+    component timer_core is
+    generic ( n: integer := 32);
+    port (
+        mclk_i : in std_logic;
+        mclk_i2 : in std_logic;
+        mclk_i4 : in std_logic;
+        mclk_i8 : in std_logic;
+        rst_i   : in std_logic;
+        BTCLR: in std_logic;
+        BTHOLD: in std_logic;
+        BTSSEL: in std_logic_vector(1 downto 0);
+        BTOUTMD: in std_logic;
+        BTOUTEN: in std_logic;
+        BTCCR0: in std_logic_vector(n-1 downto 0);
+        BTCCR1: in std_logic_vector(n-1 downto 0);
+        BTIP: in std_logic_vector(1 downto 0);
+        BTIFG: out std_logic;
+        PWMOUT: out std_logic;
+
+        d_bus_i: in std_logic_vector(n-1 downto 0);
+        btcnt_wr_en: in std_logic;
+        d_bus_o: out std_logic_vector(n-1 downto 0)
+
+    );
+    end component timer_core;
 ---------------------------------------------------------
     component fir_base_unit is
     generic(
@@ -315,12 +335,13 @@ package aux_package is
         );
     end component nbit_timer;
 ---------------------------------------------------------
-    component timer_output_unit is
-        generic( n : integer := 8);
-        port (
+    component  timer_output_unit is
+    generic( n : integer := 8);
+    port (
         -- inputs
-        x_i, y_i                : in std_logic_vector(n-1 downto 0);
+        btccr0_i, btccr1_i      : in std_logic_vector(n-1 downto 0);
         btcnt_i                 : in std_logic_vector(n-1 downto 0);
+
         clk_i                   : in STD_LOGIC;
         en_i                    : in STD_LOGIC;
         mode_i                  : in STD_LOGIC;
@@ -329,7 +350,7 @@ package aux_package is
         pwm_out_o               : out std_logic;
         heu0_o                  : out STD_LOGIC
     );
-    end component timer_output_unit;
+    end component  timer_output_unit;
 ---------------------------------------------------------
     component timer_unit is
         generic

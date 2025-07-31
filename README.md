@@ -34,13 +34,15 @@
     - [ ] gpi driver
 <!---->
 - [ ] HW accel
+    - [ ] more modules
+        - [ ] extended nbit_dff with autoclear and read as zero.
     - [ ] FIR
         - [ ] Build
         - [ ] Test
         - [ ] Documantation
     - [ ] Timers
-        - [ ] Build
-        - [ ] Test
+        - [X] Build
+        - [X] Test
         - [ ] Documantation
     - [ ] UART
 <!---->

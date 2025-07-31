@@ -14,7 +14,7 @@ entity nbit_counter is
 
         d_in    : in std_logic_vector(n-1 downto 0);
         w_en_i  : in std_logic;
-        q_out  : out std_logic_vector(n-1 downto 0)
+        q_out   : out std_logic_vector(n-1 downto 0)
     );
 end entity nbit_counter;
 

@@ -14,7 +14,7 @@ entity timer_unit is
     );
     port (
         mclk_i          : in std_logic;
-        rst_i           : in std_logic;             -- BUG: rst dont clear the btcnt register
+        rst_i           : in std_logic;
         mem_write_c_i   : in std_logic;             -- '1' when we want to write to the registers
         mem_read_c_i    : in std_logic;             -- '1' when we want to read from the registers
 
@@ -59,6 +59,11 @@ BEGIN
             mclk_i2_s <= clk_div_counter(0);
             mclk_i4_s <= clk_div_counter(1);
             mclk_i8_s <= clk_div_counter(2);
+
+            -- auto clear btclr bit
+            -- if btctl_o_s(BTCTL_BITS(BTCLR)) = '1' then
+            --     btctl_o_s(BTCTL_BITS(BTCLR)) <= '0';
+            -- end if;
         end if;
     end process;
 
@@ -69,14 +74,15 @@ BEGIN
         mclk_i2 => mclk_i2_s,
         mclk_i4 => mclk_i4_s,
         mclk_i8 => mclk_i8_s,
-        BTCLR => btctl_o_s(BTCTL_BITS(BTCLR)),
-        BTHOLD =>  btctl_o_s(5),
-        BTSSEL =>  btctl_o_s(4 downto 3),
-        BTOUTMD =>  btctl_o_s(7),               -- FIX: change from numbers to constants
-        BTOUTEN =>  btctl_o_s(6),
+        rst_i => rst_i,
+        BTCLR => btctl_o_s(BTCTL_BITS(BTCLR)),      -- NOTE: btclr is not reset automaticaly
+        BTHOLD =>  btctl_o_s(BTCTL_BITS(BTHOLD)),
+        BTSSEL =>  btctl_o_s(BTCTL_BITS(BTSSEL_1) downto BTCTL_BITS(BTSSEL_0)),
+        BTOUTMD =>  btctl_o_s(BTCTL_BITS(BTOUTMD)),
+        BTOUTEN =>  btctl_o_s(BTCTL_BITS(BTOUTEN)),
         BTCCR0 => btccr0_o_s,
         BTCCR1 => btccr1_o_s,
-        BTIP =>  btctl_o_s(1 downto 0),
+        BTIP =>  btctl_o_s(BTCTL_BITS(BTIP_1) downto BTCTL_BITS(BTIP_0)),
         BTIFG => BTIFG,
         PWMOUT => PWMOUT,
         d_bus_i => btcnt_d_in_s,
@@ -104,7 +110,7 @@ BEGIN
     (
         clk => mclk_i,
         rst => rst_i,
-        en =>   cs_mem_write_s(0),      -- TODO: check if 3 is correct and move to constant
+        en =>   cs_mem_write_s(0),
         d_in => btctl_d_in_s,
         q_out => btctl_o_s
     );
@@ -151,7 +157,7 @@ BEGIN
     (
         clk => mclk_i,
         rst => rst_i,
-        en =>   cs_mem_write_s(3),      -- TODO: check if 3 is correct and move to constant
+        en =>   cs_mem_write_s(3),
         d_in => btccr1_d_in_s,
         q_out => btccr1_o_s
     );

@@ -84,4 +84,18 @@ package memory_map is
     BTCLR     => 2,
     BTIP_1    => 1,
     BTIP_0    => 0);
+
+    -----------------------------------------------
+    type t_firctl_bits is (
+        FIFOWEN, FIFORST, FIFOFULL, FIFOEMPTY,
+        FIRRST, FIRENA);
+    type t_firctl_bits_array is array(t_firctl_bits) of natural;
+    constant FIRCTL_BITS : t_firctl_bits_array := (
+        FIFOWEN    => 5,
+        FIFORST    => 4,
+        FIFOFULL   => 3,
+        FIFOEMPTY  => 2,
+        FIRRST     => 1,
+        FIRENA     => 0
+    );
 end package memory_map;

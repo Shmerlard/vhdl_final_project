@@ -11,6 +11,7 @@ entity timer_core is
         mclk_i2 : in std_logic;
         mclk_i4 : in std_logic;
         mclk_i8 : in std_logic;
+        rst_i   : in std_logic;
         BTCLR: in std_logic;
         BTHOLD: in std_logic;
         BTSSEL: in std_logic_vector(1 downto 0);
@@ -51,21 +52,20 @@ BEGIN
     port map
     (
         clk_i => sel_clk_src_s,
-        rst => hue0_s,
+        rst => hue0_s or rst_i,
         en => not BTHOLD,
         equy => BTCLR,                    --- TODO: check wether clk or equy
         d_in => d_bus_i,
         w_en_i => btcnt_wr_en,
         q_out => btcnt_out_s            --- TODO: imlement hue0
-                                        --- TODO: implement Q24 Q28 Q32
     );
 
     timer_output_unit_inst: timer_output_unit
     generic map ( n => n )
     port map
     (
-        x_i => btccr0_latched_s,
-        y_i => btccr1_latched_s,
+        btccr0_i => btccr0_latched_s,
+        btccr1_i => btccr1_latched_s,
         btcnt_i => btcnt_out_s,
         clk_i => sel_clk_src_s,
         en_i => BTOUTEN,
@@ -105,7 +105,7 @@ BEGIN
         BTIFG <= hue0_s    when "00",
                  btcnt_q24_s when "01",
                  btcnt_q28_s when "10",
-                 btcnt_q32_s when others;
+                 btcnt_q32_s when others;       -- TODO: implement Q24 - Q32
 
 END ARCHITECTURE rtl;
 
