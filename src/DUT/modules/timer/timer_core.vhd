@@ -57,7 +57,7 @@ BEGIN
         equy => BTCLR,                    --- TODO: check wether clk or equy
         d_in => d_bus_i,
         w_en_i => btcnt_wr_en,
-        q_out => btcnt_out_s            --- TODO: imlement hue0
+        q_out => btcnt_out_s
     );
 
     timer_output_unit_inst: timer_output_unit
@@ -106,6 +106,16 @@ BEGIN
                  btcnt_q24_s when "01",
                  btcnt_q28_s when "10",
                  btcnt_q32_s when others;       -- TODO: implement Q24 - Q32
+
+    -- when debugging we might have smaller n
+    process(btcnt_out_s)
+    begin
+        if n = 32 then
+            btcnt_q32_s <= btcnt_out_s(31);
+            btcnt_q28_s <= btcnt_out_s(27);
+            btcnt_q24_s <= btcnt_out_s(24);
+        end if;
+    end process;
 
 END ARCHITECTURE rtl;
 

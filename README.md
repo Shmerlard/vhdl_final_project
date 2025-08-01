@@ -18,7 +18,7 @@
 ```
 ## Todo
 <!---->
-- [ ] create initial structure for directories
+- [X] create initial structure for directories
 - [ ] synchronous reset
 <!---->
 - [ ] interrupts
@@ -28,7 +28,7 @@
     - [ ] save temporary register?
 <!---->
 - [ ] GPIO preipheral
-    - [ ] make the memory map
+    - [X] make the memory map
     - [ ] hex driver
     - [ ] led driver
     - [ ] gpi driver

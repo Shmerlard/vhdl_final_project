@@ -12,6 +12,9 @@ package aux_package is
     -- type t_fir_reg_arr is array (natural range <>) of std_logic_vector;
     type t_vec_array is array (natural range <>) of std_logic_vector;
     type t_addr_array is array (natural range <>) of natural;
+    type t_bits_array is array (natural range <>) of natural;
+    -- constant EMP_BITS_ARR : t_bits_array(0 to -1) := (others => 0);
+    constant EMP_BITS_ARR : t_bits_array(0 to 0) := (0 => -1);
 
     component MIPS is
         generic( 
@@ -48,7 +51,7 @@ package aux_package is
             flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             strigger_o          :OUT    std_logic
-        );      
+        );
     end component;
 ---------------------------------------------------------  
     component control is
@@ -213,6 +216,23 @@ package aux_package is
         q_out  : out std_logic_vector(n-1 downto 0)
     );
     end component;
+---------------------------------------------------------
+    component nbit_dff_ext is
+        generic (
+            n              : integer := 8;  -- default size = 8 bits
+            IGN_BITS_ARRAY : t_bits_array := EMP_BITS_ARR;
+            RST_BITS_ARRAY : t_bits_array := EMP_BITS_ARR
+        );
+        port(
+            clk_i       : in  std_logic;
+            asc_rst_i   : in  std_logic := '0';  -- asynchronous reset
+            syn_rst_i   : in  std_logic := '0';
+            wr_en_i     : in  std_logic;
+            d_in        : in  std_logic_vector(n-1 downto 0);
+            ign_d_in    : in  std_logic_vector(n-1 downto 0) := (others => '0');
+            q_out       : out std_logic_vector(n-1 downto 0)
+        );
+    end component nbit_dff_ext;
 ---------------------------------------------------------
     component hazardunit is
     port( 

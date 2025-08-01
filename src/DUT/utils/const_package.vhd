@@ -18,6 +18,7 @@ package const_package is
     constant ORI_OPC :      STD_LOGIC_VECTOR(5 DOWNTO 0) := "001101";
     constant ADDI_OPC :     STD_LOGIC_VECTOR(5 DOWNTO 0) := "001000";
 
+
 --------------------------------------------------------    
 end const_package;
 
