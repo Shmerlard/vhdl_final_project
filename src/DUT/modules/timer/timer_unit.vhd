@@ -10,7 +10,9 @@ entity timer_unit is
         REG_SIZE: integer := 32;                    -- size of btctl, btccr0, btccr1
         TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;     -- the array of addresses for decoding
         ADDRESS_BUS_WIDTH: INTEGER := 12;           -- the width of the address bus
-        DATA_BUS_WIDTH: INTEGER := 32               -- width of the data bus
+        DATA_BUS_WIDTH: INTEGER := 32;              -- width of the data bus
+
+        BTCTL_RESET_BITS_MASK : std_logic_vector(7 downto 0) := x"04"
     );
     port (
         mclk_i          : in std_logic;
@@ -104,23 +106,35 @@ BEGIN
         cs_mem_read_o => cs_mem_read_s
     );
 
-    BTCTL_ins: entity work.nbit_dff
-    generic map( n => 8 )
+    -- BTCTL_ins: entity work.nbit_dff
+    -- generic map( n => 8 )
+    -- port map
+    -- (
+    --     clk => mclk_i,
+    --     rst => rst_i,
+    --     en =>   cs_mem_write_s(0),
+    --     d_in => btctl_d_in_s,
+    --     q_out => btctl_o_s
+    -- );
+    BTCTL_ins: entity work.nbit_dff_ext
+    generic map( n => 8,
+                 RST_BITS => BTCTL_RESET_BITS_MASK)
     port map
     (
-        clk => mclk_i,
-        rst => rst_i,
-        en =>   cs_mem_write_s(0),
-        d_in => btctl_d_in_s,
-        q_out => btctl_o_s
+        clk_i   => mclk_i,
+        rst_i   => rst_i,
+        wr_en_i => cs_mem_write_s(0),
+        d_in    => btctl_d_in_s,
+        q_out   => btctl_o_s
     );
     BTCTL_bidir_ins: entity work.nbit_bidir
     generic map( width => 8 )
-    port map(
-                Dout => btctl_o_s,
-                en => cs_mem_read_s(0),
-                Din => btctl_d_in_s,
-                IOpin => data_bus_io(7 downto 0) -- take only the 8 MSB's of the data bus
+    port map
+    (
+        Dout => btctl_o_s,
+        en => cs_mem_read_s(0),
+        Din => btctl_d_in_s,
+        IOpin => data_bus_io(7 downto 0) -- take only the 8 MSB's of the data bus
     );
 
     BTCNT_bidir_ins: entity work.nbit_bidir

@@ -1,0 +1,44 @@
+# Copyright (C) 2025  Altera Corporation. All rights reserved.
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and any partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# the Altera IP License Agreement, or other applicable license
+# agreement, including, without limitation, that your use is for
+# the sole purpose of programming logic devices manufactured by
+# Altera and sold by Altera or its authorized distributors.  Please
+# refer to the Altera Software License Subscription Agreements 
+# on the Quartus Prime software download page.
+
+# Quartus Prime Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
+# File: /home/elad/Desktop/vhdl_final_project/Quartus/pin_assignments/tb_nbit_dff_ext.csv
+# Generated on: Fri Aug  1 23:35:44 2025
+
+# Note: The column header names should not be changed if you wish to import this .csv file into the Quartus Prime software.
+
+To,Direction,Location,I/O Bank,VREF Group,Fitter Location,I/O Standard,Reserved,Current Strength,Slew Rate,Differential Pair,Strict Preservation
+asc_rst_i,Input,PIN_M21,6,B6_N1,PIN_M21,2.5 V,,,,,
+clk_i,Input,PIN_M23,6,B6_N2,PIN_M23,2.5 V,,,,,
+d_in[7],Input,PIN_Y23,5,B5_N2,PIN_Y23,2.5 V,,,,,
+d_in[6],Input,PIN_Y24,5,B5_N2,PIN_Y24,2.5 V,,,,,
+d_in[5],Input,PIN_AA22,5,B5_N2,PIN_AA22,2.5 V,,,,,
+d_in[4],Input,PIN_AA23,5,B5_N2,PIN_AA23,2.5 V,,,,,
+d_in[3],Input,PIN_AA24,5,B5_N2,PIN_AA24,2.5 V,,,,,
+d_in[2],Input,PIN_AB23,5,B5_N2,PIN_AB23,2.5 V,,,,,
+d_in[1],Input,PIN_AB24,5,B5_N2,PIN_AB24,2.5 V,,,,,
+d_in[0],Input,PIN_AC24,5,B5_N2,PIN_AC24,2.5 V,,,,,
+ign_d_in[1],Input,PIN_AC27,5,B5_N2,PIN_AC27,2.5 V,,,,,
+ign_d_in[0],Input,PIN_AC28,5,B5_N2,PIN_AC28,2.5 V,,,,,
+q_out[7],Output,PIN_H15,7,B7_N2,PIN_H15,2.5 V,,,,,
+q_out[6],Output,PIN_G16,7,B7_N2,PIN_G16,2.5 V,,,,,
+q_out[5],Output,PIN_G15,7,B7_N2,PIN_G15,2.5 V,,,,,
+q_out[4],Output,PIN_F15,7,B7_N2,PIN_F15,2.5 V,,,,,
+q_out[3],Output,PIN_H17,7,B7_N2,PIN_H17,2.5 V,,,,,
+q_out[2],Output,PIN_J16,7,B7_N2,PIN_J16,2.5 V,,,,,
+q_out[1],Output,PIN_H16,7,B7_N2,PIN_H16,2.5 V,,,,,
+q_out[0],Output,PIN_J15,7,B7_N2,PIN_J15,2.5 V,,,,,
+syn_rst_i,Input,PIN_R24,5,B5_N0,PIN_R24,2.5 V,,,,,
+wr_en_i,Input,PIN_AB28,5,B5_N1,PIN_AB28,2.5 V,,,,,

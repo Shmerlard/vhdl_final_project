@@ -52,9 +52,9 @@ BEGIN
     port map
     (
         clk_i => sel_clk_src_s,
-        rst => hue0_s or rst_i,
+        rst => hue0_s or rst_i or BTCLR,  -- TODO: check which way to reset sync or async
         en => not BTHOLD,
-        equy => BTCLR,                    --- TODO: check wether clk or equy
+        equy => '0',                    --- TODO: check wether clk or equy
         d_in => d_bus_i,
         w_en_i => btcnt_wr_en,
         q_out => btcnt_out_s
