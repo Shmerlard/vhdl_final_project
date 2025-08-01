@@ -17,7 +17,7 @@
 --   Default behavior:
 --     - If IGN_BITS_ARRAY is empty, d_in is used entirely.
 --     - If RST_BITS_ARRAY is empty, no selective reset is performed.
---
+--  --TODO: UPDATE
 -- Dependencies : aux_package (defines t_bits_array and constants like EMP_BITS_ARR)
 --=============================================================================
 library ieee;
@@ -28,13 +28,13 @@ use work.aux_package.all;
 entity nbit_dff_ext is
     generic (
         n              : integer := 8;  -- default size = 8 bits
-        IGN_BITS_ARRAY : t_bits_array := EMP_BITS_ARR;
-        RST_BITS_ARRAY : t_bits_array := EMP_BITS_ARR
+        ASYNC_RST      : boolean := true;
+        IGN_BITS       : std_logic_vector := (0 downto 0 => '0');
+        RST_BITS       : std_logic_vector := (0 downto 0 => '0')
     );
     port(
         clk_i       : in  std_logic;
-        asc_rst_i   : in  std_logic := '0';  -- asynchronous reset
-        syn_rst_i   : in  std_logic := '0';
+        rst_i       : in  std_logic := '0';
         wr_en_i     : in  std_logic;
         d_in        : in  std_logic_vector(n-1 downto 0);
         ign_d_in    : in  std_logic_vector(n-1 downto 0) := (others => '0');
@@ -44,51 +44,53 @@ end entity nbit_dff_ext;
 
 architecture behavioral of nbit_dff_ext is
     signal q_reg : std_logic_vector(n-1 downto 0) := (others => '0');
+    signal need_reset: std_logic;
 
-    function is_in_array(val: natural; arr : t_bits_array ) return boolean is
-    begin
-        for i in  arr'range loop
-            if arr(i) = val then return true;
-            end if;
-        end loop;
-        return false;
-    end function;
+    signal ignore_bits_s : std_logic_vector(n-1 downto 0);
+    signal reset_bits_s : std_logic_vector(n-1 downto 0);
 begin
+    ignore_bits_s <= (n-1 downto 0 => '0') when IGN_BITS'length = 1 else IGN_BITS;
+    reset_bits_s  <= (n-1 downto 0 => '0') when RST_BITS'length = 1 else RST_BITS;
 
-    process(clk_i, asc_rst_i)
+    need_reset <= '0' when (q_reg and reset_bits_s) = (n-1 downto 0 => '0')  else '1';
+
+    asyn_proc : if ASYNC_RST generate
+    process(clk_i, rst_i)
     begin
-        if asc_rst_i = '1' then
+        if rst_i = '1' then
             q_reg <= (others => '0');    -- async reset to 0
         elsif rising_edge(clk_i) then
-            if syn_rst_i = '1' then         -- PERF: currently mux is redundent
+            if wr_en_i = '1' then
+                q_reg <= (ignore_bits_s and ign_d_in) or (not ignore_bits_s and d_in);
+            else
+                q_reg <= (ignore_bits_s and ign_d_in) or (not ignore_bits_s and q_reg);
+                if need_reset = '1' then
+                    q_reg <= q_reg and not reset_bits_s;
+                end if;
+            end if;
+        end if;
+    end process;
+    end generate;
+
+    syn_proc : if not ASYNC_RST generate
+    process(clk_i)
+    begin
+        if rising_edge(clk_i) then
+            if (rst_i = '1') then
                 q_reg <= (others => '0');
             else
-                if RST_BITS_ARRAY(0) /= -1 then
-                    for i in 0 to n-1 loop
-                        if is_in_array(i, RST_BITS_ARRAY) then
-                            if (q_reg(i) = '1') then
-                                q_reg(i) <= '0';
-                            end if;
-                        end if;
-                    end loop;
-                end if;
-
                 if wr_en_i = '1' then
-                    if IGN_BITS_ARRAY(0) /= -1 then
-                        for i in 0 to n-1 loop
-                            if is_in_array(i, IGN_BITS_ARRAY) then
-                                q_reg(i) <= ign_d_in(i);
-                            else
-                                q_reg(i) <= d_in(i);
-                            end if;
-                        end loop;
-                    else
-                        q_reg <= d_in;
+                    q_reg <= (ignore_bits_s and ign_d_in) or (not ignore_bits_s and d_in);
+                else
+                    q_reg <= (ignore_bits_s and ign_d_in) or (not ignore_bits_s and q_reg);
+                    if need_reset = '1' then
+                        q_reg <= q_reg and not reset_bits_s;
                     end if;
                 end if;
             end if;
         end if;
     end process;
+    end generate;
 
     q_out <= q_reg; -- connect internal register to output
 

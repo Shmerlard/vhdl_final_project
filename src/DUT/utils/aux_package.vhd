@@ -15,6 +15,7 @@ package aux_package is
     type t_bits_array is array (natural range <>) of natural;
     -- constant EMP_BITS_ARR : t_bits_array(0 to -1) := (others => 0);
     constant EMP_BITS_ARR : t_bits_array(0 to 0) := (0 => -1);
+    -- type t_reset_types is (ASYNCHRONOUS, SYNCHRONOUS);
 
     component MIPS is
         generic( 
@@ -218,15 +219,15 @@ package aux_package is
     end component;
 ---------------------------------------------------------
     component nbit_dff_ext is
-        generic (
-            n              : integer := 8;  -- default size = 8 bits
-            IGN_BITS_ARRAY : t_bits_array := EMP_BITS_ARR;
-            RST_BITS_ARRAY : t_bits_array := EMP_BITS_ARR
+        generic(
+            n              : integer := 8;
+            ASYNC_RST      : boolean := true;
+            IGN_BITS       : std_logic_vector;
+            RST_BITS       : std_logic_vector
         );
         port(
             clk_i       : in  std_logic;
-            asc_rst_i   : in  std_logic := '0';  -- asynchronous reset
-            syn_rst_i   : in  std_logic := '0';
+            rst_i       : in  std_logic := '0';
             wr_en_i     : in  std_logic;
             d_in        : in  std_logic_vector(n-1 downto 0);
             ign_d_in    : in  std_logic_vector(n-1 downto 0) := (others => '0');
