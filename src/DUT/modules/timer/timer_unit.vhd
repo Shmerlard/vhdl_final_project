@@ -34,10 +34,11 @@ entity timer_unit is
 end entity timer_unit;
 
 ARCHITECTURE rtl OF timer_unit IS
-    signal mclk_i2_s : std_logic;
-    signal mclk_i4_s : std_logic;
-    signal mclk_i8_s : std_logic;
+    signal mclk_i2_s : std_logic := '0';
+    signal mclk_i4_s : std_logic := '0';
+    signal mclk_i8_s : std_logic := '0';
     signal clk_div_counter : std_logic_vector(2 downto 0) := (others => '0');
+    -- signal clk_div_counter : unsigned(2 downto 0) := (others => '0');
 
     -- chip select signals for read/write for each register
     signal cs_mem_write_s : std_logic_vector(TIMER_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
@@ -52,8 +53,12 @@ ARCHITECTURE rtl OF timer_unit IS
     signal btcnt_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);     -- the data input to btcnt
     signal btccr0_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);    -- the data input to btccr0
     signal btccr1_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);    -- the data input to btccr1
+
 BEGIN
     -- Clock handling
+    -- BUG: divide by 8 is not working
+    -- acting like divide by 7,
+    -- div4 and div 2 are maybe mixed
     process(mclk_i)
     begin
         if rising_edge(mclk_i) then
@@ -61,14 +66,13 @@ BEGIN
             mclk_i2_s <= clk_div_counter(0);
             mclk_i4_s <= clk_div_counter(1);
             mclk_i8_s <= clk_div_counter(2);
-
-            -- auto clear btclr bit
-            -- if btctl_o_s(BTCTL_BITS(BTCLR)) = '1' then
-            --     btctl_o_s(BTCTL_BITS(BTCLR)) <= '0';
-            -- end if;
         end if;
     end process;
 
+    -------------------------------------------------------------------
+    ----------------            ENTITIES               ----------------
+    -------------------------------------------------------------------
+    -- Timer Core instantitation
     timer_core_inst: entity work.timer_core
     generic map( n => REG_SIZE )
     port map(
@@ -92,6 +96,7 @@ BEGIN
         btcnt_wr_en => cs_mem_write_s(1)
     );
 
+    -- Address decoder
     timer_address_decoder: entity work.address_decoder
     generic map(
         ADDRESS_BUS_WIDTH => ADDRESS_BUS_WIDTH,
@@ -106,16 +111,7 @@ BEGIN
         cs_mem_read_o => cs_mem_read_s
     );
 
-    -- BTCTL_ins: entity work.nbit_dff
-    -- generic map( n => 8 )
-    -- port map
-    -- (
-    --     clk => mclk_i,
-    --     rst => rst_i,
-    --     en =>   cs_mem_write_s(0),
-    --     d_in => btctl_d_in_s,
-    --     q_out => btctl_o_s
-    -- );
+    -- BTCTL
     BTCTL_ins: entity work.nbit_dff_ext
     generic map( n => 8,
                  RST_BITS => BTCTL_RESET_BITS_MASK)
@@ -137,6 +133,7 @@ BEGIN
         IOpin => data_bus_io(7 downto 0) -- take only the 8 MSB's of the data bus
     );
 
+    -- BTCNT
     BTCNT_bidir_ins: entity work.nbit_bidir
     generic map( width => REG_SIZE )
     port map(
@@ -146,6 +143,7 @@ BEGIN
                 IOpin => data_bus_io
     );
 
+    -- BTCCR
     BTCCR0_ins: entity work.nbit_dff
     generic map( n => REG_SIZE )
     port map
@@ -183,6 +181,7 @@ BEGIN
                 Din => btccr1_d_in_s,
                 IOpin => data_bus_io
     );
+
 
     ------ DEBUG ------
     debug_btctl_o  <= btctl_o_s;

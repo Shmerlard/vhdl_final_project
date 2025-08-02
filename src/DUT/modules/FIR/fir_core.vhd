@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.aux_package.all;
 
-entity fir_mod is
+entity fir_core is
     generic(
         w: integer := 24;
         m: integer := 8;
@@ -29,9 +29,9 @@ entity fir_mod is
 
         FIROUT     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
     );
-end entity fir_mod;
+end entity fir_core;
 
-ARCHITECTURE rtl OF fir_mod IS
+ARCHITECTURE rtl OF fir_core IS
     signal syn_fifo_d_s : STD_LOGIC_VECTOR(w+q-1 downto 0);
 BEGIN
     fir_reg_arr_inst: fir_reg_arr

@@ -52,15 +52,15 @@ BEGIN
     port map
     (
         clk_i => sel_clk_src_s,
-        rst => hue0_s or rst_i or BTCLR,  -- TODO: check which way to reset sync or async
+        rst => rst_i or BTCLR,  -- TODO: check which way to reset sync or async
         en => not BTHOLD,
-        equy => '0',                    --- TODO: check wether clk or equy
+        equy => hue0_s,                    --- TODO: check wether clk or equy
         d_in => d_bus_i,
         w_en_i => btcnt_wr_en,
         q_out => btcnt_out_s
     );
 
-    timer_output_unit_inst: timer_output_unit
+    timer_output_unit_inst: entity work.timer_output_unit
     generic map ( n => n )
     port map
     (
@@ -108,14 +108,14 @@ BEGIN
                  btcnt_q32_s when others;       -- TODO: implement Q24 - Q32
 
     -- when debugging we might have smaller n
+    q32_proc : if n = 32 generate
     process(btcnt_out_s)
     begin
-        if n = 32 then
-            btcnt_q32_s <= btcnt_out_s(31);
-            btcnt_q28_s <= btcnt_out_s(27);
-            btcnt_q24_s <= btcnt_out_s(24);
-        end if;
+        btcnt_q32_s <= btcnt_out_s(31);
+        btcnt_q28_s <= btcnt_out_s(27);
+        btcnt_q24_s <= btcnt_out_s(24);
     end process;
+    end generate;
 
 END ARCHITECTURE rtl;
 

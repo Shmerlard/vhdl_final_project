@@ -15,7 +15,7 @@ entity  timer_output_unit is
 
         -- outpus
         pwm_out_o               : out std_logic;
-        heu0_o                  : out STD_LOGIC     -- TODO: connect it?
+        heu0_o                  : out STD_LOGIC
     );
 end entity  timer_output_unit;
 
@@ -34,6 +34,7 @@ begin
 
     -- outputing just when en == '1'
     pwm_out_o <= selected_out_s and en_i;
+
     -- outputing heu0
     heu0_o <= '1' when btcnt_i = btccr0_i or btccr0_i = btccr1_i else '0';
 
