@@ -14,7 +14,7 @@ package aux_package is
     type t_addr_array is array (natural range <>) of natural;
     type t_bits_array is array (natural range <>) of natural;
     -- constant EMP_BITS_ARR : t_bits_array(0 to -1) := (others => 0);
-    constant EMP_BITS_ARR : t_bits_array(0 to 0) := (0 => -1);
+    -- constant EMP_BITS_ARR : t_bits_array(0 to 0) := (0 => -1);
     -- type t_reset_types is (ASYNCHRONOUS, SYNCHRONOUS);
 
     component MIPS is
@@ -382,16 +382,19 @@ package aux_package is
             DATA_BUS_WIDTH: INTEGER := 32
         );
         port (
-            mclk_i : in std_logic;
-            rst_i : in std_logic;
-            mem_write_c_i: in std_logic;
-            mem_read_c_i: in std_logic;
+            mclk_i          : in std_logic;
+            mclk_i2_i       : in std_logic;
+            mclk_i4_i       : in std_logic;
+            mclk_i8_i       : in std_logic;
+            rst_i           : in std_logic;
+            mem_write_c_i   : in std_logic;
+            mem_read_c_i    : in std_logic;
 
-            address_bus_i: in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
-            data_bus_io: inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+            address_bus_i   : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+            data_bus_io     : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
 
-            BTIFG: out std_logic;
-            PWMOUT: out std_logic
+            BTIFG           : out std_logic;
+            PWMOUT          : out std_logic
         );
     end component timer_unit;
 ---------------------------------------------------------
@@ -404,6 +407,32 @@ package aux_package is
              );
     end component nbit_latch;
 ---------------------------------------------------------
+    component nbit_counter is
+    generic (
+        n : integer := 8;
+        CNT_ON_RIS_EDG : boolean := true
+    );
+    port(
+    clk_i    : in  std_logic;
+        rst    : in  std_logic;     -- asynchronous reset
+        en     : in  std_logic;     -- enable count
+        cnt_dir: in  std_logic := '1';
+        equy   : in  std_logic;     -- synchronous reset
+
+        d_in    : in std_logic_vector(n-1 downto 0) := (others => '0');
+        w_en_i  : in std_logic := '0';
+        q_out   : out std_logic_vector(n-1 downto 0)
+    );
+    end component nbit_counter;
 ---------------------------------------------------------
+    component port_hex_interface is
+    port (
+        data_i      : in STD_LOGIC_VECTOR(3 downto 0);
+        cs_i        : in STD_LOGIC_Vector(1 downto 0);
+        hex_o       : out t_hex_array(0 to 1)
+    );
+    end component  port_hex_interface;
+---------------------------------------------------------
+
 end aux_package;
 

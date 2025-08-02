@@ -6,12 +6,7 @@ use work.aux_package.all;
 entity address_decoder is
     generic
     (
-        -- DATA_BUS_WIDTH: integer := 32;
         ADDRESS_BUS_WIDTH: INTEGER := 12;
-
-        -- ADDRESS_LOW: NATURAL := 16#800#;        -- NOTE: instead of x"800" which doesnt work
-        -- ADDRESS_HIGH: NATURAL := 16#801#;
-        -- ADRESS_COUNT: NATURAL := 
         ADDRESS_ARRAY : t_addr_array
     );
     port (

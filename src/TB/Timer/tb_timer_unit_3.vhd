@@ -75,6 +75,9 @@ BEGIN
     )
     port map(
         mclk_i => clk,
+        mclk_i2_i => clk,
+        mclk_i4_i => clk,
+        mclk_i8_i => clk,
         rst_i => rst,
         mem_write_c_i => mem_write_c_i_s,
         mem_read_c_i => mem_read_c_i_s,

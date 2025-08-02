@@ -45,6 +45,17 @@ package memory_map is
         IFG       => 16#841#,
         TYPE_REG  => 16#842#
     );
+    constant GPIO_UNIT_ADDRESS_ARRAY: t_addr_array := (
+        REG_ADDR(PORT_LEDR),
+        REG_ADDR(PORT_HEX0),
+        REG_ADDR(PORT_HEX1),
+        REG_ADDR(PORT_HEX2),
+        REG_ADDR(PORT_HEX3),
+        REG_ADDR(PORT_HEX4),
+        REG_ADDR(PORT_HEX5),
+        REG_ADDR(PORT_SW)
+        -- REG_ADDR(PORT_KEY)
+    );
     constant TIMER_UNIT_ADDRESS_ARRAY : t_addr_array := (
         REG_ADDR(BTCTL),
         REG_ADDR(BTCNT),

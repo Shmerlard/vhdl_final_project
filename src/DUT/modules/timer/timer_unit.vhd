@@ -16,7 +16,11 @@ entity timer_unit is
     );
     port (
         mclk_i          : in std_logic;
+        mclk_i2_i       : in std_logic;
+        mclk_i4_i       : in std_logic;
+        mclk_i8_i       : in std_logic;
         rst_i           : in std_logic;
+
         mem_write_c_i   : in std_logic;             -- '1' when we want to write to the registers
         mem_read_c_i    : in std_logic;             -- '1' when we want to read from the registers
 
@@ -34,10 +38,10 @@ entity timer_unit is
 end entity timer_unit;
 
 ARCHITECTURE rtl OF timer_unit IS
-    signal mclk_i2_s : std_logic := '0';
-    signal mclk_i4_s : std_logic := '0';
-    signal mclk_i8_s : std_logic := '0';
-    signal clk_div_counter : std_logic_vector(2 downto 0) := (others => '0');
+    -- signal mclk_i2_s : std_logic := '0';
+    -- signal mclk_i4_s : std_logic := '0';
+    -- signal mclk_i8_s : std_logic := '0';
+    -- signal clk_div_counter : std_logic_vector(2 downto 0) := (others => '0');
     -- signal clk_div_counter : unsigned(2 downto 0) := (others => '0');
 
     -- chip select signals for read/write for each register
@@ -59,15 +63,15 @@ BEGIN
     -- BUG: divide by 8 is not working
     -- acting like divide by 7,
     -- div4 and div 2 are maybe mixed
-    process(mclk_i)
-    begin
-        if rising_edge(mclk_i) then
-            clk_div_counter <= std_logic_vector(unsigned(clk_div_counter) + 1);
-            mclk_i2_s <= clk_div_counter(0);
-            mclk_i4_s <= clk_div_counter(1);
-            mclk_i8_s <= clk_div_counter(2);
-        end if;
-    end process;
+    -- process(mclk_i)
+    -- begin
+    --     if rising_edge(mclk_i) then
+    --         clk_div_counter <= std_logic_vector(unsigned(clk_div_counter) + 1);
+    --         mclk_i2_s <= clk_div_counter(0);
+    --         mclk_i4_s <= clk_div_counter(1);
+    --         mclk_i8_s <= clk_div_counter(2);
+    --     end if;
+    -- end process;
 
     -------------------------------------------------------------------
     ----------------            ENTITIES               ----------------
@@ -77,9 +81,9 @@ BEGIN
     generic map( n => REG_SIZE )
     port map(
         mclk_i => mclk_i,
-        mclk_i2 => mclk_i2_s,
-        mclk_i4 => mclk_i4_s,
-        mclk_i8 => mclk_i8_s,
+        mclk_i2 => mclk_i2_i,
+        mclk_i4 => mclk_i4_i,
+        mclk_i8 => mclk_i8_i,
         rst_i => rst_i,
         BTCLR => btctl_o_s(BTCTL_BITS(BTCLR)),      -- NOTE: btclr is not reset automaticaly
         BTHOLD =>  btctl_o_s(BTCTL_BITS(BTHOLD)),

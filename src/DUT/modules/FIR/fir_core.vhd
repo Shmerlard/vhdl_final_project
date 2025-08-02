@@ -36,11 +36,7 @@ ARCHITECTURE rtl OF fir_core IS
 BEGIN
     fir_reg_arr_inst: fir_reg_arr
     generic map
-    (
-        w => w,
-        m => m,
-        q => q
-    )
+    ( w => w, m => m, q => q)
     port map
     (
         clk_i => FIRCLK,
@@ -65,5 +61,5 @@ BEGIN
         DATAOUT => syn_fifo_d_s
     );
 
-    
+
 END ARCHITECTURE rtl;
