@@ -57,7 +57,7 @@ package memory_map is
         -- REG_ADDR(PORT_KEY)
     );
     constant TIMER_UNIT_ADDRESS_ARRAY : t_addr_array := (
-        REG_ADDR(BTCTL),
+        REG_ADDR(BTCTL), -- 0x81C
         REG_ADDR(BTCNT),
         REG_ADDR(BTCCR0),
         REG_ADDR(BTCCR1)
@@ -68,6 +68,11 @@ package memory_map is
         REG_ADDR(FIROUT),
         REG_ADDR(COEF3_0),
         REG_ADDR(COEF7_4)
+    );
+    constant INT_UNIT_ADDRESS_ARRAY: t_addr_array := (
+        REG_ADDR(IE),
+        REG_ADDR(IFG),
+        REG_ADDR(TYPE_REG)
     );
 
 
@@ -109,4 +114,30 @@ package memory_map is
         FIRRST     => 1,
         FIRENA     => 0
     );
+    -----------------------------------------------
+    type t_ie_bits is (
+        FIRIE, KEY3IE, KEY2IE, KEY1IE,
+        BTIE, TXIE, RXIE);
+    type t_ie_bits_array is array(t_ie_bits) of natural;
+    constant IE_BITS : t_ie_bits_array := (
+    FIRIE   => 6,
+    KEY3IE  => 5,
+    KEY2IE  => 4,
+    KEY1IE  => 3,
+    BTIE    => 2,
+    TXIE    => 1,
+    RXIE    => 0);
+    -----------------------------------------------
+    type t_ifg_bits is (
+        FIRIFG, KEY3IFG, KEY2IFG, KEY1IFG,
+        BTIFG, TXIFG, RXIFG);
+    type t_ifg_bits_array is array(t_ifg_bits) of natural;
+    constant IFG_BITS : t_ifg_bits_array := (
+    FIRIFG   => 6,
+    KEY3IFG  => 5,
+    KEY2IFG  => 4,
+    KEY1IFG  => 3,
+    BTIFG    => 2,
+    TXIFG    => 1,
+    RXIFG    => 0);
 end package memory_map;

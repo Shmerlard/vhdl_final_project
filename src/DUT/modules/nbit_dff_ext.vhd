@@ -63,9 +63,9 @@ begin
             if wr_en_i = '1' then
                 q_reg <= (ignore_bits_s and ign_d_in) or (not ignore_bits_s and d_in);
             else
-                q_reg <= (ignore_bits_s and ign_d_in) or (not ignore_bits_s and q_reg);
-                if need_reset = '1' then
-                    q_reg <= q_reg and not reset_bits_s;
+                q_reg <= (ignore_bits_s and ign_d_in) or (not ignore_bits_s and q_reg);     -- OPTIMIZE: q_reg adds latch
+                if need_reset = '1' then                                                    -- use variable
+                    q_reg <= q_reg and not reset_bits_s;                                    -- OPTIMIZE: remove latch
                 end if;
             end if;
         end if;

@@ -36,6 +36,7 @@ BEGIN
         end loop;
     end process;
 
+    -- NOTE: maybe a decoder will be better
     cs_mem_write_o  <= cs_s when mem_write_c_in = '1' else (others => '0');
     cs_mem_read_o   <= cs_s when mem_read_c_in = '1' else (others => '0');
 END ARCHITECTURE rtl;

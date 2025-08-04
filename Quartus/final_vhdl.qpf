@@ -19,16 +19,16 @@
 #
 # Quartus Prime
 # Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
-# Date created = 21:29:58  August 02, 2025
+# Date created = 18:12:49  August 03, 2025
 #
 # -------------------------------------------------------------------------- #
 
 QUARTUS_VERSION = "24.1"
-DATE = "21:29:58  August 02, 2025"
+DATE = "18:12:49  August 03, 2025"
 
 # Revisions
 
-PROJECT_REVISION = "tb_timer_unit_3"
 PROJECT_REVISION = "tb_gpio_unit"
+PROJECT_REVISION = "tb_timer_unit_3"
 PROJECT_REVISION = "tb_nbit_dff_ext"
 PROJECT_REVISION = "final_vhdl"
