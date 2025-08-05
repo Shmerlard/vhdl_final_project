@@ -7,10 +7,10 @@ use work.memory_map.all;
 entity timer_unit is
     generic
     (           -- NOTE: maybe REG_SIZE is not needed
-        REG_SIZE: integer := 32;                    -- size of btctl, btccr0, btccr1
-        TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;     -- the array of addresses for decoding
-        ADDRESS_BUS_WIDTH: INTEGER := 12;           -- the width of the address bus
-        DATA_BUS_WIDTH: INTEGER := 32;              -- width of the data bus
+        REG_SIZE: integer := 32;                                                -- size of btctl, btccr0, btccr1
+        TIMER_UNIT_ADDRESS_ARRAY: t_addr_array := TIMER_UNIT_ADDRESS_ARRAY;     -- the array of addresses for decoding
+        ADDRESS_BUS_WIDTH: INTEGER := 12;                                       -- the width of the address bus
+        DATA_BUS_WIDTH: INTEGER := 32;                                          -- width of the data bus
 
         BTCTL_RESET_BITS_MASK : std_logic_vector(7 downto 0) := x"04"
     );
