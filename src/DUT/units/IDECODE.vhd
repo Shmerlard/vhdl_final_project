@@ -1,8 +1,3 @@
----------------------------------------------------------------------------------------------
--- Copyright 2025 Hananya Ribo 
--- Advanced CPU architecture and Hardware Accelerators Lab 361-1-4693 BGU
----------------------------------------------------------------------------------------------
---  Idecode module (implements the register file for the MIPS computer
 LIBRARY IEEE; 		
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.STD_LOGIC_ARITH.ALL;
