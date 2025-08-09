@@ -38,16 +38,21 @@ begin
     int_req_o <= gie_s and is_interrupt;
 
 -- generate dff input to irq for synchronuos request
-    for i in (0 to 7) generate
+
+    for i in 0 to 7 generate
+        signal irq_bit : std_logic_vector(0 downto 0);
+    begin
         sync : nbit_dff
         generic map (n => 1)
         port map (
             clk     => interrupt_src_i(i),
             rst     => clr_irq_s(i),
             en      => '1',
-            d_in    => '1',
-            q_out   => irq_s(i)
+            d_in    => "1",
+            q_out   => irq_bit
         );
+
+        irq_s(i) <= irq_bit(0);
     end generate;
 
 -- GIE
