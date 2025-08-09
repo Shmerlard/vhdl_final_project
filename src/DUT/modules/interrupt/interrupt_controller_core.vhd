@@ -15,9 +15,10 @@ entity interrupt_controller_core is
         inta_i              : in std_logic;
         interrupt_src_i     : in std_logic_vector(7 downto 0);
         eint_i              : in std_logic_vector(7 downto 0);
-        
+
         interrupt_done_o    : out std_logic_vector(7 downto 0);
         ifg_o               : out std_logic_vector(7 downto 0);
+        type_o              : out std_logic_vector(7 downto 0);
         int_req_o           : out std_logic
     );
 end entity interrupt_controller_core;
@@ -38,7 +39,6 @@ begin
     int_req_o <= gie_s and is_interrupt;
 
 -- generate dff input to irq for synchronuos request
-
     for i in 0 to 7 generate
         signal irq_bit : std_logic_vector(0 downto 0);
     begin
@@ -55,10 +55,10 @@ begin
         irq_s(i) <= irq_bit(0);
     end generate;
 
--- GIE
+    -- GIE
     gie_s <= inta_i;
 
--- TYPE
+    -- TYPE
     with ifg_s select type_s <= 
         x"04" when x"01",   -- RXIFG
         x"08" when x"02",   -- TXIFG
@@ -68,8 +68,9 @@ begin
         x"18" when x"20",   -- KEY3IFG
         x"1C" when x"40",   -- FIRIFG
         x"FF" when others;
+    type_o <= type_s;
 
-    
+
 
 end architecture rtl;
 
