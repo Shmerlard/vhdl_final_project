@@ -47,7 +47,6 @@ ARCHITECTURE behavior OF Ifetch IS
 	SIGNAL rst_flag_q			: STD_LOGIC;
 	SIGNAL inst_cnt_q 			: STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
 	SIGNAL pc_prev_q			: STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0); 
-	signal instrction_w			: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
 	signal instruction_w		: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
 BEGIN
 

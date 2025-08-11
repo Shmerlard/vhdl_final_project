@@ -15,6 +15,7 @@ ENTITY Idecode IS
 			write_reg_addr_i: in 	STD_LOGIC_VECTOR(4 DOWNTO 0);
 			write_reg_data_i: in  	STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
 			pc_plus4_i		: in  	STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+			INTR_i			: in 	std_logic;
 			read_data1_o	: OUT 	STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
 			read_data2_o	: OUT 	STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
 			sign_extend_o 	: OUT 	STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
