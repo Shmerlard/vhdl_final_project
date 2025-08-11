@@ -10,7 +10,8 @@ entity interrupt_controller_core is
         INT_UNIT_ADDRESS_ARRAY : t_addr_array := INT_UNIT_ADDRESS_ARRAY
             );
     port 
-    (
+    (   
+        clk_i               : in std_logic;
         rst_i               : in std_logic;
         inta_i              : in std_logic;
         interrupt_src_i     : in std_logic_vector(7 downto 0);
@@ -18,7 +19,7 @@ entity interrupt_controller_core is
         
         interrupt_done_o    : out std_logic_vector(7 downto 0);
         ifg_o               : out std_logic_vector(7 downto 0);
-        int_req_o           : out std_logic
+        intr_o              : out std_logic
     );
 end entity interrupt_controller_core;
 
@@ -35,7 +36,7 @@ begin
     ifg_s <= irq_s and eint_i;
     is_interrupt <= '0' when ifg_s = (others => '0') else '1';
     ifg_o <= ifg_s;
-    int_req_o <= gie_s and is_interrupt;
+    intr_o <= gie_s and is_interrupt;
 
 -- generate dff input to irq for synchronuos request
     for i in (0 to 7) generate

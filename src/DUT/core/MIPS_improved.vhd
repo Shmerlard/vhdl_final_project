@@ -23,7 +23,9 @@ ENTITY MIPS IS
     PORT(   rst_i               :IN STD_LOGIC;
             clk_i               :IN STD_LOGIC; 
             bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
+            INTR_i              :IN STD_LOGIC;
             -- Output important signals to pins for easy display in SignalTap
+            INTA_o              :OUT    STD_LOGIC;
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
             alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -44,7 +46,6 @@ ENTITY MIPS IS
 END MIPS;
 -------------------------------------------------------------------------------------
 ARCHITECTURE structure OF MIPS IS
-
 -- declare signals used to connect VHDL components
     SIGNAL bta_w, jta_w     : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL zero_w           : STD_LOGIC;
@@ -64,14 +65,14 @@ ARCHITECTURE structure OF MIPS IS
     signal pc_s             : STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
     
 -- Pipeline
-    -- IF
+-- IF
     signal if_instruction_wo, if_final_inst_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal if_pc_plus4_wo   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
     -- CTL
     signal ctl_memwrite_wo, ctl_beq_wo, ctl_bne_wo, ctl_shamtctl_wo, ctl_regwrite_wo, ctl_wdsel_wo, ctl_regwrite_fwo : std_logic;
     signal ctl_memtoreg_wo, ctl_alusrc_wo, ctl_regdst_wo    : STD_LOGIC_VECTOR(1 DOWNTO 0);
     signal ctl_alufn_wo     : STD_LOGIC_VECTOR(4 DOWNTO 0);
-    -- ID
+-- ID
     signal id_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal id_pc_plus4_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
     signal id_rd1_wo, id_rd2_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -79,7 +80,7 @@ ARCHITECTURE structure OF MIPS IS
     signal id_sub_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal id_zflag_w, flush_ctl_w : std_logic;
     signal ctl_controls_qout_w : STD_LOGIC_VECTOR(16 DOWNTO 0);
-    -- EX
+-- EX
     signal ex_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal ex_pc_plus4_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
     signal ex_memwrite_wi, ex_beq_wi, ex_bne_wi, ex_shamtctl_wi, ex_regwrite_wi, ex_wdsel_wi : std_logic;
@@ -92,7 +93,7 @@ ARCHITECTURE structure OF MIPS IS
     signal ex_sltres_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal ex_luires_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal ex_controls_qout_w : STD_LOGIC_VECTOR(6 DOWNTO 0);
-    -- MEM
+-- MEM
     signal mem_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal mem_pc_plus4_wi  : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
     signal mem_memtoreg_wi, mem_regdst_wi   : STD_LOGIC_VECTOR(1 DOWNTO 0);
@@ -103,7 +104,7 @@ ARCHITECTURE structure OF MIPS IS
     signal mem_luires_wi    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal mem_dtcm_data_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal mem_controls_qout_w : STD_LOGIC_VECTOR(5 DOWNTO 0);
-    -- WB
+-- WB
     signal wb_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal wb_pc_plus4_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
     signal wb_regwrite_wi, wb_wdsel_wi : STD_LOGIC;
@@ -112,7 +113,7 @@ ARCHITECTURE structure OF MIPS IS
     signal wb_sltres_wi     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal wb_luires_wi     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     
-    -- Controls
+-- Controls
     SIGNAL  MemtoReg_w      : STD_LOGIC_VECTOR(1 downto 0);
     SIGNAL  mem_write_w     : STD_LOGIC;
     signal  j_ctl_w         : std_logic;
@@ -158,7 +159,7 @@ BEGIN
     
 
 --------------------------------------------------------------------
--- Create separators between 4 stages
+-- Create separators between 5 stages
 --------------------------------------------------------------------
 -- IF ID
     IF_instruction : nbit_dff
@@ -534,7 +535,8 @@ BEGIN
     );
 
 
--- connect the 5 MIPS components   
+-- Connect the 5 MIPS stages   
+-- IF
     IFE : Ifetch
     generic map(
         WORD_GRANULARITY    =>  WORD_GRANULARITY,
@@ -569,6 +571,7 @@ BEGIN
         end if;
     end process;
 
+-- ID
     ID : Idecode
     generic map(
         DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH
@@ -615,7 +618,7 @@ BEGIN
         hazard_unit_type_o => hazard_unit_type_w
     );
 
-
+-- EX
     ex_rd1_final_w <= ex_rd1_wi when (lw_hazard_rd1_w = '0') else mem_dtcm_data_wo;
     ex_rd2_final_w <= ex_rd2_wi when (lw_hazard_rd2_w = '0') else mem_dtcm_data_wo;
 
@@ -643,6 +646,7 @@ BEGIN
         branch_ctl_o    => open     -- EX   => IF
         );
 
+-- MEM
     G1: 
     if (WORD_GRANULARITY = True) generate -- i.e. each WORD has a unike address
         MEM:  dmemory
@@ -678,6 +682,7 @@ BEGIN
             );
     end generate;
 
+-- WB
     WB: WRITE_BACK
         port map(
             MemtoReg_ctl_i      => wb_memtoreg_wi,
@@ -706,6 +711,16 @@ BEGIN
         lw_hazard_rd2_o => lw_hazard_rd2_w
     );
 
+-- Interrupts
+INTA_DFF: nbit_dff
+    generic map (n => 1)
+    port map (
+        clk    => MCLK_w,
+        rst    => rst_i,        -- normally high
+        en     => '1',
+        d_in   => not(INTR_i),  -- normally high
+        q_out  => INTA_o
+    );
 ---------------------------------------------------------------------------------------
 --                                  IPC - MCLK counter register
 ---------------------------------------------------------------------------------------
