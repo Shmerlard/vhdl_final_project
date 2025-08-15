@@ -17,30 +17,32 @@ entity interrupt_controller_unit is
         rst_i               : in std_logic;
         inta_i              : in std_logic;
         interrupt_src_i     : in std_logic_vector(7 downto 0);
-        eint_i              : in std_logic_vector(7 downto 0);
+        reti_i              : in std_logic;
 
-        address_bus_i   : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
-        data_bus_io     : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-        mem_write_c_i   : in std_logic;             -- '1' when we want to write to the registers
-        mem_read_c_i    : in std_logic;             -- '1' when we want to read from the registers
+        address_bus_i       : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+        data_bus_io         : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+        mem_write_c_i       : in std_logic;             -- '1' when we want to write to the registers
+        mem_read_c_i        : in std_logic;             -- '1' when we want to read from the registers
 
         interrupt_done_o    : out std_logic_vector(7 downto 0);
+        icc_o               : out std_logic_vector(2 downto 0);
         int_req_o           : out std_logic
     );
 end entity interrupt_controller_unit;
 
 
 architecture rtl of interrupt_controller_unit is
-    signal cs_mem_write_s : std_logic_vector(INT_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
-    signal cs_mem_read_s : std_logic_vector(INT_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
+    signal cs_mem_write_s   : std_logic_vector(INT_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
+    signal cs_mem_read_s    : std_logic_vector(INT_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
 
     signal ifg_in_s : std_logic_vector(7 downto 0);
     signal ifg_o_s  : std_logic_vector(7 downto 0);
 
-    signal int_en_dff_d_out_s: std_logic_vector(7 downto 0);
-    signal int_en_dff_d_in_s : std_logic_vector(7 downto 0);
-    signal type_in_s         : std_logic_vector(7 downto 0);
-    signal type_out_s        : std_logic_vector(7 downto 0);
+    signal int_en_dff_d_out_s   : std_logic_vector(7 downto 0);
+    signal int_en_dff_d_in_s    : std_logic_vector(7 downto 0);
+    signal type_in_s            : std_logic_vector(7 downto 0);
+    signal type_out_s           : std_logic_vector(7 downto 0);
+    signal icc_s                : std_logic_vector(2 downto 0);
 begin
     int_ctrl_address_decoder: entity work.address_decoder
     generic map(
@@ -61,14 +63,17 @@ begin
         INT_UNIT_ADDRESS_ARRAY => INT_UNIT_ADDRESS_ARRAY
     )
     port map(
-        rst_i => rst_i,
-        inta_i => inta_i,
+        clk_i   => clk_i,
+        rst_i   => rst_i,
+        inta_i  => inta_i,
         interrupt_src_i => interrupt_src_i,
-        eint_i => eint_i,
+        eint_i  => int_en_dff_d_out_s,
+        reti_i  => reti_i,
         interrupt_done_o => interrupt_done_o,
-        ifg_o => ifg_in_s,
-        type_o => type_in_s,
-        int_req_o => int_req_o
+        ifg_o   => ifg_in_s,
+        type_o  => type_in_s,
+        icc_o   => icc_s,
+        intr_o  => int_req_o
     );
 
     ifg_dff: entity work.nbit_dff
@@ -125,6 +130,9 @@ begin
         -- Din => int_en_dff_d_in_s,
         IOpin => data_bus_io
     );
+
+-- type to data bus logic
+    cs_mem_read_s(2) <= '1' when (icc_s = 4) else '0';
 
 end architecture rtl;
 

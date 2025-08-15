@@ -31,11 +31,12 @@ package aux_package is
             CLK_CNT_WIDTH : integer     := 16;
             INST_CNT_WIDTH : integer    := 16
         );
-        PORT(   
-            rst_i               :IN STD_LOGIC;
+        PORT(   rst_i               :IN STD_LOGIC;
             clk_i               :IN STD_LOGIC; 
             bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
-            -- Output important signals to pins for easy display in Simulator
+            INTR_i              :IN STD_LOGIC;
+            -- Output important signals to pins for easy display in SignalTap
+            INTA_o              :OUT    STD_LOGIC;
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
             alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -43,7 +44,7 @@ package aux_package is
             write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             Branch_ctrl_o       :OUT    STD_LOGIC;
-            Zero_o              :OUT    STD_LOGIC; 
+            Zero_o              :OUT    STD_LOGIC;
             MemWrite_ctrl_o     :OUT    STD_LOGIC;
             RegWrite_ctrl_o     :OUT    STD_LOGIC;
             mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
@@ -137,6 +138,7 @@ package aux_package is
             write_reg_addr_i: in    STD_LOGIC_VECTOR(4 DOWNTO 0);
             write_reg_data_i: in    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             pc_plus4_i      : in    STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+            INTR_i          : in    STD_LOGIC;
             read_data1_o    : OUT   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             read_data2_o    : OUT   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             sign_extend_o   : OUT   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
