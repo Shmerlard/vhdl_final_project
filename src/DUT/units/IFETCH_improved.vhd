@@ -23,6 +23,8 @@ ENTITY Ifetch IS
 		j_ctl_i		    : in	std_logic;
 		jr_ctl_i	    : in	std_logic;
 		read_data1_i	: in 	std_logic_vector(data_bus_width-1 downto 2);
+		icc_i			: in 	std_logic_vector(2 downto 0);
+		isr_i			: in	std_logic_vector(next_pc_width-1 downto 0);
 		pc_o 			: out	std_logic_vector(pc_width-1 downto 0);
 		pc_plus4_o 		: out	std_logic_vector(next_pc_width-1 downto 0);
 		instruction_o 	: out	std_logic_vector(data_bus_width-1 downto 0);
@@ -85,6 +87,8 @@ BEGIN
 	begin
         if (rst_i = '1') then 
             pc_din_s <= (others => '0');
+		elsif (icc_i = 4) then 
+			pc_din_s <= isr_i;
         elsif (branch_ctl_i = '1') then
 			pc_din_s <= bta_i;
 		elsif (j_ctl_i = '1') then
