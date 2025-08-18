@@ -38,6 +38,7 @@ architecture rtl of interrupt_controller_core is
     signal inta_prev_s, inta_fall_s : std_logic;
     signal reti_prev_s, reti_rise_s : std_logic;
     signal icc_s        : std_logic_vector(2 downto 0);
+    signal selected_int_s: std_logic_vector(2 downto 0);
 begin
     ifg_s <= irq_s and eint_i;
     is_interrupt <= '0' when ifg_s = (others => '0') else '1';
@@ -73,37 +74,27 @@ begin
     end process;
 
     -- TYPE MASKED
-    process(rst_i, clk_i)
+    process(rst_i, ifg_s)
     begin
         if rst_i = '1' then
             type_s <= (others => '0');
-        elsif rising_edge(clk_i) then
-            if ifg_s(0) = '1' then          -- RX
-                type_s <= x"08";            -- when is type = 04?????
-                clr_irq_s(0) <= '1';        -- reset irq in next cycle
-            elsif ifg_s(1) = '1' then       -- TX
-                type_s <= x"0C";
-                clr_irq_s(1) <= '1';        -- reset irq in next cycle
-            elsif ifg_s(2) = '1' then       -- BT
-                type_s <= x"10";
-                clr_irq_s(2) <= '1';        -- reset irq in next cycle
-            elsif ifg_s(3) = '1' then       -- KEY1
-                type_s <= x"14";
-                clr_irq_s(3) <= '1';        -- reset irq in next cycle
-            elsif ifg_s(4) = '1' then       -- KEY2
-                type_s <= x"18";
-                clr_irq_s(4) <= '1';        -- reset irq in next cycle
-            elsif ifg_s(5) = '1' then       -- KEY3
-                type_s <= x"1C";
-                clr_irq_s(5) <= '1';        -- reset irq in next cycle
-            elsif ifg_s(6) = '1' then     
-                if irq_s(6) = '1' then      -- FIFO EMPTY
-                    type_s <= x"20";
-                    clr_irq_s(6) <= '1';    -- reset irq in next cycle
-                elsif irq_s(7) = '1' then   -- FIROUT
-                    type_s <= x"24";
-                    clr_irq_s(7) <= '1';    -- reset irq in next cycle
-                end if;
+        elsif ifg_s(0) = '1' then          -- RX
+            type_s <= x"08";            -- when is type = 04?????
+        elsif ifg_s(1) = '1' then       -- TX
+            type_s <= x"0C";
+        elsif ifg_s(2) = '1' then       -- BT
+            type_s <= x"10";
+        elsif ifg_s(3) = '1' then       -- KEY1
+            type_s <= x"14";
+        elsif ifg_s(4) = '1' then       -- KEY2
+            type_s <= x"18";
+        elsif ifg_s(5) = '1' then       -- KEY3
+            type_s <= x"1C";
+        elsif ifg_s(6) = '1' then     
+            if irq_s(6) = '1' then      -- FIFO EMPTY
+                type_s <= x"20";
+            elsif irq_s(7) = '1' then   -- FIROUT
+                type_s <= x"24";
             end if;
         end if;
     end process;

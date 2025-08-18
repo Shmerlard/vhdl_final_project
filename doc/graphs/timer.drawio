@@ -1,0 +1,28 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.7.4 Safari/537.36" version="27.0.9">
+  <diagram name="Page-1" id="aZw93rhCPRKbPkfqC85t">
+    <mxGraphModel dx="657" dy="408" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2339" pageHeight="3300" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uUv9V6jAEYktYapdIBdy-2" value="" style="rounded=0;whiteSpace=wrap;html=1;points=[[0,0,0,0,0],[0,0.25,0,0,0],[0,0.5,0,0,0],[0,0.75,0,0,0],[0,1,0,0,0],[0.25,0,0,0,0],[0.25,1,0,0,0],[0.5,0,0,0,0],[0.5,1,0,0,0],[0.75,0,0,0,0],[0.75,1,0,0,0],[1,0,0,0,0],[1,0.25,0,0,0],[1,0.5,0,0,0],[1,0.75,0,0,0],[1,1,0,0,0]];connectable=0;" vertex="1" parent="1">
+          <mxGeometry x="560" y="490" width="840" height="480" as="geometry" />
+        </mxCell>
+        <mxCell id="uUv9V6jAEYktYapdIBdy-7" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="640" y="704" as="sourcePoint" />
+            <mxPoint x="710" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uUv9V6jAEYktYapdIBdy-4" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;BTCNT&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="710" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uUv9V6jAEYktYapdIBdy-5" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;OUTPUT &lt;br&gt;UNIT&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="770" width="110" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="uUv9V6jAEYktYapdIBdy-6" value="&lt;font face=&quot;JetBrains Mono&quot;&gt;MUX&lt;/font&gt;" style="shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=14.999999999999886;rotation=90;connectable=1;allowArrows=1;horizontal=0;points=[[0.2,1,0,0,0],[0.4,1,0,0,0],[0.5,0,0,0,0],[0.6,1,0,0,0],[0.8,1,0,0,0]];" vertex="1" parent="1">
+          <mxGeometry x="710" y="715" width="105" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
