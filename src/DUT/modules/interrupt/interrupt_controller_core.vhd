@@ -79,22 +79,30 @@ begin
             type_s <= (others => '0');
         elsif rising_edge(clk_i) then
             if ifg_s(0) = '1' then          -- RX
-                type_s <= x"08";                    -- when is type = 04?????
+                type_s <= x"08";            -- when is type = 04?????
+                clr_irq_s(0) <= '1';        -- reset irq in next cycle
             elsif ifg_s(1) = '1' then       -- TX
                 type_s <= x"0C";
+                clr_irq_s(1) <= '1';        -- reset irq in next cycle
             elsif ifg_s(2) = '1' then       -- BT
                 type_s <= x"10";
+                clr_irq_s(2) <= '1';        -- reset irq in next cycle
             elsif ifg_s(3) = '1' then       -- KEY1
                 type_s <= x"14";
+                clr_irq_s(3) <= '1';        -- reset irq in next cycle
             elsif ifg_s(4) = '1' then       -- KEY2
                 type_s <= x"18";
+                clr_irq_s(4) <= '1';        -- reset irq in next cycle
             elsif ifg_s(5) = '1' then       -- KEY3
                 type_s <= x"1C";
+                clr_irq_s(5) <= '1';        -- reset irq in next cycle
             elsif ifg_s(6) = '1' then     
                 if irq_s(6) = '1' then      -- FIFO EMPTY
                     type_s <= x"20";
+                    clr_irq_s(6) <= '1';    -- reset irq in next cycle
                 elsif irq_s(7) = '1' then   -- FIROUT
                     type_s <= x"24";
+                    clr_irq_s(7) <= '1';    -- reset irq in next cycle
                 end if;
             end if;
         end if;
