@@ -30,19 +30,27 @@ package aux_package is
             FUNCT_WIDTH : integer       := 6;
             DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
             CLK_CNT_WIDTH : integer     := 16;
-            INST_CNT_WIDTH : integer    := 16
+            INST_CNT_WIDTH : integer    := 16;
+            DTCM_PATH : string;
+            ITCM_PATH : string
     );
-    PORT(   rst_i               :IN STD_LOGIC;
-            clk_i               :IN STD_LOGIC; 
-            bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
-            int_req_i           : in std_logic;
-            interrupt_src_i     :in std_logic_vector(7 downto 0);
+    PORT(   rst_i               :IN     STD_LOGIC;
+            clk_i               :IN     STD_LOGIC; 
+            bpaddr_i            :IN     STD_LOGIC_VECTOR(7 downto 0);
+            int_req_i           :in     std_logic;
+            interrupt_src_i     :in     std_logic_vector(8 downto 0);
+
+            data_bus_o          :inout  STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+            addr_bus_o          :out  STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
+            ctrl_bus_o          :out  STD_LOGIC_VECTOR(1 DOWNTO 0);
+            -- Output important signals to pins for easy display in SignalTap
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
             alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            int_ack_o           : out std_logic;
+            int_ack_o           :OUT    std_logic;
+            gie_o               : out   std_logic;
             instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             Branch_ctrl_o       :OUT    STD_LOGIC;
             Zero_o              :OUT    STD_LOGIC;
@@ -69,13 +77,15 @@ package aux_package is
             FUNCT_WIDTH : integer       := 6;
             DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
             CLK_CNT_WIDTH : integer     := 16;
-            INST_CNT_WIDTH : integer    := 16
+            INST_CNT_WIDTH : integer    := 16;
+            DTCM_PATH : string;
+            ITCM_PATH : string
     );
     PORT(   rst_i               :IN STD_LOGIC;
             clk_i               :IN STD_LOGIC; 
             bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
             int_req_i           : in std_logic;
-            interrupt_src_i     :in std_logic_vector(7 downto 0);
+            interrupt_src_i     :in std_logic_vector(8 downto 0);
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
             alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -189,7 +199,8 @@ package aux_package is
             NEXT_PC_WIDTH : integer     := 8; -- NEXT_PC_WIDTH = PC_WIDTH-2
             ITCM_ADDR_WIDTH : integer   := 8;
             WORDS_NUM : integer         := 256;
-            INST_CNT_WIDTH : integer    := 16
+            INST_CNT_WIDTH : integer    := 16;
+            ITCM_PATH : string
         );
         PORT(   
             clk_i, rst_i    : in    std_logic;
@@ -240,7 +251,8 @@ package aux_package is
         generic(
                    DATA_BUS_WIDTH : integer := 32;
                    DTCM_ADDR_WIDTH : integer := 8;
-                   WORDS_NUM : integer := 256
+                   WORDS_NUM : integer := 256;
+                   DTCM_PATH : string
                );
         PORT(   clk_i,rst_i         : IN    STD_LOGIC;
                 dtcm_addr_i         : IN    STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
@@ -416,8 +428,8 @@ package aux_package is
         clk_i               : in std_logic;
         rst_i               : in std_logic;
         inta_i              : in std_logic;
-        interrupt_src_i     : in std_logic_vector(7 downto 0);
-        reti_i              : in std_logic;
+        interrupt_src_i     : in std_logic_vector(8 downto 0);
+        -- reti_i              : in std_logic;
         gie_i               : in std_logic;
 
         mem_write_c_i       : in std_logic;             -- '1' when we want to write to the registers

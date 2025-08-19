@@ -19,7 +19,7 @@ entity interrupt_controller_unit is
         rst_i               : in std_logic;
         inta_i              : in std_logic;
         interrupt_src_i     : in std_logic_vector(8 downto 0);
-        reti_i              : in std_logic;
+        -- reti_i              : in std_logic;
         gie_i               : in std_logic;
 
         mem_write_c_i       : in std_logic;             -- '1' when we want to write to the registers

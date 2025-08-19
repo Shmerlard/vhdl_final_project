@@ -46,6 +46,8 @@ package cond_comilation_package is
     constant G_ADDRWIDTH : integer          := MODELSIM_M9K_ADDRWIDTH;
     constant G_DATA_WORDS_NUM : integer     := MODELSIM_M9K_MEM_WORDS_NUM;
 --------------------------------------------------------
+    constant G_DTCM_PATH : string := "/home/elad/Desktop/vhdl_lab5/src/SW/test2/bin/DTCM.hex";
+    constant G_ITCM_PATH : string := "/home/elad/Desktop/vhdl_lab5/src/SW/test2/bin/ITCM.hex";
 
 end cond_comilation_package;
 

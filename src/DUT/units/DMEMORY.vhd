@@ -15,7 +15,8 @@ ENTITY dmemory IS
     generic(
         DATA_BUS_WIDTH : integer := 32;
         DTCM_ADDR_WIDTH : integer := 8;
-        WORDS_NUM : integer := 256
+        WORDS_NUM : integer := 256;
+        DTCM_PATH : string
     );
     PORT(   clk_i,rst_i         : IN    STD_LOGIC;
             dtcm_addr_i         : IN    STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
@@ -40,7 +41,8 @@ BEGIN
         lpm_type => "altsyncram",
         outdata_reg_a => "UNREGISTERED",
         -- init_file => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\lab5\vhdl_lab5\src\SW\test3\bin\DTCM.hex",
-        init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test2/bin/DTCM.hex",
+        -- init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test2/bin/DTCM.hex",
+        init_file => DTCM_PATH,
         -- init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test1/bin/DTCM.hex",
         intended_device_family => "Cyclone"
     )

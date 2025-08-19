@@ -14,7 +14,8 @@ ENTITY Ifetch IS
         NEXT_PC_WIDTH : integer     := 8; -- NEXT_PC_WIDTH = PC_WIDTH-2
         ITCM_ADDR_WIDTH : integer   := 8;
         WORDS_NUM : integer         := 256;
-        INST_CNT_WIDTH : integer    := 16
+        INST_CNT_WIDTH : integer    := 16;
+        ITCM_PATH : string
     );
     PORT(   
         clk_i, rst_i    : in    std_logic;
@@ -53,7 +54,8 @@ BEGIN
         lpm_type => "altsyncram",
         outdata_reg_a => "UNREGISTERED",
         -- init_file => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\lab5\vhdl_lab5\src\SW\test3\bin\ITCM.hex",
-        init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test2/bin/ITCM.hex",
+        -- init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test2/bin/ITCM.hex",
+        init_file => ITCM_PATH,
         -- init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test1/bin/ITCM.hex",
         intended_device_family => "Cyclone"
     )

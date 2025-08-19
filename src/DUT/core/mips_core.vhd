@@ -18,17 +18,19 @@ ENTITY mips_core IS
             FUNCT_WIDTH : integer       := 6;
             DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
             CLK_CNT_WIDTH : integer     := 16;
-            INST_CNT_WIDTH : integer    := 16
+            INST_CNT_WIDTH : integer    := 16;
+            DTCM_PATH : string := G_DTCM_PATH;
+            ITCM_PATH : string := G_ITCM_PATH
     );
     PORT(   rst_i               :IN     STD_LOGIC;
             clk_i               :IN     STD_LOGIC; 
             bpaddr_i            :IN     STD_LOGIC_VECTOR(7 downto 0);
             int_req_i           :in     std_logic;
-            interrupt_src_i     :in     std_logic_vector(7 downto 0);
+            interrupt_src_i     :in     std_logic_vector(8 downto 0);
 
             data_bus_o          :inout  STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            addr_bus_o          :inout  STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
-            ctrl_bus_o          :inout  STD_LOGIC_VECTOR(1 DOWNTO 0);
+            addr_bus_o          :out  STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
+            ctrl_bus_o          :out  STD_LOGIC_VECTOR(1 DOWNTO 0);
             -- Output important signals to pins for easy display in SignalTap
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
             alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -36,6 +38,7 @@ ENTITY mips_core IS
             read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             int_ack_o           :OUT    std_logic;
+            gie_o               : out   std_logic;
             instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             Branch_ctrl_o       :OUT    STD_LOGIC;
             Zero_o              :OUT    STD_LOGIC;
@@ -580,7 +583,8 @@ BEGIN
         PC_WIDTH            =>  PC_WIDTH,
         ITCM_ADDR_WIDTH     =>  ITCM_ADDR_WIDTH,
         WORDS_NUM           =>  DATA_WORDS_NUM,
-        INST_CNT_WIDTH      =>  INST_CNT_WIDTH
+        INST_CNT_WIDTH      =>  INST_CNT_WIDTH,
+        ITCM_PATH           =>  ITCM_PATH
     )
     PORT MAP (  
         clk_i           => MCLK_w,  
@@ -620,6 +624,7 @@ BEGIN
         c3_cmp_i        => c3_cmp_s,            -- IH   => ID
         c2to5_cmp_i     => c2to5_cmp_s,         -- IH   => ID
         INTR_i          => int_req_i,              -- MIPS => ID
+        gie_o           => gie_o,
         read_data1_o    => id_rd1_wo,           -- ID   => IF, EX, MIPS
         read_data2_o    => id_rd2_wo,           -- ID   => EX, MEM, MIPS
         sign_extend_o   => id_signext_wo,       -- ID   => EX
@@ -693,7 +698,8 @@ BEGIN
             generic map(
                 DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH, 
                 DTCM_ADDR_WIDTH     =>  DTCM_ADDR_WIDTH,
-                WORDS_NUM           =>  DATA_WORDS_NUM
+                WORDS_NUM           =>  DATA_WORDS_NUM,
+                DTCM_PATH           =>  DTCM_PATH
             )
             PORT MAP (  
                 clk_i               => MCLK_w,  
@@ -709,7 +715,8 @@ BEGIN
             generic map(
                 DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH, 
                 DTCM_ADDR_WIDTH     =>  DTCM_ADDR_WIDTH,
-                WORDS_NUM           =>  DATA_WORDS_NUM
+                WORDS_NUM           =>  DATA_WORDS_NUM,
+                DTCM_PATH           =>  DTCM_PATH
             )
             PORT MAP (  
                 clk_i               => MCLK_w,  
