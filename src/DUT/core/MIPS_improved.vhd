@@ -65,9 +65,9 @@ ARCHITECTURE structure OF MIPS IS
 
 -- interrupts
     signal inta_s, intr_s   : std_logic;
-    signal icc_s            : std_logic_vector(2 downto 0);
     signal interrupt_done_s : std_logic_vector(7 downto 0);
     signal data_input2databus_en_s : std_logic;
+    signal c1_cmp_s, c3_cmp_s, c1to3_cmp_s, c2to5_cmp_s : std_logic;
 
 -- Buses
     signal address_bus_s    : std_logic_vector(DTCM_ADDR_WIDTH-1 downto 0);
@@ -75,53 +75,53 @@ ARCHITECTURE structure OF MIPS IS
     signal control_bus_s    : std_logic_vector(1 downto 0); -- [mem_read, mem_write]
     
 -- Pipeline
--- IF
-    signal if_instruction_wo, if_final_inst_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal if_pc_plus4_wo   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
--- CTL
-    signal ctl_memwrite_wo, ctl_beq_wo, ctl_bne_wo, ctl_shamtctl_wo, ctl_regwrite_wo, ctl_wdsel_wo, ctl_regwrite_fwo, ctl_memread_wo : std_logic;
-    signal ctl_memtoreg_wo, ctl_alusrc_wo, ctl_regdst_wo, k1_check_s, ctl_reti_s    : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    signal ctl_alufn_wo     : STD_LOGIC_VECTOR(4 DOWNTO 0);
-    signal ctl_controls_qout_w : STD_LOGIC_VECTOR(17 DOWNTO 0);
--- ID
-    signal id_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal id_pc_plus4_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
-    signal id_rd1_wo, id_rd2_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal id_zeroext_wo, id_signext_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal id_sub_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal id_zflag_w, flush_ctl_w : std_logic;
--- EX
-    signal ex_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal ex_pc_plus4_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
-    signal ex_memwrite_wi, ex_beq_wi, ex_bne_wi, ex_shamtctl_wi, ex_regwrite_wi, ex_wdsel_wi, ex_memread_wi : std_logic;
-    signal ex_memtoreg_wi, ex_alusrc_wi, ex_regdst_wi   : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    signal ex_alufn_wi      : STD_LOGIC_VECTOR(4 DOWNTO 0);
-    signal ex_shamt_wi      : STD_LOGIC_VECTOR(4 DOWNTO 0);
-    signal ex_rd1_wi, ex_rd2_wi, id_rd1_mux_w, id_rd2_mux_w, ex_rd1_final_w, ex_rd2_final_w : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal ex_zeroext_wi, ex_signext_wi : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal ex_alures_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal ex_sltres_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal ex_luires_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal ex_controls_qout_w : STD_LOGIC_VECTOR(7 DOWNTO 0);
--- MEM
-    signal mem_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal mem_pc_plus4_wi  : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
-    signal mem_memtoreg_wi, mem_regdst_wi   : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    signal mem_memwrite_wi, mem_regwrite_wi, mem_wdsel_wi, mem_memread_wi   : std_logic;
-    signal mem_rd1_wi, mem_rd2_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal mem_alures_wi, mem_alures_si    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal mem_sltres_wi    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal mem_luires_wi    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal mem_dtcm_data_wo, mem_dtcm_rd_s : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal mem_controls_qout_w : STD_LOGIC_VECTOR(5 DOWNTO 0);
--- WB
-    signal wb_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal wb_pc_plus4_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
-    signal wb_regwrite_wi, wb_wdsel_wi : STD_LOGIC;
-    signal wb_memtoreg_wi, wb_regdst_wi : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    signal wb_rd1_wi, wb_dtcm_data_wi, wb_alures_wi : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal wb_sltres_wi     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal wb_luires_wi     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+    -- IF
+        signal if_instruction_wo, if_final_inst_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal if_pc_plus4_wo   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+    -- CTL
+        signal ctl_memwrite_wo, ctl_beq_wo, ctl_bne_wo, ctl_shamtctl_wo, ctl_regwrite_wo, ctl_wdsel_wo, ctl_regwrite_fwo, ctl_memread_wo : std_logic;
+        signal ctl_memtoreg_wo, ctl_alusrc_wo, ctl_regdst_wo, k1_check_s, ctl_reti_s    : STD_LOGIC_VECTOR(1 DOWNTO 0);
+        signal ctl_alufn_wo     : STD_LOGIC_VECTOR(4 DOWNTO 0);
+        signal ctl_controls_qout_w : STD_LOGIC_VECTOR(17 DOWNTO 0);
+    -- ID
+        signal id_instruction_wi, id_instruction_si: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal id_pc_plus4_wi, id_pc_s_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+        signal id_rd1_wo, id_rd2_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal id_zeroext_wo, id_signext_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal id_sub_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal id_zflag_w, flush_ctl_w : std_logic;
+    -- EX
+        signal ex_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal ex_pc_plus4_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+        signal ex_memwrite_wi, ex_beq_wi, ex_bne_wi, ex_shamtctl_wi, ex_regwrite_wi, ex_wdsel_wi, ex_memread_wi : std_logic;
+        signal ex_memtoreg_wi, ex_alusrc_wi, ex_regdst_wi   : STD_LOGIC_VECTOR(1 DOWNTO 0);
+        signal ex_alufn_wi      : STD_LOGIC_VECTOR(4 DOWNTO 0);
+        signal ex_shamt_wi      : STD_LOGIC_VECTOR(4 DOWNTO 0);
+        signal ex_rd1_wi, ex_rd2_wi, id_rd1_mux_w, id_rd2_mux_w, ex_rd1_final_w, ex_rd2_final_w : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal ex_zeroext_wi, ex_signext_wi : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal ex_alures_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal ex_sltres_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal ex_luires_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal ex_controls_qout_w : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    -- MEM
+        signal mem_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal mem_pc_plus4_wi  : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+        signal mem_memtoreg_wi, mem_regdst_wi   : STD_LOGIC_VECTOR(1 DOWNTO 0);
+        signal mem_memwrite_wi, mem_regwrite_wi, mem_wdsel_wi, mem_memread_wi   : std_logic;
+        signal mem_rd1_wi, mem_rd2_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal mem_alures_wi, mem_alures_si    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal mem_sltres_wi    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal mem_luires_wi    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal mem_dtcm_data_wo, mem_dtcm_rd_s : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal mem_controls_qout_w : STD_LOGIC_VECTOR(5 DOWNTO 0);
+    -- WB
+        signal wb_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal wb_pc_plus4_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+        signal wb_regwrite_wi, wb_wdsel_wi : STD_LOGIC;
+        signal wb_memtoreg_wi, wb_regdst_wi : STD_LOGIC_VECTOR(1 DOWNTO 0);
+        signal wb_rd1_wi, wb_dtcm_data_wi, wb_alures_wi : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal wb_sltres_wi     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal wb_luires_wi     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     
 -- Controls
     SIGNAL  MemtoReg_w      : STD_LOGIC_VECTOR(1 downto 0);
@@ -181,8 +181,11 @@ BEGIN
         rst    => not(rst_i),
         en     => '1',
         d_in   => if_final_inst_w,
-        q_out  => id_instruction_wi
+        q_out  => id_instruction_si
     );
+
+    id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0') else (others => '0');
+
     IF_pc_plus4 : nbit_dff
     generic map (
         n => NEXT_PC_WIDTH
@@ -193,6 +196,17 @@ BEGIN
         en     => '1',
         d_in   => if_pc_plus4_wo,
         q_out  => id_pc_plus4_wi
+    );
+    IF_PC_S: nbit_dff
+    generic map (
+        n => NEXT_PC_WIDTH
+    )
+    port map (
+        clk    => MCLK_w,
+        rst    => not(rst_i),
+        en     => '1',
+        d_in   => pc_s,
+        q_out  => id_pc_s_wi
     );
 -- ID EX
     CTL_controls : nbit_dff
@@ -570,7 +584,7 @@ BEGIN
         j_ctl_i         => j_ctl_w,             -- CTL  => IF
         jr_ctl_i        => jr_ctl_w,            -- CTL  => IF
         read_data1_i    => id_rd1_wo(PC_WIDTH-1 downto 2), -- ID   => IF
-        icc_i           => icc_s,               -- MIPS => IF
+        c3_cmp_i        => c3_cmp_s,            -- IH   => IF
         isr_i           => mem_dtcm_data_wo     -- MEM  => IF
         pc_o            => pc_s,                -- IF   => MIPS
         pc_plus4_o      => if_pc_plus4_wo,      -- IF   => ID
@@ -580,7 +594,6 @@ BEGIN
 
     if_final_inst_w <= if_instruction_wo when (flush_ctl_w = '0') else (others => '0');
     
-
 
 -- ID & CTL
     ID : Idecode
@@ -595,6 +608,10 @@ BEGIN
         write_reg_addr_i => write_reg_addr_w,   -- WB   => ID
         write_reg_data_i => write_data_w,       -- WB   => ID
         pc_plus4_i      => id_pc_plus4_wi,      -- IF   => ID
+        id_pc_i         => id_pc_s_wi,          -- IF   => ID
+        c1_cmp_i        => c1_cmp_s,            -- IH   => ID
+        c3_cmp_i        => c3_cmp_s,            -- IH   => ID
+        c2to5_cmp_i     => c2to5_cmp_s,         -- IH   => ID
         INTR_i          => intr_s,              -- MIPS => ID
         read_data1_o    => id_rd1_wo,           -- ID   => IF, EX, MIPS
         read_data2_o    => id_rd2_wo,           -- ID   => EX, MEM, MIPS
@@ -606,7 +623,7 @@ BEGIN
 
     id_sub_w    <= id_rd1_mux_w - id_rd2_mux_w;
     id_zflag_w  <= '1' when (id_sub_w = x"00000000") else '0';
-    flush_ctl_w <= j_ctl_w or jr_ctl_w or (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w)) or ((icc_s > 0) and (icc_s < 4));
+    flush_ctl_w <= j_ctl_w or jr_ctl_w or (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w)) or (c1to3_cmp_s = '1');
     branch_ctl_w <= (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w));
 
     CTL:   control
@@ -744,45 +761,75 @@ BEGIN
         mem_write_c_i       => control_bus_s(1),
         mem_read_c_i        => control_bus_s(0),
         interrupt_done_o    => interrupt_done_s,
-        icc_o               => icc_s,
         int_req_o           => intr_s
     );
 
+    -- interrupt handler module
+        interrupt_handler: interrupt_handler
+        generic map(data_bus_width => DATA_BUS_WIDTH)
+        port(
+            clk_i               => MCLK_w,
+            rst_i               => not(rst_i),
+            intr_i              => intr_s,
+            reti_ctl_i          => ctl_reti_s,
+            instruction_id_i    => id_instruction_wi,
+            c1_cmp_o            => c1_cmp_s,
+            c3_cmp_o            => c3_cmp_s,
+            c1to3_cmp_o         => c1to3_cmp_s,
+            c2to5_cmp_o         => c2to5_cmp_s
+        );
+
     -- INTA logic
-    process(rst_i, MCLK_w)
-    begin
-        if rst_i = '0' then
-            inta_s <= '1';
-        elsif rising_edge(MCLK_w) then
-            if intr_s = '1' then
-                inta_s <= '0';
-            else
-                inta_s <= '1';
+        process(rst_i, MCLK_w)
+        begin
+            if not(rst_i) = '1' then
+                inta_proc1_s <= '1';
+            elsif rising_edge(MCLK_w) then
+                inta_proc1_s <= intr_s;
             end if;
-        end if;
-    end process;
+        end process;
+
+        process(rst_i, MCLK_w)
+        begin
+            if not(rst_i) = '1' then
+                inta_proc2_s <= '1';
+            elsif rising_edge(MCLK_w) then
+                inta_proc2_s <= inta_proc1_s;
+            end if;
+        end process;
+
+        process(rst_i, MCLK_w)
+        begin
+            if not(rst_i) = '1' then
+                inta_proc3_s <= '1';
+            elsif rising_edge(MCLK_w) then
+                inta_proc3_s <= inta_proc2_s;
+            end if;
+        end process;
+
+        inta_s <= not(rst_i and not(inta_proc3_s) and inta_proc1_s);
 
     -- mem addr mux for interrupts
-    mem_alures_si <= data_bus_s when (icc_s = 4) else mem_alures_wi;
+        mem_alures_si <= data_bus_s when (c3_cmp_s = '1') else mem_alures_wi;
 
     -- address bus written from alures
-    address_bus_s <= mem_alures_wi;
+        address_bus_s <= mem_alures_wi;
 
     -- write to peripherals using tri-state 
-    peripheral_write: nbit_bidir
-    generic map (width => DATA_BUS_WIDTH)
-    port map (
-        Dout    => mem_rd2_wi,
-        en      => mem_alures_wi(11),   -- peripherals addresses are 0x800 and above
-        Din     => open,
-        IOpin   => data_bus_s
-    );
+        peripheral_write: nbit_bidir
+        generic map (width => DATA_BUS_WIDTH)
+        port map (
+            Dout    => mem_rd2_wi,
+            en      => mem_alures_wi(11),   -- peripherals addresses are 0x800 and above
+            Din     => open,
+            IOpin   => data_bus_s
+        );
 
     -- Mem Data Read
-    mem_dtcm_data_wo <= mem_dtcm_rd_s when ((mem_alures_wi(11) and mem_memread_wi) = '1') else data_bus_s; 
+        mem_dtcm_data_wo <= mem_dtcm_rd_s when ((mem_alures_wi(11) and mem_memread_wi) = '1') else data_bus_s; 
 
     -- write from dtcm input to data bus enable tri-state
-    data_input2databus_en_s <= mem_memwrite_wi and mem_alures_wi(11);
+        data_input2databus_en_s <= mem_memwrite_wi and mem_alures_wi(11);
 ---------------------------------------------------------------------------------------
 --                                  IPC - MCLK counter register
 ---------------------------------------------------------------------------------------

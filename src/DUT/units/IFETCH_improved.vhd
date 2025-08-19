@@ -23,7 +23,7 @@ ENTITY Ifetch IS
 		j_ctl_i		    : in	std_logic;
 		jr_ctl_i	    : in	std_logic;
 		read_data1_i	: in 	std_logic_vector(data_bus_width-1 downto 2);
-		icc_i			: in 	std_logic_vector(2 downto 0);
+		c3_cmp_i		: in 	std_logic;
 		isr_i			: in	std_logic_vector(next_pc_width-1 downto 0);
 		pc_o 			: out	std_logic_vector(pc_width-1 downto 0);
 		pc_plus4_o 		: out	std_logic_vector(next_pc_width-1 downto 0);
@@ -65,9 +65,9 @@ BEGIN
 	-- send address to inst. memory address register
 	G1: 
 	if (WORD_GRANULARITY = True) generate 		-- i.e. each WORD has unike address
-		itcm_addr_w <= pc_s;
+		itcm_addr_w <= pc_din_s;
 	elsif (WORD_GRANULARITY = False) generate 	-- i.e. each BYTE has unike address
-		itcm_addr_w <= pc_s & "00";
+		itcm_addr_w <= pc_din_s & "00";
 	end generate;
 
 
@@ -87,7 +87,7 @@ BEGIN
 	begin
         if (rst_i = '1') then 
             pc_din_s <= (others => '0');
-		elsif (icc_i = 4) then 
+		elsif (c3_cmp_i = '1') then 
 			pc_din_s <= isr_i;
         elsif (branch_ctl_i = '1') then
 			pc_din_s <= bta_i;
