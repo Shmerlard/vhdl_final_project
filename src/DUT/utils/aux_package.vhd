@@ -307,6 +307,53 @@ package aux_package is
         );
     end component fir_reg_arr;
 ---------------------------------------------------------
+    component interrupt_controller_core is
+    generic (
+        INT_SRC_COUNT: NATURAL := 9;
+        INT_IFG_COUNT: NATURAL := 7
+            );
+    port 
+    (   
+        clk_i               : in std_logic;
+        rst_i               : in std_logic;
+        inta_i_b            : in std_logic;
+        interrupt_src_i     : in std_logic_vector(8 downto 0);
+        eint_i              : in std_logic_vector(6 downto 0);
+        gie_i               : in std_logic;
+
+        ifg_o               : out std_logic_vector(6 downto 0);
+        type_reg_d_in_o     : out std_logic_vector(6 downto 0);
+        int_req_o              : out std_logic
+    );
+    end component interrupt_controller_core;
+---------------------------------------------------------
+    component interrupt_controller_unit is
+    generic (
+        ADDRESS_BUS_WIDTH: INTEGER := 12;                                       -- the width of the address bus
+        DATA_BUS_WIDTH: INTEGER := 32;                                          -- width of the data bus
+        INT_UNIT_ADDRESS_ARRAY : t_addr_array;
+        INT_SRC_COUNT: NATURAL := 9;
+        INT_IFG_COUNT: NATURAL := 7
+    );
+    port 
+    (
+        clk_i               : in std_logic;
+        rst_i               : in std_logic;
+        inta_i              : in std_logic;
+        interrupt_src_i     : in std_logic_vector(7 downto 0);
+        reti_i              : in std_logic;
+        gie_i               : in std_logic;
+
+        mem_write_c_i       : in std_logic;             -- '1' when we want to write to the registers
+        mem_read_c_i        : in std_logic;             -- '1' when we want to read from the registers
+
+        address_bus_i       : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+        data_bus_io         : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+
+        int_req_o           : out std_logic
+    );
+end component interrupt_controller_unit;
+---------------------------------------------------------
     component nbit_sr is
         generic
         (
