@@ -767,7 +767,7 @@ BEGIN
     -- interrupt handler module
         interrupt_handler: interrupt_handler
         generic map(data_bus_width => DATA_BUS_WIDTH)
-        port(
+        port map(
             clk_i               => MCLK_w,
             rst_i               => not(rst_i),
             intr_i              => intr_s,
