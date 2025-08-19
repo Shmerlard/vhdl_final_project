@@ -483,7 +483,7 @@ end component interrupt_controller_unit;
     end component  port_hex_interface;
 ---------------------------------------------------------
     component interrupt_handler is
-    generic(data_bus_width := 32);
+    generic(data_bus_width : natural := 32);
     port(
         clk_i               : in    std_logic;
         rst_i               : in    std_logic;
@@ -493,7 +493,7 @@ end component interrupt_controller_unit;
         c1_cmp_o            : out   std_logic;
         c3_cmp_o            : out   std_logic;
         c1to3_cmp_o         : out   std_logic;
-        c2to5_cmp_o         : out   std_logic;
+        c2to5_cmp_o         : out   std_logic
     );
     end component;
 

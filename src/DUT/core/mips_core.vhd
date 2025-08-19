@@ -6,9 +6,9 @@ USE work.cond_comilation_package.all;
 USE work.aux_package.all;
 
 
-ENTITY MIPS IS
+ENTITY mips_core IS
     generic( 
-            WORD_GRANULDCSARITY : boolean  := G_WORD_GRANULARITY;
+            WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
             MODELSIM : integer          := G_MODELSIM;
             DATA_BUS_WIDTH : integer    := 32;
             ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
@@ -23,6 +23,7 @@ ENTITY MIPS IS
     PORT(   rst_i               :IN STD_LOGIC;
             clk_i               :IN STD_LOGIC; 
             bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
+            int_req_i           : in std_logic;
             interrupt_src_i     :in std_logic_vector(7 downto 0);
             -- Output important signals to pins for easy display in SignalTap
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
@@ -30,6 +31,7 @@ ENTITY MIPS IS
             read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+            int_ack_o           : out std_logic;
             instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             Branch_ctrl_o       :OUT    STD_LOGIC;
             Zero_o              :OUT    STD_LOGIC;
@@ -42,9 +44,9 @@ ENTITY MIPS IS
             hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             strigger_o          :OUT    std_logic
     );
-END MIPS;
+END mips_core;
 -------------------------------------------------------------------------------------
-ARCHITECTURE structure OF MIPS IS
+ARCHITECTURE structure OF mips_core IS
 -- declare signals used to connect VHDL components
     SIGNAL bta_w, jta_w     : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL zero_w           : STD_LOGIC;
@@ -64,8 +66,8 @@ ARCHITECTURE structure OF MIPS IS
     signal pc_s             : STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
 
 -- interrupts
-    signal inta_s, intr_s   : std_logic;
-    signal interrupt_done_s : std_logic_vector(7 downto 0);
+    -- signal inta_s, intr_s   : std_logic;
+    -- signal interrupt_done_s : std_logic_vector(7 downto 0);
     signal data_input2databus_en_s : std_logic;
     signal c1_cmp_s, c3_cmp_s, c1to3_cmp_s, c2to5_cmp_s : std_logic;
 
@@ -80,7 +82,8 @@ ARCHITECTURE structure OF MIPS IS
         signal if_pc_plus4_wo   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
     -- CTL
         signal ctl_memwrite_wo, ctl_beq_wo, ctl_bne_wo, ctl_shamtctl_wo, ctl_regwrite_wo, ctl_wdsel_wo, ctl_regwrite_fwo, ctl_memread_wo : std_logic;
-        signal ctl_memtoreg_wo, ctl_alusrc_wo, ctl_regdst_wo, k1_check_s, ctl_reti_s    : STD_LOGIC_VECTOR(1 DOWNTO 0);
+        signal ctl_memtoreg_wo, ctl_alusrc_wo, ctl_regdst_wo    : STD_LOGIC_VECTOR(1 DOWNTO 0);
+        signal k1_check_s, ctl_reti_s : std_logic;
         signal ctl_alufn_wo     : STD_LOGIC_VECTOR(4 DOWNTO 0);
         signal ctl_controls_qout_w : STD_LOGIC_VECTOR(17 DOWNTO 0);
     -- ID
@@ -366,15 +369,15 @@ BEGIN
         q_out  => ex_signext_wi
     );
 -- EX MEM
-    EX_controls: nbit_dff
+    EX_controls: entity work.nbit_dff
     generic map (
         n => 7
     )
-    port map (
+    port map(
         clk    => MCLK_w,
         rst    => not(rst_i),
         en     => '1',
-        d_in   => ex_memread_wi, ex_memtoreg_wi & ex_memwrite_wi & ex_regdst_wi & ex_regwrite_wi & ex_wdsel_wi,
+        d_in   => ex_memread_wi & ex_memtoreg_wi & ex_memwrite_wi & ex_regdst_wi & ex_regwrite_wi & ex_wdsel_wi,
         q_out  => ex_controls_qout_w
     );
     mem_memread_wi  <= ex_controls_qout_w(7);
@@ -566,7 +569,7 @@ BEGIN
 
 -- Connect the 5 MIPS stages   
 -- IF
-    IFE : Ifetch
+    IFE : entity work.Ifetch
     generic map(
         WORD_GRANULARITY    =>  WORD_GRANULARITY,
         DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH, 
@@ -585,7 +588,7 @@ BEGIN
         jr_ctl_i        => jr_ctl_w,            -- CTL  => IF
         read_data1_i    => id_rd1_wo(PC_WIDTH-1 downto 2), -- ID   => IF
         c3_cmp_i        => c3_cmp_s,            -- IH   => IF
-        isr_i           => mem_dtcm_data_wo     -- MEM  => IF
+        isr_i           => mem_dtcm_data_wo,    -- MEM  => IF
         pc_o            => pc_s,                -- IF   => MIPS
         pc_plus4_o      => if_pc_plus4_wo,      -- IF   => ID
         instruction_o   => if_instruction_wo,   -- IF   => ID, CTL
@@ -596,7 +599,7 @@ BEGIN
     
 
 -- ID & CTL
-    ID : Idecode
+    ID : entity work.Idecode
     generic map(
         DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH
     )
@@ -612,7 +615,7 @@ BEGIN
         c1_cmp_i        => c1_cmp_s,            -- IH   => ID
         c3_cmp_i        => c3_cmp_s,            -- IH   => ID
         c2to5_cmp_i     => c2to5_cmp_s,         -- IH   => ID
-        INTR_i          => intr_s,              -- MIPS => ID
+        INTR_i          => int_req_i,              -- MIPS => ID
         read_data1_o    => id_rd1_wo,           -- ID   => IF, EX, MIPS
         read_data2_o    => id_rd2_wo,           -- ID   => EX, MEM, MIPS
         sign_extend_o   => id_signext_wo,       -- ID   => EX
@@ -623,7 +626,7 @@ BEGIN
 
     id_sub_w    <= id_rd1_mux_w - id_rd2_mux_w;
     id_zflag_w  <= '1' when (id_sub_w = x"00000000") else '0';
-    flush_ctl_w <= j_ctl_w or jr_ctl_w or (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w)) or (c1to3_cmp_s = '1');
+    flush_ctl_w <= j_ctl_w or jr_ctl_w or (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w)) or (c1to3_cmp_s);
     branch_ctl_w <= (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w));
 
     CTL:   control
@@ -746,68 +749,40 @@ BEGIN
     );
 
 -- Interrupts
-    int_ctl_unit: interrupt_controller_unit
-    generic map (
-        ADDRESS_BUS_WIDTH     => DTCM_ADDR_WIDTH,   -- the width of the address bus
-        DATA_BUS_WIDTH        => DATA_BUS_WIDTH,    -- width of the data bus
-    )
-    port map (
-        clk_i               => MCLK_w,
-        rst_i               => not(rst_i),
-        inta_i              => inta_s,
-        interrupt_src_i     => interrupt_src_i,
-        address_bus_i       => address_bus_s,
-        data_bus_io         => data_bus_s,
-        mem_write_c_i       => control_bus_s(1),
-        mem_read_c_i        => control_bus_s(0),
-        interrupt_done_o    => interrupt_done_s,
-        int_req_o           => intr_s
-    );
+    -- int_ctl_unit: entity work.interrupt_controller_unit
+    -- generic map (
+    --     ADDRESS_BUS_WIDTH     => DTCM_ADDR_WIDTH,   -- the width of the address bus
+    --     DATA_BUS_WIDTH        => DATA_BUS_WIDTH,    -- width of the data bus
+    -- )
+    -- port map (
+    --     clk_i               => MCLK_w,
+    --     rst_i               => not(rst_i),
+    --     inta_i              => inta_s,
+    --     interrupt_src_i     => interrupt_src_i,
+    --     address_bus_i       => address_bus_s,
+    --     data_bus_io         => data_bus_s,
+    --     mem_write_c_i       => control_bus_s(1),
+    --     mem_read_c_i        => control_bus_s(0),
+    --     interrupt_done_o    => interrupt_done_s,
+    --     int_req_o           => intr_s
+    -- );
 
     -- interrupt handler module
-        interrupt_handler: interrupt_handler
+    interrupt_handler: entity work.interrupt_handler
         generic map(data_bus_width => DATA_BUS_WIDTH)
-        port(
+        port map(
             clk_i               => MCLK_w,
             rst_i               => not(rst_i),
-            intr_i              => intr_s,
+            intr_i              => int_req_i,
             reti_ctl_i          => ctl_reti_s,
             instruction_id_i    => id_instruction_wi,
+            int_ack_o           => int_ack_o,
             c1_cmp_o            => c1_cmp_s,
             c3_cmp_o            => c3_cmp_s,
             c1to3_cmp_o         => c1to3_cmp_s,
             c2to5_cmp_o         => c2to5_cmp_s
         );
 
-    -- INTA logic
-        process(rst_i, MCLK_w)
-        begin
-            if not(rst_i) = '1' then
-                inta_proc1_s <= '1';
-            elsif rising_edge(MCLK_w) then
-                inta_proc1_s <= intr_s;
-            end if;
-        end process;
-
-        process(rst_i, MCLK_w)
-        begin
-            if not(rst_i) = '1' then
-                inta_proc2_s <= '1';
-            elsif rising_edge(MCLK_w) then
-                inta_proc2_s <= inta_proc1_s;
-            end if;
-        end process;
-
-        process(rst_i, MCLK_w)
-        begin
-            if not(rst_i) = '1' then
-                inta_proc3_s <= '1';
-            elsif rising_edge(MCLK_w) then
-                inta_proc3_s <= inta_proc2_s;
-            end if;
-        end process;
-
-        inta_s <= not(rst_i and not(inta_proc3_s) and inta_proc1_s);
 
     -- mem addr mux for interrupts
         mem_alures_si <= data_bus_s when (c3_cmp_s = '1') else mem_alures_wi;
@@ -816,7 +791,7 @@ BEGIN
         address_bus_s <= mem_alures_wi;
 
     -- write to peripherals using tri-state 
-        peripheral_write: nbit_bidir
+        peripheral_write: entity work.nbit_bidir
         generic map (width => DATA_BUS_WIDTH)
         port map (
             Dout    => mem_rd2_wi,
