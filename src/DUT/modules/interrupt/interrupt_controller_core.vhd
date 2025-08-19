@@ -1,151 +1,121 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.numeric_std_unsigned.all;
 use work.aux_package.all;
 use work.const_package.all;
 use work.memory_map.all;
 
 entity interrupt_controller_core is
     generic (
-        INT_UNIT_ADDRESS_ARRAY : t_addr_array := INT_UNIT_ADDRESS_ARRAY
+        INT_SRC_COUNT: NATURAL := 9;
+        INT_IFG_COUNT: NATURAL := 7
             );
     port 
     (   
         clk_i               : in std_logic;
         rst_i               : in std_logic;
-        inta_i              : in std_logic;
-        interrupt_src_i     : in std_logic_vector(7 downto 0);
-        eint_i              : in std_logic_vector(7 downto 0);
-        reti_i              : in std_logic;
+        inta_i_b            : in std_logic;
+        interrupt_src_i     : in std_logic_vector(8 downto 0);
+        eint_i              : in std_logic_vector(6 downto 0);
+        gie_i               : in std_logic;
 
-        interrupt_done_o    : out std_logic_vector(7 downto 0);
-        ifg_o               : out std_logic_vector(7 downto 0);
-        type_o              : out std_logic_vector(7 downto 0);
-        icc_o               : out std_logic_vector(2 downto 0);
-        intr_o              : out std_logic
+        ifg_o               : out std_logic_vector(6 downto 0);
+        type_reg_d_in_o     : out std_logic_vector(6 downto 0);
+        int_req_o              : out std_logic
     );
 end entity interrupt_controller_core;
 
 
 architecture rtl of interrupt_controller_core is
-    signal irq_s        : std_logic_vector(7 downto 0);
-    signal ifg_s        : std_logic_vector(7 downto 0);
-    signal clr_irq_s    : std_logic_vector(7 downto 0);
-    signal type_s       : std_logic_vector(7 downto 0);
-    signal alt_type_s   : std_logic_vector(7 downto 0);
+    signal irq_s        : std_logic_vector(INT_SRC_COUNT-1 downto 0);
+    signal ifg_s        : std_logic_vector(INT_SRC_COUNT-1 downto 0);
+    signal en_int_s     : std_logic_vector(INT_SRC_COUNT-1 downto 0);
+    signal clr_irq_s    : std_logic_vector(INT_SRC_COUNT-1 downto 0);
     signal is_interrupt : std_logic;
-    signal gie_s        : std_logic;
-    signal inta_prev_s, inta_fall_s : std_logic;
-    signal reti_prev_s, reti_rise_s : std_logic;
-    signal icc_s        : std_logic_vector(2 downto 0);
-    signal selected_int_s: std_logic_vector(2 downto 0);
-begin
-    ifg_s <= irq_s and eint_i;
-    is_interrupt <= '0' when ifg_s = (others => '0') else '1';
-    ifg_o <= ifg_s;
-    intr_o <= gie_s and is_interrupt;
+    signal inta_i_b_not : std_logic;
 
--- generate dff input to irq for synchronuos request
-    for i in 0 to 7 generate
+    signal enc_pri_int_s: std_logic_vector(3 downto 0);
+    signal selected_sync_int: std_logic_vector(3 downto 0);
+    signal irq_dff_clr: std_logic_vector(INT_SRC_COUNT-1 downto 0);
+begin
+
+    -- generate dff input to irq for synchronuos request
+    irq_dff_gen : for i in 0 to INT_SRC_COUNT-1 generate
     begin
         sync : nbit_dff
         generic map (n => 1)
         port map (
             clk     => interrupt_src_i(i),
-            rst     => clr_irq_s(i),
+            -- rst     => clr_irq_s(i) or rst_i,
+            rst     => irq_dff_clr(i),
             en      => '1',
             d_in    => "1",
-            q_out   => irq_s(i)
+            q_out(0)=> irq_s(i)
+            -- q_out   => "" & irq_s(i)
         );
     end generate;
 
-    -- GIE
-    process(rst_i, clk_i)
-    begin
-        if rst_i = '1' then
-            gie_s <= '1';
-        elsif rising_edge(clk_i) then 
-            if inta_fall_s = '1' then
-                gie_s <= '0';
-            elsif reti_rise_s = '1' then
-                gie_s <= '1';
-            end if;
-        end if;
-    end process;
+    -- process(s)
+    -- begin
+    --     -- logic here
+    -- end process;
+    clr_irq_s <= (others => '0');
+    clr_irq_s(to_integer(selected_sync_int)) <= not gie_i;      -- TODO: CHECK
+    irq_dff_clr <= clr_irq_s or (8 downto 0 => rst_i);
 
-    -- TYPE MASKED
-    process(rst_i, ifg_s)
-    begin
-        if rst_i = '1' then
-            type_s <= (others => '0');
-        elsif ifg_s(0) = '1' then          -- RX
-            type_s <= x"08";            -- when is type = 04?????
-        elsif ifg_s(1) = '1' then       -- TX
-            type_s <= x"0C";
-        elsif ifg_s(2) = '1' then       -- BT
-            type_s <= x"10";
-        elsif ifg_s(3) = '1' then       -- KEY1
-            type_s <= x"14";
-        elsif ifg_s(4) = '1' then       -- KEY2
-            type_s <= x"18";
-        elsif ifg_s(5) = '1' then       -- KEY3
-            type_s <= x"1C";
-        elsif ifg_s(6) = '1' then     
-            if irq_s(6) = '1' then      -- FIFO EMPTY
-                type_s <= x"20";
-            elsif irq_s(7) = '1' then   -- FIROUT
-                type_s <= x"24";
-            end if;
-        end if;
-    end process;
+    en_int_s(0) <= eint_i(0);       --TODO: CREATE A FUNCTION FOR THIS
+    en_int_s(1) <= eint_i(0);
+    en_int_s(2) <= eint_i(1);
+    en_int_s(3) <= eint_i(2);
+    en_int_s(4) <= eint_i(3);
+    en_int_s(5) <= eint_i(4);
+    en_int_s(6) <= eint_i(5);
+    en_int_s(7) <= eint_i(6);
+    en_int_s(8) <= eint_i(6);
 
-    type_o <= type_s;
+    ifg_s <= irq_s and en_int_s;
 
--- reti prev update
-    reti_prev: nbit_dff
-    generic map (n => 1)
-    port map (
-        clk    => clk_i,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => reti_i,
-        q_out  => reti_rise_s
+    ifg_o(0) <= ifg_s(0) or ifg_s(1); -- TODO: CREATE A FUNCTION FOR THIS
+    ifg_o(1) <= ifg_s(2);
+    ifg_o(2) <= ifg_s(3);
+    ifg_o(3) <= ifg_s(4);
+    ifg_o(4) <= ifg_s(5);
+    ifg_o(5) <= ifg_s(6);
+    ifg_o(6) <= ifg_s(7) or ifg_s(8);
+
+
+    -- is_interrupt <= '0' when ifg_s = (others => '0') else '1';
+    with ifg_s select
+        is_interrupt <= '0' when (8 downto 0 => '0'),
+                        '1' when others;
+    int_req_o <= gie_i and is_interrupt;
+
+    enc_pri_int_s <= "0001" when ifg_s(0) = '1' else
+                     "0010" when ifg_s(1) = '1' else
+                     "0011" when ifg_s(2) = '1' else
+                     "0100" when ifg_s(3) = '1' else
+                     "0101" when ifg_s(4) = '1' else
+                     "0110" when ifg_s(5) = '1' else
+                     "0111" when ifg_s(6) = '1' else
+                     "1000" when ifg_s(7) = '1' else
+                     "1001" when ifg_s(8) = '1' else
+                     "0000";
+
+    inta_i_b_not <= not inta_i_b;
+    selected_int_reg: entity work.nbit_dff
+     generic map( n => 4)
+    port map(
+        clk => inta_i_b_not,        --- TODO: CHECK IF not is needed
+        rst => rst_i,
+        en => '1',
+        d_in => enc_pri_int_s,
+        q_out => selected_sync_int
     );
 
--- reti falling edge flag
-reti_rise_s <= '1' when ((reti_prev_s = '0') and (reti_i = '1')) else '0';
+    -- type_reg_d_in_o <= "0" & shift_left(selected_sync_int, 2) & "00";
+    type_reg_d_in_o <= "0" & selected_sync_int & "00";
 
--- INTA prev update
-    inta_prev: nbit_dff
-    generic map (n => 1)
-    port map (
-        clk    => clk_i,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => inta_i,
-        q_out  => inta_prev_s
-    );
-
--- INTA falling edge flag
-inta_fall_s <= '1' when ((inta_prev_s = '1') and (inta_i = '0')) else '0';
-            
--- Interrupt Cycle Counter (ICC)
-    process(clk_i, rst_i)
-    begin
-        if (rst_i = '1') then
-            icc_s <= (others => '0');
-        elsif rising_edge(clk_i) then
-            if (inta_fall_s = '1') then
-                icc_s <= to_unsigned(1, 3);
-            elsif ((icc_s > 0) and (icc_s < 5)) then 
-                icc_s <= icc_s + 1;
-            else
-                icc_s <= (others => '0');
-            end if;
-        end if;
-    end process;
-
-    icc_o <= icc_s;
 
 end architecture rtl;
 
