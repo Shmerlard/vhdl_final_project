@@ -20,18 +20,22 @@ ENTITY mips_core IS
             CLK_CNT_WIDTH : integer     := 16;
             INST_CNT_WIDTH : integer    := 16
     );
-    PORT(   rst_i               :IN STD_LOGIC;
-            clk_i               :IN STD_LOGIC; 
-            bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
-            int_req_i           : in std_logic;
-            interrupt_src_i     :in std_logic_vector(7 downto 0);
+    PORT(   rst_i               :IN     STD_LOGIC;
+            clk_i               :IN     STD_LOGIC; 
+            bpaddr_i            :IN     STD_LOGIC_VECTOR(7 downto 0);
+            int_req_i           :in     std_logic;
+            interrupt_src_i     :in     std_logic_vector(7 downto 0);
+
+            data_bus_o          :inout  STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+            addr_bus_o          :inout  STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
+            ctrl_bus_o          :inout  STD_LOGIC_VECTOR(1 DOWNTO 0);
             -- Output important signals to pins for easy display in SignalTap
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
             alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            int_ack_o           : out std_logic;
+            int_ack_o           :OUT    std_logic;
             instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             Branch_ctrl_o       :OUT    STD_LOGIC;
             Zero_o              :OUT    STD_LOGIC;
@@ -749,24 +753,6 @@ BEGIN
     );
 
 -- Interrupts
-    -- int_ctl_unit: entity work.interrupt_controller_unit
-    -- generic map (
-    --     ADDRESS_BUS_WIDTH     => DTCM_ADDR_WIDTH,   -- the width of the address bus
-    --     DATA_BUS_WIDTH        => DATA_BUS_WIDTH,    -- width of the data bus
-    -- )
-    -- port map (
-    --     clk_i               => MCLK_w,
-    --     rst_i               => not(rst_i),
-    --     inta_i              => inta_s,
-    --     interrupt_src_i     => interrupt_src_i,
-    --     address_bus_i       => address_bus_s,
-    --     data_bus_io         => data_bus_s,
-    --     mem_write_c_i       => control_bus_s(1),
-    --     mem_read_c_i        => control_bus_s(0),
-    --     interrupt_done_o    => interrupt_done_s,
-    --     int_req_o           => intr_s
-    -- );
-
     -- interrupt handler module
     interrupt_handler: entity work.interrupt_handler
         generic map(data_bus_width => DATA_BUS_WIDTH)
@@ -783,7 +769,6 @@ BEGIN
             c2to5_cmp_o         => c2to5_cmp_s
         );
 
-
     -- mem addr mux for interrupts
         mem_alures_si <= data_bus_s when (c3_cmp_s = '1') else mem_alures_wi;
 
@@ -795,16 +780,21 @@ BEGIN
         generic map (width => DATA_BUS_WIDTH)
         port map (
             Dout    => mem_rd2_wi,
-            en      => mem_alures_wi(11),   -- peripherals addresses are 0x800 and above
+            en      => mem_alures_wi(11) and mem_memwrite_wi,   -- peripherals addresses are 0x800 and above
             Din     => open,
             IOpin   => data_bus_s
         );
 
     -- Mem Data Read
-        mem_dtcm_data_wo <= mem_dtcm_rd_s when ((mem_alures_wi(11) and mem_memread_wi) = '1') else data_bus_s; 
+        mem_dtcm_data_wo <= mem_dtcm_rd_s when ((mem_alures_wi(11) and mem_memread_wi) = '0') else data_bus_s; 
 
     -- write from dtcm input to data bus enable tri-state
         data_input2databus_en_s <= mem_memwrite_wi and mem_alures_wi(11);
+
+-- Buses outputs assignments
+    data_bus_o  <= data_bus_s;
+    addr_bus_o  <= address_bus_s;
+    ctrl_bus_o  <= control_bus_s;
 ---------------------------------------------------------------------------------------
 --                                  IPC - MCLK counter register
 ---------------------------------------------------------------------------------------
