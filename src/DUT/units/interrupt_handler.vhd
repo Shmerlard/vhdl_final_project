@@ -51,6 +51,8 @@ begin
                     end if;
                 when "110" => 
                     icc_s <= "000";
+                when others =>
+                    icc_s <= "000";
             end case;
         end if;
     end process;
