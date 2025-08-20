@@ -47,12 +47,10 @@ begin
         generic map (n => 1)
         port map (
             clk     => interrupt_src_i(i),
-            -- rst     => clr_irq_s(i) or rst_i,
             rst     => irq_dff_clr(i),
             en      => '1',
             d_in    => "1",
             q_out(0)=> irq_s(i)
-            -- q_out   => "" & irq_s(i)
         );
     end generate;
 

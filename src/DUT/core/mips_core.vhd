@@ -161,15 +161,14 @@ BEGIN
     read_data1_o        <=  id_rd1_mux_w;
     read_data2_o        <=  id_rd2_mux_w;
     write_data_o        <=  write_data_w;
-                                
+
     Branch_ctrl_o       <=  branch_ctl_w;
     Zero_o              <=  zero_w;
     RegWrite_ctrl_o     <=  wb_regwrite_wi;
     MemWrite_ctrl_o     <=  mem_regwrite_wi;    
 
-    
 -- connect the PLL component
-    G0:
+    pll_gen:
     if (MODELSIM = 0) generate
       MCLK: PLL
         PORT MAP (
@@ -179,7 +178,7 @@ BEGIN
     else generate
         MCLK_w <= clk_i;
     end generate;
-    
+
 
 --------------------------------------------------------------------
 -- Create separators between 5 stages

@@ -82,24 +82,8 @@ BEGIN
         data_bus_o => data_bus_s,
         addr_bus_o => addr_bus_s,
         ctrl_bus_o => ctrl_bus_s,
-        -- pc_o => pc_o,
-        -- alu_result_o => alu_result_o,
-        -- read_data1_o => read_data1_o,
-        -- read_data2_o => read_data2_o,
-        -- write_data_o => write_data_o,
         int_ack_o => int_ack_s,
         gie_o   => gie_s
-        -- instruction_top_o => instruction_top_o,
-        -- Branch_ctrl_o => Branch_ctrl_o,
-        -- Zero_o => Zero_o,
-        -- MemWrite_ctrl_o => MemWrite_ctrl_o,
-        -- RegWrite_ctrl_o => RegWrite_ctrl_o,
-        -- mclk_cnt_o => mclk_cnt_o,
-        -- inst_cnt_o => inst_cnt_o,
-        -- hex_o => hex_o,
-        -- flush_cnt => flush_cnt,
-        -- hf_cnt => hf_cnt,
-        -- strigger_o => strigger_o
     );
 
     int_src_s(6 downto 4) <= keys_i;
