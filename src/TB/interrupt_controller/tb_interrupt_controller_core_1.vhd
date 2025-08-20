@@ -28,7 +28,7 @@ ARCHITECTURE tb OF tb_interrupt_controller_core_1 is
     signal eint_i : std_logic_vector(6 downto 0) := "1111111";
 
     signal ifg_o : std_logic_vector(6 downto 0);
-    signal type_reg_d_in_o : std_logic_vector(6 downto 0);
+    signal type_reg_d_in_o : std_logic_vector(7 downto 0);
     signal int_req_o : std_logic;
 
 

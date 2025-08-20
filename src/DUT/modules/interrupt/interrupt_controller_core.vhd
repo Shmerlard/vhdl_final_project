@@ -17,11 +17,11 @@ entity interrupt_controller_core is
         rst_i               : in std_logic;
         inta_i_b            : in std_logic;
         interrupt_src_i     : in std_logic_vector(8 downto 0);
-        eint_i              : in std_logic_vector(6 downto 0);
+        eint_i              : in std_logic_vector(7 downto 0);
         gie_i               : in std_logic;
 
         ifg_o               : out std_logic_vector(6 downto 0);
-        type_reg_d_in_o     : out std_logic_vector(6 downto 0);
+        type_reg_d_in_o     : out std_logic_vector(7 downto 0);
         int_req_o              : out std_logic
     );
 end entity interrupt_controller_core;
@@ -114,7 +114,7 @@ begin
     );
 
     -- type_reg_d_in_o <= "0" & shift_left(selected_sync_int, 2) & "00";
-    type_reg_d_in_o <= "0" & selected_sync_int & "00";
+    type_reg_d_in_o <= "00" & selected_sync_int & "00";
 
 
 end architecture rtl;

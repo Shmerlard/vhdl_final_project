@@ -31,8 +31,8 @@ package aux_package is
             DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
             CLK_CNT_WIDTH : integer     := 16;
             INST_CNT_WIDTH : integer    := 16;
-            DTCM_PATH : string;
-            ITCM_PATH : string
+            DTCM_PATH : string := G_DTCM_PATH;
+            ITCM_PATH : string := G_ITCM_PATH
     );
     PORT(   rst_i               :IN     STD_LOGIC;
             clk_i               :IN     STD_LOGIC; 
@@ -84,25 +84,23 @@ package aux_package is
     PORT(   rst_i               :IN STD_LOGIC;
             clk_i               :IN STD_LOGIC; 
             bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
-            int_req_i           : in std_logic;
-            interrupt_src_i     :in std_logic_vector(8 downto 0);
-            pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
-            alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            int_ack_o           : out std_logic;
-            instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            Branch_ctrl_o       :OUT    STD_LOGIC;
-            Zero_o              :OUT    STD_LOGIC;
-            MemWrite_ctrl_o     :OUT    STD_LOGIC;
-            RegWrite_ctrl_o     :OUT    STD_LOGIC;
-            mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
-            inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
-            hex_o               :OUT    t_hex_array(0 to 7);
-            flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-            hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-            strigger_o          :OUT    std_logic
+            -- Output important signals to pins for easy display in SignalTap
+            -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
+            -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+            -- read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+            -- read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+            -- write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+            -- instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+            -- Branch_ctrl_o       :OUT    STD_LOGIC;
+            -- Zero_o              :OUT    STD_LOGIC;
+            -- MemWrite_ctrl_o     :OUT    STD_LOGIC;
+            -- RegWrite_ctrl_o     :OUT    STD_LOGIC;
+            -- mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
+            -- inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
+            hex_o               :OUT    t_hex_array(0 to 7)
+            -- flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+            -- hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+            -- strigger_o          :OUT    std_logic
     );
     end component;
 ---------------------------------------------------------  
@@ -192,30 +190,30 @@ package aux_package is
     END component;
 ---------------------------------------------------------       
     component Ifetch IS
-        generic(
-            WORD_GRANULARITY : boolean  := True;
-            DATA_BUS_WIDTH : integer    := 32;
-            PC_WIDTH : integer          := 10;
-            NEXT_PC_WIDTH : integer     := 8; -- NEXT_PC_WIDTH = PC_WIDTH-2
-            ITCM_ADDR_WIDTH : integer   := 8;
-            WORDS_NUM : integer         := 256;
-            INST_CNT_WIDTH : integer    := 16;
-            ITCM_PATH : string
-        );
-        PORT(   
-            clk_i, rst_i    : in    std_logic;
-            bta_i, jta_i    : in    std_logic_vector(7 downto 0);
-            branch_ctl_i    : in    std_logic;
-            j_ctl_i         : in    std_logic;
-            jr_ctl_i        : in    std_logic;
-            read_data1_i    : in    std_logic_vector(data_bus_width-1 downto 2);
-            c3_cmp_i        : in    std_logic;
-            isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
-            pc_o            : out   std_logic_vector(pc_width-1 downto 0);
-            pc_plus4_o      : out   std_logic_vector(next_pc_width-1 downto 0);
-            instruction_o   : out   std_logic_vector(data_bus_width-1 downto 0);
-            inst_cnt_o      : out   std_logic_vector(inst_cnt_width-1 downto 0) 
-        );
+    generic(
+        WORD_GRANULARITY : boolean  := True;
+        DATA_BUS_WIDTH : integer    := 32;
+        PC_WIDTH : integer          := 10;
+        NEXT_PC_WIDTH : integer     := 8; -- NEXT_PC_WIDTH = PC_WIDTH-2
+        ITCM_ADDR_WIDTH : integer   := 8;
+        WORDS_NUM : integer         := 256;
+        INST_CNT_WIDTH : integer    := 16;
+        ITCM_PATH : string
+    );
+    PORT(   
+        clk_i, rst_i    : in    std_logic;
+        bta_i, jta_i    : in    std_logic_vector(7 downto 0);
+        branch_ctl_i    : in    std_logic;
+        j_ctl_i         : in    std_logic;
+        jr_ctl_i        : in    std_logic;
+        read_data1_i    : in    std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
+        c3_cmp_i        : in    std_logic;
+        isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
+        pc_o            : out   std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
+        pc_plus4_o      : out   std_logic_vector(next_pc_width-1 downto 0);
+        instruction_o   : out   std_logic_vector(data_bus_width-1 downto 0);
+        inst_cnt_o      : out   std_logic_vector(inst_cnt_width-1 downto 0) 
+    );
     END component;
 ---------------------------------------------------------       
     component WRITE_BACK IS
@@ -337,63 +335,63 @@ package aux_package is
     end component nbit_dff_ext;
 ---------------------------------------------------------
 ---------------------------------------------------------
-    component timer_core is
-    generic ( n: integer := 32);
-    port (
-        mclk_i : in std_logic;
-        mclk_i2 : in std_logic;
-        mclk_i4 : in std_logic;
-        mclk_i8 : in std_logic;
-        rst_i   : in std_logic;
-        BTCLR: in std_logic;
-        BTHOLD: in std_logic;
-        BTSSEL: in std_logic_vector(1 downto 0);
-        BTOUTMD: in std_logic;
-        BTOUTEN: in std_logic;
-        BTCCR0: in std_logic_vector(n-1 downto 0);
-        BTCCR1: in std_logic_vector(n-1 downto 0);
-        BTIP: in std_logic_vector(1 downto 0);
-        BTIFG: out std_logic;
-        PWMOUT: out std_logic;
-
-        d_bus_i: in std_logic_vector(n-1 downto 0);
-        btcnt_wr_en: in std_logic;
-        d_bus_o: out std_logic_vector(n-1 downto 0)
-
-    );
-    end component timer_core;
+    -- component timer_core is
+    -- generic ( n: integer := 32);
+    -- port (
+    --     mclk_i : in std_logic;
+    --     mclk_i2 : in std_logic;
+    --     mclk_i4 : in std_logic;
+    --     mclk_i8 : in std_logic;
+    --     rst_i   : in std_logic;
+    --     BTCLR: in std_logic;
+    --     BTHOLD: in std_logic;
+    --     BTSSEL: in std_logic_vector(1 downto 0);
+    --     BTOUTMD: in std_logic;
+    --     BTOUTEN: in std_logic;
+    --     BTCCR0: in std_logic_vector(n-1 downto 0);
+    --     BTCCR1: in std_logic_vector(n-1 downto 0);
+    --     BTIP: in std_logic_vector(1 downto 0);
+    --     BTIFG: out std_logic;
+    --     PWMOUT: out std_logic;
+    --
+    --     d_bus_i: in std_logic_vector(n-1 downto 0);
+    --     btcnt_wr_en: in std_logic;
+    --     d_bus_o: out std_logic_vector(n-1 downto 0)
+    --
+    -- );
+    -- end component timer_core;
 ---------------------------------------------------------
-    component fir_base_unit is
-    generic(
-        w: integer := 24;
-        q: integer := 8
-    );
-    port (
-        clk_i   : in STD_LOGIC;
-        rst_i   : in STD_LOGIC;
-        x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
-        sum_i   : in STD_LOGIC_VECTOR(w+q-1 downto 0);
-        coef_i  : in STD_LOGIC_VECTOR(q-1 downto 0);
-
-        x_o     : out STD_LOGIC_VECTOR(w-1 downto 0);
-        sum_o   : out STD_LOGIC_VECTOR(w+q-1 downto 0)
-    );
-    end component;
+    -- component fir_base_unit is
+    -- generic(
+    --     w: integer := 24;
+    --     q: integer := 8
+    -- );
+    -- port (
+    --     clk_i   : in STD_LOGIC;
+    --     rst_i   : in STD_LOGIC;
+    --     x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
+    --     sum_i   : in STD_LOGIC_VECTOR(w+q-1 downto 0);
+    --     coef_i  : in STD_LOGIC_VECTOR(q-1 downto 0);
+    --
+    --     x_o     : out STD_LOGIC_VECTOR(w-1 downto 0);
+    --     sum_o   : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+    -- );
+    -- end component;
 ---------------------------------------------------------
-    component fir_reg_arr is
-        generic(
-            w: integer := 24;
-            m: integer := 8;
-            q: integer := 8
-        );
-        port (
-            clk_i   : in STD_LOGIC;
-            rst_i   : in STD_LOGIC;
-            x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
-            coeff_i : in t_vec_array(0 to M-2)(q-1 downto 0);
-            y_o     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
-        );
-    end component fir_reg_arr;
+    -- component fir_reg_arr is
+    --     generic(
+    --         w: integer := 24;
+    --         m: integer := 8;
+    --         q: integer := 8
+    --     );
+    --     port (
+    --         clk_i   : in STD_LOGIC;
+    --         rst_i   : in STD_LOGIC;
+    --         x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
+    --         coeff_i : in t_vec_array(0 to M-2)(q-1 downto 0);
+    --         y_o     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+    --     );
+    -- end component fir_reg_arr;
 ---------------------------------------------------------
     component interrupt_controller_core is
     generic (
@@ -406,11 +404,11 @@ package aux_package is
         rst_i               : in std_logic;
         inta_i_b            : in std_logic;
         interrupt_src_i     : in std_logic_vector(8 downto 0);
-        eint_i              : in std_logic_vector(6 downto 0);
+        eint_i              : in std_logic_vector(7 downto 0);
         gie_i               : in std_logic;
 
         ifg_o               : out std_logic_vector(6 downto 0);
-        type_reg_d_in_o     : out std_logic_vector(6 downto 0);
+        type_reg_d_in_o     : out std_logic_vector(7 downto 0);
         int_req_o              : out std_logic
     );
     end component interrupt_controller_core;
@@ -493,47 +491,47 @@ end component interrupt_controller_unit;
         );
     end component nbit_timer;
 ---------------------------------------------------------
-    component  timer_output_unit is
-    generic( n : integer := 8);
-    port (
-        -- inputs
-        btccr0_i, btccr1_i      : in std_logic_vector(n-1 downto 0);
-        btcnt_i                 : in std_logic_vector(n-1 downto 0);
-
-        clk_i                   : in STD_LOGIC;
-        en_i                    : in STD_LOGIC;
-        mode_i                  : in STD_LOGIC;
-
-        -- outpus
-        pwm_out_o               : out std_logic;
-        heu0_o                  : out STD_LOGIC
-    );
-    end component  timer_output_unit;
+    -- component  timer_output_unit is
+    -- generic( n : integer := 8);
+    -- port (
+    --     -- inputs
+    --     btccr0_i, btccr1_i      : in std_logic_vector(n-1 downto 0);
+    --     btcnt_i                 : in std_logic_vector(n-1 downto 0);
+    --
+    --     clk_i                   : in STD_LOGIC;
+    --     en_i                    : in STD_LOGIC;
+    --     mode_i                  : in STD_LOGIC;
+    --
+    --     -- outpus
+    --     pwm_out_o               : out std_logic;
+    --     heu0_o                  : out STD_LOGIC
+    -- );
+    -- end component  timer_output_unit;
 ---------------------------------------------------------
-    component timer_unit is
-        generic
-        (
-            REG_SIZE: integer := 32;
-            TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;
-            ADDRESS_BUS_WIDTH: INTEGER := 12;
-            DATA_BUS_WIDTH: INTEGER := 32
-        );
-        port (
-            mclk_i          : in std_logic;
-            mclk_i2_i       : in std_logic;
-            mclk_i4_i       : in std_logic;
-            mclk_i8_i       : in std_logic;
-            rst_i           : in std_logic;
-            mem_write_c_i   : in std_logic;
-            mem_read_c_i    : in std_logic;
-
-            address_bus_i   : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
-            data_bus_io     : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-
-            BTIFG           : out std_logic;
-            PWMOUT          : out std_logic
-        );
-    end component timer_unit;
+    -- component timer_unit is
+    --     generic
+    --     (
+    --         REG_SIZE: integer := 32;
+    --         TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;
+    --         ADDRESS_BUS_WIDTH: INTEGER := 12;
+    --         DATA_BUS_WIDTH: INTEGER := 32
+    --     );
+    --     port (
+    --         mclk_i          : in std_logic;
+    --         mclk_i2_i       : in std_logic;
+    --         mclk_i4_i       : in std_logic;
+    --         mclk_i8_i       : in std_logic;
+    --         rst_i           : in std_logic;
+    --         mem_write_c_i   : in std_logic;
+    --         mem_read_c_i    : in std_logic;
+    --
+    --         address_bus_i   : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+    --         data_bus_io     : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+    --
+    --         BTIFG           : out std_logic;
+    --         PWMOUT          : out std_logic
+    --     );
+    -- end component timer_unit;
 ---------------------------------------------------------
     component nbit_latch is
         generic ( n : integer := 8 ); -- bus width

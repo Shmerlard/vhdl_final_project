@@ -70,7 +70,7 @@ ARCHITECTURE structure OF mips_core IS
     signal lw_hazard_rd1_w, lw_hazard_rd2_w     : std_logic;
     signal flush_cnt_s      : std_logic_vector(CLK_CNT_WIDTH-1 DOWNTO 0);
     signal hf_cnt_s         : std_logic_vector(CLK_CNT_WIDTH-1 DOWNTO 0);
-    signal pc_s             : STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
+    signal pc_s             : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
 
 -- interrupts
     -- signal inta_s, intr_s   : std_logic;
@@ -188,7 +188,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => if_final_inst_w,
         q_out  => id_instruction_si
@@ -202,7 +202,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => if_pc_plus4_wo,
         q_out  => id_pc_plus4_wi
@@ -213,7 +213,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => pc_s,
         q_out  => id_pc_s_wi
@@ -221,11 +221,11 @@ BEGIN
 -- ID EX
     CTL_controls : nbit_dff
     generic map (
-        n => 17
+        n => 18
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo,
         q_out  => ctl_controls_qout_w
@@ -248,7 +248,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => id_pc_plus4_wi,
         q_out  => ex_pc_plus4_wi
@@ -259,7 +259,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => id_instruction_wi(10 downto 6),
         q_out  => ex_shamt_wi
@@ -270,7 +270,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => id_instruction_wi,
         q_out  => ex_instruction_wi
@@ -281,7 +281,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => id_rd1_mux_w,
         q_out  => ex_rd1_wi 
@@ -326,7 +326,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => id_rd2_mux_w,
         q_out  => ex_rd2_wi
@@ -359,7 +359,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => id_zeroext_wo,
         q_out  => ex_zeroext_wi
@@ -370,7 +370,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => id_signext_wo,
         q_out  => ex_signext_wi
@@ -378,11 +378,11 @@ BEGIN
 -- EX MEM
     EX_controls: entity work.nbit_dff
     generic map (
-        n => 7
+        n => 8
     )
     port map(
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => ex_memread_wi & ex_memtoreg_wi & ex_memwrite_wi & ex_regdst_wi & ex_regwrite_wi & ex_wdsel_wi,
         q_out  => ex_controls_qout_w
@@ -403,7 +403,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => ex_pc_plus4_wi,
         q_out  => mem_pc_plus4_wi
@@ -414,7 +414,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => ex_instruction_wi,
         q_out  => mem_instruction_wi
@@ -425,7 +425,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => ex_rd1_wi,
         q_out  => mem_rd1_wi
@@ -436,7 +436,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => ex_rd2_wi,
         q_out  => mem_rd2_wi
@@ -447,7 +447,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => ex_alures_wo,
         q_out  => mem_alures_wi
@@ -459,7 +459,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => ex_sltres_wo,
         q_out  => mem_sltres_wi
@@ -471,7 +471,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => ex_luires_wo,
         q_out  => mem_luires_wi
@@ -483,7 +483,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => mem_memtoreg_wi & mem_regdst_wi & mem_regwrite_wi & mem_wdsel_wi,
         q_out  => mem_controls_qout_w
@@ -499,7 +499,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => mem_pc_plus4_wi,
         q_out  => wb_pc_plus4_wi
@@ -510,7 +510,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => mem_instruction_wi,
         q_out  => wb_instruction_wi
@@ -521,7 +521,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => mem_rd1_wi,
         q_out  => wb_rd1_wi
@@ -532,7 +532,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => mem_dtcm_data_wo,
         q_out  => wb_dtcm_data_wi
@@ -543,7 +543,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => mem_alures_wi,
         q_out  => wb_alures_wi
@@ -555,7 +555,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => mem_sltres_wi,
         q_out  => wb_sltres_wi
@@ -567,7 +567,7 @@ BEGIN
     )
     port map (
         clk    => MCLK_w,
-        rst    => not(rst_i),
+        rst    => rst_i,
         en     => '1',
         d_in   => mem_luires_wi,
         q_out  => wb_luires_wi
@@ -588,7 +588,7 @@ BEGIN
     )
     PORT MAP (  
         clk_i           => MCLK_w,  
-        rst_i           => not(rst_i), 
+        rst_i           => rst_i, 
         bta_i           => bta_w,               -- ID   => IF
         jta_i           => jta_w,
         Branch_ctl_i    => branch_ctl_w,        -- EX   => IF
@@ -596,7 +596,7 @@ BEGIN
         jr_ctl_i        => jr_ctl_w,            -- CTL  => IF
         read_data1_i    => id_rd1_wo(PC_WIDTH-1 downto 2), -- ID   => IF
         c3_cmp_i        => c3_cmp_s,            -- IH   => IF
-        isr_i           => mem_dtcm_data_wo,    -- MEM  => IF
+        isr_i           => mem_dtcm_data_wo(PC_WIDTH-1 downto 2),    -- MEM  => IF
         pc_o            => pc_s,                -- IF   => MIPS
         pc_plus4_o      => if_pc_plus4_wo,      -- IF   => ID
         instruction_o   => if_instruction_wo,   -- IF   => ID, CTL
@@ -613,7 +613,7 @@ BEGIN
     )
     PORT MAP (  
         clk_i           => MCLK_w,          
-        rst_i           => not(rst_i),
+        rst_i           => rst_i,
         instruction_i   => id_instruction_wi,   -- IF   => ID, CTL
         RegWrite_ctrl_i => wb_regwrite_wi,      -- CTL  => ID, MIPS
         write_reg_addr_i => write_reg_addr_w,   -- WB   => ID
@@ -703,7 +703,7 @@ BEGIN
             )
             PORT MAP (  
                 clk_i               => MCLK_w,  
-                rst_i               => not(rst_i),
+                rst_i               => rst_i,
                 dtcm_addr_i         => mem_alures_si((DTCM_ADDR_WIDTH+2)-1 DOWNTO 2), -- increment memory address by 4; ID => MEM
                 dtcm_data_wr_i      => mem_rd2_wi,          -- ID => MEM
                 MemRead_ctrl_i      => mem_memread_wi,      -- no use inside entity
@@ -720,7 +720,7 @@ BEGIN
             )
             PORT MAP (  
                 clk_i               => MCLK_w,  
-                rst_i               => not(rst_i),
+                rst_i               => rst_i,
                 dtcm_addr_i         => mem_alures_si(DTCM_ADDR_WIDTH-1 DOWNTO 2)&"00",  -- ID => MEM
                 dtcm_data_wr_i      => mem_rd2_wi,          -- ID => MEM
                 MemRead_ctrl_i      => mem_memread_wi,      -- no use inside entity
@@ -750,7 +750,7 @@ BEGIN
     hazard_unit: hazardunit
     port map(
         clk_i       => MCLK_w, 
-        rst_i       => not(rst_i),
+        rst_i       => rst_i,
         inst_type_i => hazard_unit_type_w,
         rs_rt_rd_i  => id_instruction_wi(25 downto 11),
         rd1_sel_o   => rd1_sel_w,
@@ -765,7 +765,7 @@ BEGIN
         generic map(data_bus_width => DATA_BUS_WIDTH)
         port map(
             clk_i               => MCLK_w,
-            rst_i               => not(rst_i),
+            rst_i               => rst_i,
             intr_i              => int_req_i,
             reti_ctl_i          => ctl_reti_s,
             instruction_id_i    => id_instruction_wi,
@@ -780,7 +780,7 @@ BEGIN
         mem_alures_si <= data_bus_s when (c3_cmp_s = '1') else mem_alures_wi;
 
     -- address bus written from alures
-        address_bus_s <= mem_alures_wi;
+        address_bus_s <= mem_alures_wi(DTCM_ADDR_WIDTH-1 downto 0);
 
     -- write to peripherals using tri-state 
         peripheral_write: entity work.nbit_bidir
@@ -805,8 +805,8 @@ BEGIN
 ---------------------------------------------------------------------------------------
 --                                  IPC - MCLK counter register
 ---------------------------------------------------------------------------------------
-    strigger_o <= '1' when (pc_s(PC_WIDTH - 1 downto 2) = bpaddr_i) else '0';
-    pc_o <= pc_s;
+    strigger_o <= '1' when (pc_s = bpaddr_i) else '0';
+    pc_o <= pc_s & "00" ;
 
     process (MCLK_w , rst_i)
     begin

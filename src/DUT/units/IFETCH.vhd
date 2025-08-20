@@ -23,10 +23,10 @@ ENTITY Ifetch IS
         branch_ctl_i    : in    std_logic;
         j_ctl_i         : in    std_logic;
         jr_ctl_i        : in    std_logic;
-        read_data1_i    : in    std_logic_vector(data_bus_width-1 downto 2);
+        read_data1_i    : in    std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
         c3_cmp_i        : in    std_logic;
         isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
-        pc_o            : out   std_logic_vector(pc_width-1 downto 0);
+        pc_o            : out   std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
         pc_plus4_o      : out   std_logic_vector(next_pc_width-1 downto 0);
         instruction_o   : out   std_logic_vector(data_bus_width-1 downto 0);
         inst_cnt_o      : out   std_logic_vector(inst_cnt_width-1 downto 0) 
@@ -131,8 +131,8 @@ BEGIN
         end process;
 
 -- copy output signals - allows read inside module
-    pc_o(pc_width-1 downto 2)   <=  pc_s;
-    pc_o(1 downto 0)    <= "00";
+    pc_o   <=  pc_s;
+    -- pc_o(1 downto 0)    <= "00";
     pc_plus4_o          <=  pc_plus4_s;
     inst_cnt_o          <=  inst_cnt_q;
     instruction_o       <=  instruction_w;

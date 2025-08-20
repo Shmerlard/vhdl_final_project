@@ -101,7 +101,7 @@ BEGIN
 -- Insert ID_PC to $K1 when ICC = 3
     RF_wren_s           <= RegWrite_ctrl_i or c3_cmp_i;
     write_reg_addr_s    <= write_reg_addr_i when (c3_cmp_i = '0') else "11011";
-    write_reg_data_s    <= write_reg_data_i when (c3_cmp_i = '0') else id_pc_latch_s;
+    write_reg_data_s    <= write_reg_data_i when (c3_cmp_i = '0') else (x"000000" & id_pc_latch_s);
 
 -- GIE logic
     gie_o <= RF_q(26)(0) and gie_mask_s;

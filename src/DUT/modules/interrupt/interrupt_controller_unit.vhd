@@ -38,11 +38,11 @@ architecture rtl of interrupt_controller_unit is
     signal cs_mem_read_s    : std_logic_vector(INT_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
     --
     signal ifg_in_s : std_logic_vector(INT_IFG_COUNT-1 downto 0);
-    signal ifg_o_s  : std_logic_vector(7 downto 0);
+    signal ifg_o_s  : std_logic_vector(6 downto 0);
     --
-    signal int_en_dff_d_out_s   : std_logic_vector(INT_IFG_COUNT-1 downto 0);
-    signal int_en_dff_d_in_s    : std_logic_vector(INT_IFG_COUNT-1 downto 0);
-    signal type_in_s            : std_logic_vector(6 downto 0);
+    signal int_en_dff_d_out_s   : std_logic_vector(7 downto 0);
+    signal int_en_dff_d_in_s    : std_logic_vector(7 downto 0);
+    signal type_in_s            : std_logic_vector(7 downto 0);
     signal type_out_s           : std_logic_vector(7 downto 0);
     -- signal icc_s                : std_logic_vector(2 downto 0);
 begin
@@ -78,7 +78,7 @@ begin
     );
 
     ifg_dff: entity work.nbit_dff
-    generic map( n => 8)
+    generic map( n => 7)
     port map(
         clk => clk_i,
         rst => rst_i,
@@ -87,11 +87,11 @@ begin
         q_out => ifg_o_s
     );
     ifg_dff_bidir: entity work.nbit_bidir
-    generic map( width => 8 )
+    generic map( width => 7 )
     port map(
         Dout => ifg_o_s,            -- TODO: implement write to ifg reg
         en => cs_mem_read_s(1),
-        IOpin => data_bus_io
+        IOpin => data_bus_io(6 downto 0)
     );
 
     int_en_dff: entity work.nbit_dff
@@ -109,7 +109,7 @@ begin
         Dout => int_en_dff_d_out_s,
         en => cs_mem_read_s(0),
         Din => int_en_dff_d_in_s,
-        IOpin => data_bus_io
+        IOpin => data_bus_io(7 downto 0)
     );
 
     type_dff: entity work.nbit_dff
@@ -126,7 +126,7 @@ begin
     port map(
         Dout => type_out_s,
         en => cs_mem_read_s(2),
-        IOpin => data_bus_io
+        IOpin => data_bus_io(7 downto 0)
     );
 
 
