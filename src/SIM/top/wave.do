@@ -9,8 +9,13 @@ add wave -noupdate -radix hexadecimal -childformat {{/tb_mips_top/CORE/mips_core
 add wave -noupdate -radix hexadecimal /tb_mips_top/CORE/data_bus_s
 add wave -noupdate -radix hexadecimal /tb_mips_top/CORE/mips_core_inst/data_bus_o
 add wave -noupdate -radix hexadecimal /tb_mips_top/CORE/mips_core_inst/mem_rd2_wi
+add wave -noupdate -radix hexadecimal /tb_mips_top/CORE/mips_core_inst/ex_rd2_final_w
+add wave -noupdate -radix hexadecimal /tb_mips_top/CORE/mips_core_inst/ex_rd2_wi
+add wave -noupdate /tb_mips_top/keys_s
+add wave -noupdate /tb_mips_top/CORE/int_ack_s
+add wave -noupdate /tb_mips_top/CORE/int_req_s
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1152970 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1339037 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 152
 configure wave -valuecolwidth 100
@@ -20,11 +25,11 @@ configure wave -snapdistance 10
 configure wave -datasetprefix 0
 configure wave -rowmargin 4
 configure wave -childrowmargin 2
-configure wave -gridoffset 1000
-configure wave -gridperiod 2000
+configure wave -gridoffset 0
+configure wave -gridperiod 1000
 configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {2069433 ps}
+WaveRestoreZoom {939755 ps} {2055803 ps}
 bookmark add wave bookmark2 {{746193 ps} {12451153 ps}} 11

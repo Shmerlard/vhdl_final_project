@@ -71,7 +71,9 @@ ARCHITECTURE structure OF mips_core IS
     signal flush_cnt_s      : std_logic_vector(CLK_CNT_WIDTH-1 DOWNTO 0);
     signal hf_cnt_s         : std_logic_vector(CLK_CNT_WIDTH-1 DOWNTO 0);
     signal pc_s             : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
-
+    signal load_from_type_s : std_logic;
+    signal reg_type_addr_sel_s : std_logic;
+    signal reg_type_addr_s  : std_logic_vector(11 downto 0);
     signal delayd_wen       : std_logic;
 -- interrupts
     -- signal inta_s, intr_s   : std_logic;
@@ -410,7 +412,7 @@ BEGIN
     mem_wdsel_wi    <= ex_controls_qout_w(0);
 
     -- Control BUS
-    control_bus_s <= mem_memread_wi & mem_memwrite_wi;
+    -- control_bus_s <= mem_memread_wi & mem_memwrite_wi;
     
     EX_pc_plus4 : nbit_dff
     generic map (
@@ -677,8 +679,10 @@ BEGIN
 
     k1_check_s <= '1' when (id_instruction_wi(25 downto 21) = 27) else '0';
     ctl_reti_s <= jr_ctl_w and k1_check_s;
-    control_bus_s <= lw_ctl_w & sw_ctl_w;
+    control_bus_s(0) <= mem_memwrite_wi;
+    control_bus_s(1) <= mem_memread_wi;
 
+    ctl_memread_wo <= lw_ctl_w or load_from_type_s;
 -- EX
     ex_rd1_final_w <= ex_rd1_wi when (lw_hazard_rd1_w = '0') else mem_dtcm_data_wo;
     ex_rd2_final_w <= ex_rd2_wi when (lw_hazard_rd2_w = '0') else mem_dtcm_data_wo;
@@ -788,8 +792,11 @@ BEGIN
             int_ack_o           => int_ack_o,
             c1_cmp_o            => c1_cmp_s,
             c3_cmp_o            => c3_cmp_s,
+            load_from_type_o    => load_from_type_s,
             c1to3_cmp_o         => c1to3_cmp_s,
-            c2to5_cmp_o         => c2to5_cmp_s
+            c2to5_cmp_o         => c2to5_cmp_s,
+            reg_type_addr_sel   => reg_type_addr_sel_s,
+            reg_type_addr_o     => reg_type_addr_s
         );
 
     -- mem addr mux for interrupts
@@ -816,7 +823,7 @@ BEGIN
 
 -- Buses outputs assignments
     data_bus_o  <= data_bus_s;
-    addr_bus_o  <= address_bus_s;
+    addr_bus_o  <= address_bus_s when reg_type_addr_sel_s = '0' else reg_type_addr_s; -- to select regular addr_bus or the address of tpye register
     ctrl_bus_o  <= control_bus_s;
 ---------------------------------------------------------------------------------------
 --                                  IPC - MCLK counter register

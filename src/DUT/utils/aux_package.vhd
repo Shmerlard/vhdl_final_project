@@ -236,18 +236,22 @@ package aux_package is
     END component;
 ---------------------------------------------------------       
     component interrupt_handler is
-        generic(data_bus_width : natural := 32);
-        port(
-                clk_i               : in    std_logic;
-                rst_i               : in    std_logic;
-                intr_i              : in    std_logic;
-                reti_ctl_i          : in    std_logic;
-                instruction_id_i    : in    std_logic_vector(data_bus_width-1 downto 0);
-                c1_cmp_o            : out   std_logic;
-                c3_cmp_o            : out   std_logic;
-                c1to3_cmp_o         : out   std_logic;
-                c2to5_cmp_o         : out   std_logic
-            );
+    generic(data_bus_width : natural := 32);
+    port(
+        clk_i               : in    std_logic;
+        rst_i               : in    std_logic;
+        intr_i              : in    std_logic;
+        reti_ctl_i          : in    std_logic;
+        instruction_id_i    : in    std_logic_vector(data_bus_width-1 downto 0);
+        int_ack_o           : out   std_logic;
+        c1_cmp_o            : out   std_logic;
+        c3_cmp_o            : out   std_logic;
+        load_from_type_o    : out   std_logic;
+        c1to3_cmp_o         : out   std_logic;
+        c2to5_cmp_o         : out   std_logic;
+        reg_type_addr_o     : out   std_logic_vector(11 downto 0);
+        reg_type_addr_sel   : out   std_logic
+    );
     end component;
 ---------------------------------------------------------   
     component dmemory is

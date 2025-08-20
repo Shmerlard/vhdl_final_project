@@ -102,7 +102,7 @@ BEGIN
         -- strigger_o => strigger_o
     );
 
-    int_src_s(5 downto 3) <= keys_i;
+    int_src_s(6 downto 4) <= keys_i;
     interrupt_controller_unit_inst: entity work.interrupt_controller_unit
     generic map(
         ADDRESS_BUS_WIDTH => DTCM_ADDR_WIDTH+2,

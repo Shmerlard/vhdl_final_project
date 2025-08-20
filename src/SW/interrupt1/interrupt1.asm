@@ -9,7 +9,7 @@ IV: .word main            # Start of Interrupt Vector Table
 	.word KEY3_ISR
 	.word 0
 	
-	a: .word 0x000A
+	a: .word 0x0010
 	b: .word 0xCCCC
 
 .text
@@ -42,8 +42,10 @@ KEY1_ISR:
 	j    KEY1_ISR		    				# infinite loop
 
 KEY2_ISR:
-	j    KEY2_ISR		    				# infinite loop
-
+	addi $t5, $t0, 500
+	addi $t5, $t0, 500
+	jr $k1
+	
 KEY3_ISR:
 	j    KEY3_ISR		    				# infinite loop
 
