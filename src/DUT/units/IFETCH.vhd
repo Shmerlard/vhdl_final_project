@@ -104,31 +104,35 @@ BEGIN
 
     pc_plus4_s <= pc_s + 1;
 
----------------------------------------------------------------------------------------
---                      IPC - instruction counter register
----------------------------------------------------------------------------------------
-    process (clk_i , rst_i)
-    begin
-        if rst_i = '1' then
-            pc_prev_q   <=  (others => '0');
-        elsif falling_edge(clk_i) then
-            pc_prev_q   <=  pc_s;
-        end if;
-    end process;
----------------------------------------------------------------------------------------
-    process (clk_i , rst_i)
-    begin
-        if rst_i = '1' then
-            inst_cnt_q  <=  (others => '0');
-        elsif rising_edge(clk_i) then
-            if pc_prev_q = pc_s then
-                inst_cnt_q  <=  inst_cnt_q + '1';
+
+-- IPC - instruction counter register
+    -- update previous PC signal 
+        process (clk_i , rst_i)
+        begin
+            if rst_i = '1' then
+                pc_prev_q   <=  (others => '0');
+            elsif falling_edge(clk_i) then
+                pc_prev_q(pc_width-1 downto 2)   <=  pc_s;
             end if;
-        end if;
-    end process;
----------------------------------------------------------------------------------------
-    -- copy output signals - allows read inside module
-    pc_o                <=  pc_s;
+        end process;
+
+        pc_prev_q(1 downto 0) <= "00";
+
+    -- update instruction couter signal
+        process (clk_i , rst_i)
+        begin
+            if rst_i = '1' then
+                inst_cnt_q  <=  (others => '0');
+            elsif rising_edge(clk_i) then
+                if pc_prev_q(pc_width-1 downto 2) = pc_s then
+                    inst_cnt_q  <=  inst_cnt_q + '1';
+                end if;
+            end if;
+        end process;
+
+-- copy output signals - allows read inside module
+    pc_o(pc_width-1 downto 2)   <=  pc_s;
+    pc_o(1 downto 0)    <= "00";
     pc_plus4_o          <=  pc_plus4_s;
     inst_cnt_o          <=  inst_cnt_q;
     instruction_o       <=  instruction_w;
