@@ -14,7 +14,7 @@ USE altera_mf.altera_mf_components.all;
 ENTITY dmemory IS
     generic(
         DATA_BUS_WIDTH : integer := 32;
-        DTCM_ADDR_WIDTH : integer := 8;
+        DTCM_ADDR_WIDTH : integer := 10;
         WORDS_NUM : integer := 256;
         DTCM_PATH : string
     );

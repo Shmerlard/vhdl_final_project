@@ -24,6 +24,7 @@ ENTITY mips_top IS
     PORT(   rst_i               :IN STD_LOGIC;
             clk_i               :IN STD_LOGIC; 
             bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
+            keys_i              : in std_logic_vector(2 downto 0);
             -- Output important signals to pins for easy display in SignalTap
             -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
             -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -47,11 +48,11 @@ END mips_top;
 ARCHITECTURE rtl OF mips_top IS
     signal int_req_s : std_logic;
     signal int_ack_s : std_logic;
-    signal int_src_s : std_logic_vector(8 downto 0);
+    signal int_src_s : std_logic_vector(8 downto 0) := (others => '0');
     signal gie_s     : std_logic;
 
     signal data_bus_s    :STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal     addr_bus_s:  STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
+    signal     addr_bus_s:  STD_LOGIC_VECTOR((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
     signal     ctrl_bus_s:  STD_LOGIC_VECTOR(1 DOWNTO 0);
 
 BEGIN
@@ -101,10 +102,10 @@ BEGIN
         -- strigger_o => strigger_o
     );
 
-    -- int_req_s <= '0';
+    int_src_s(5 downto 3) <= keys_i;
     interrupt_controller_unit_inst: entity work.interrupt_controller_unit
     generic map(
-        ADDRESS_BUS_WIDTH => DTCM_ADDR_WIDTH,
+        ADDRESS_BUS_WIDTH => DTCM_ADDR_WIDTH+2,
         DATA_BUS_WIDTH => DATA_BUS_WIDTH
         -- INT_UNIT_ADDRESS_ARRAY => INT_UNIT_ADDRESS_ARRAY,
         -- INT_SRC_COUNT => INT_SRC_COUNT,

@@ -44,6 +44,8 @@ ARCHITECTURE struct OF tb_mips_top IS
    SIGNAL write_data_tb_o       : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
    SIGNAL mclk_cnt_tb_o         : STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
    SIGNAL inst_cnt_tb_o         : STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
+
+    signal keys_s               : std_logic_vector(2 downto 0);
    
 BEGIN
     CORE : entity work.mips_top
@@ -65,7 +67,8 @@ BEGIN
     PORT MAP (
         rst_i               => rst_tb_i,
         clk_i               => clk_tb_i,
-        bpaddr_i            => "00000000"
+        bpaddr_i            => "00000000",
+        keys_i              => keys_s
 
         -- pc_o                => pc_tb_o,
         -- alu_result_o        => alu_result_tb_o,
@@ -95,6 +98,14 @@ BEGIN
         begin
           rst_tb_i <='1','0' after 200 ns;
           wait;
+    end process;
+
+    int_proc: process
+    begin
+        keys_s <= "000";
+        wait for 1325 ns;
+        keys_s <= "010";
+        wait;
     end process;
 --------------------------------------------------------------------        
 END struct;

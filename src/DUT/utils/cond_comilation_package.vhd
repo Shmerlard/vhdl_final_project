@@ -10,8 +10,8 @@ package cond_comilation_package is
 ---------------------------------------------------------
 --  List of 4 local constants
 ---------------------------------------------------------
-    constant MODELSIM_M9K_ADDRWIDTH : integer := 8;
-    constant M4K_ADDRWIDTH : integer := 10;
+    constant MODELSIM_M9K_ADDRWIDTH : integer := 10;
+    constant M4K_ADDRWIDTH : integer := 12;
     constant M4K_MEM_WORDS_NUM : integer := 1024;
     constant MODELSIM_M9K_MEM_WORDS_NUM : integer := 256;
 --------------------------------------------------------    

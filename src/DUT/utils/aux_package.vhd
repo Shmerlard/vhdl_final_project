@@ -41,7 +41,7 @@ package aux_package is
             interrupt_src_i     :in     std_logic_vector(8 downto 0);
 
             data_bus_o          :inout  STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            addr_bus_o          :out  STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
+            addr_bus_o          :out  STD_LOGIC_VECTOR((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
             ctrl_bus_o          :out  STD_LOGIC_VECTOR(1 DOWNTO 0);
             -- Output important signals to pins for easy display in SignalTap
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
@@ -84,6 +84,7 @@ package aux_package is
     PORT(   rst_i               :IN STD_LOGIC;
             clk_i               :IN STD_LOGIC; 
             bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
+            keys_i              : in std_logic_vector(2 downto 0);
             -- Output important signals to pins for easy display in SignalTap
             -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
             -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -252,7 +253,7 @@ package aux_package is
     component dmemory is
         generic(
                    DATA_BUS_WIDTH : integer := 32;
-                   DTCM_ADDR_WIDTH : integer := 8;
+                   DTCM_ADDR_WIDTH : integer := 12;
                    WORDS_NUM : integer := 256;
                    DTCM_PATH : string
                );

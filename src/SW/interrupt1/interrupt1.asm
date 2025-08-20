@@ -10,6 +10,7 @@ IV: .word main            # Start of Interrupt Vector Table
 	.word 0
 	
 	a: .word 0x000A
+	b: .word 0xCCCC
 
 .text
 main:
@@ -21,6 +22,8 @@ main:
 	
 	lw $t1, a
 	sw $t1, 0x840
+	nop
+	sw $t1, b
 	add $t1, $t1, 1
 	add $t2, $t2, 1
 	add $t3, $t3, 1

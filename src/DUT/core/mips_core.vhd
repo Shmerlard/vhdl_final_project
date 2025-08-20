@@ -29,7 +29,7 @@ ENTITY mips_core IS
             interrupt_src_i     :in     std_logic_vector(8 downto 0);
 
             data_bus_o          :inout  STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            addr_bus_o          :out  STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
+            addr_bus_o          :out  STD_LOGIC_VECTOR((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
             ctrl_bus_o          :out  STD_LOGIC_VECTOR(1 DOWNTO 0);
             -- Output important signals to pins for easy display in SignalTap
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
@@ -80,7 +80,7 @@ ARCHITECTURE structure OF mips_core IS
     signal c1_cmp_s, c3_cmp_s, c1to3_cmp_s, c2to5_cmp_s : std_logic;
 
 -- Buses
-    signal address_bus_s    : std_logic_vector(DTCM_ADDR_WIDTH-1 downto 0);
+    signal address_bus_s    : std_logic_vector((DTCM_ADDR_WIDTH + 2)-1 downto 0);
     signal data_bus_s       : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
     signal control_bus_s    : std_logic_vector(1 downto 0); -- [mem_read, mem_write]
     
@@ -442,7 +442,7 @@ BEGIN
         clk    => MCLK_w,
         rst    => rst_i,
         en     => '1',
-        d_in   => ex_rd1_wi,
+        d_in   => ex_rd1_final_w,
         q_out  => mem_rd1_wi
     );
     EX_rd2: nbit_dff
@@ -453,7 +453,7 @@ BEGIN
         clk    => MCLK_w,
         rst    => rst_i,
         en     => '1',
-        d_in   => ex_rd2_wi,
+        d_in   => ex_rd2_final_w,
         q_out  => mem_rd2_wi
     );
     EX_alures: nbit_dff
@@ -710,24 +710,24 @@ BEGIN
 -- MEM
     G1: 
     if (WORD_GRANULARITY = True) generate -- i.e. each WORD has a unike address
-        MEM:  dmemory
+        MEM:  entity work.dmemory
             generic map(
                 DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH, 
                 DTCM_ADDR_WIDTH     =>  DTCM_ADDR_WIDTH,
                 WORDS_NUM           =>  DATA_WORDS_NUM,
                 DTCM_PATH           =>  DTCM_PATH
             )
-            PORT MAP (  
-                clk_i               => MCLK_w,  
+            PORT MAP ( 
+                clk_i               => MCLK_w,
                 rst_i               => rst_i,
                 dtcm_addr_i         => mem_alures_si((DTCM_ADDR_WIDTH+2)-1 DOWNTO 2), -- increment memory address by 4; ID => MEM
                 dtcm_data_wr_i      => mem_rd2_wi,          -- ID => MEM
                 MemRead_ctrl_i      => mem_memread_wi,      -- no use inside entity
                 MemWrite_ctrl_i     => mem_memwrite_wi,     -- CTL => MEM
                 dtcm_data_rd_o      => mem_dtcm_rd_s        -- MEM => ID, IF, MIPS
-            );  
+            );
     elsif (WORD_GRANULARITY = False) generate -- i.e. each BYTE has a unike address 
-        MEM:  dmemory
+        MEM:  entity work.dmemory
             generic map(
                 DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH, 
                 DTCM_ADDR_WIDTH     =>  DTCM_ADDR_WIDTH,
@@ -796,7 +796,7 @@ BEGIN
         mem_alures_si <= data_bus_s when (c3_cmp_s = '1') else mem_alures_wi;
 
     -- address bus written from alures
-        address_bus_s <= mem_alures_wi(DTCM_ADDR_WIDTH-1 downto 0);
+        address_bus_s <= mem_alures_wi((DTCM_ADDR_WIDTH + 2)-1 downto 0);
 
     -- write to peripherals using tri-state 
         peripheral_write: entity work.nbit_bidir
