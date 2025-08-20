@@ -93,7 +93,7 @@ BEGIN
     gen_rst : 
     process
         begin
-          rst_tb_i <='1','0' after 201 ns;
+          rst_tb_i <='1','0' after 200 ns;
           wait;
     end process;
 --------------------------------------------------------------------        

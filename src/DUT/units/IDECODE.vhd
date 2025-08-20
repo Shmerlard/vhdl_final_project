@@ -41,7 +41,7 @@ TYPE register_file IS ARRAY (0 TO 31) OF STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNT
     SIGNAL imm_value_w          : STD_LOGIC_VECTOR( 15 DOWNTO 0 );
     signal slt_res_w            : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal sign_extend_w        : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal instruction_s        : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+    -- signal instruction_s        : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal write_reg_addr_s     : std_logic_vector(4 DOWNTO 0);
     signal write_reg_data_s     : std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal id_pc_latch_s        : std_logic_vector(NEXT_PC_WIDTH-1 DOWNTO 0);
@@ -49,10 +49,10 @@ TYPE register_file IS ARRAY (0 TO 31) OF STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNT
     signal gie_mask_s           : std_logic;
 
 BEGIN
-    rs_register_w           <= instruction_s(25 DOWNTO 21);
-    rt_register_w           <= instruction_s(20 DOWNTO 16);
-    rd_register_w           <= instruction_s(15 DOWNTO 11);
-    imm_value_w             <= instruction_s(15 DOWNTO 0);
+    rs_register_w           <= instruction_i(25 DOWNTO 21);
+    rt_register_w           <= instruction_i(20 DOWNTO 16);
+    rd_register_w           <= instruction_i(15 DOWNTO 11);
+    imm_value_w             <= instruction_i(15 DOWNTO 0);
     
     -- Read Register 1 Operation
     read_data1_o <= RF_q(CONV_INTEGER(rs_register_w));
@@ -69,7 +69,7 @@ BEGIN
     bta_o <= pc_plus4_i + imm_value_w(NEXT_PC_WIDTH-1 downto 0) - 1;
 
     -- Jump target address
-    jta_o <= instruction_s(7 downto 0);
+    jta_o <= instruction_i(7 downto 0);
 
     -- Zero Extend 16-bits to 32-bits
     zero_extend_o <= x"0000" & imm_value_w;

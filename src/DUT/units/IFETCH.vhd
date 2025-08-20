@@ -68,9 +68,9 @@ BEGIN
     -- send address to inst. memory address register
     G1: 
     if (WORD_GRANULARITY = True) generate       -- i.e. each WORD has unike address
-        itcm_addr_w <= pc_din_s;
+        itcm_addr_w <= pc_s;
     elsif (WORD_GRANULARITY = False) generate   -- i.e. each BYTE has unike address
-        itcm_addr_w <= pc_din_s & "00";
+        itcm_addr_w <= pc_s & "00";
     end generate;
 
 

@@ -4,9 +4,13 @@ USE IEEE.STD_LOGIC_ARITH.ALL;
 USE IEEE.STD_LOGIC_SIGNED.ALL;
 
 ENTITY control IS
+    generic(
+        DATA_BUS_WIDTH : natural   := 32
+    );
     PORT(
-        Op              : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
-        Funct           : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
+        -- Op              : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
+        -- Funct           : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
+        instruction_i   : in    std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
         MemtoReg        : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);
         MemWrite        : OUT   STD_LOGIC;
         jump            : OUT   STD_LOGIC;
@@ -34,10 +38,20 @@ Architecture dataflow of control is
     signal  sll_f, srl_f, mult, add, addu, sub, and_f, or_f, 
             xor_f, slt, jr_sig  : STD_LOGIC := '0';
 
+    signal nop_s: std_logic;
+    signal Op, funct: std_logic_vector(5 downto 0);
+
+
 begin
     -----------------------------------------------------------------
     --                  Signals Assignments
     -----------------------------------------------------------------
+    Op      <= instruction_i(DATA_BUS_WIDTH-1 downto 26);
+    funct   <= instruction_i(5 downto 0);
+
+    -- nop_s   <= '1' when instruction_i = (others => '0') else '0';
+    nop_s   <= '1' when instruction_i = x"00000000" else '0'; -- TODO: find better imple
+
     R_type  <= '1' when Op = "000000" else '0';
     jump_sig<= '1' when Op = "000010" else '0';
     jal     <= '1' when Op = "000011" else '0';
@@ -55,7 +69,7 @@ begin
     mult    <= '1' when Op = "011100" else '0';
 
     -- R-type Instructions
-    sll_f   <= '1' when ((Funct = "000000") and (R_type = '1')) else '0';
+    sll_f   <= '1' when ((Funct = "000000") and (R_type = '1') and (nop_s = '0')) else '0';
     srl_f   <= '1' when ((Funct = "000010") and (R_type = '1')) else '0';
     jr_sig  <= '1' when ((Funct = "001000") and (R_type = '1')) else '0';
     add     <= '1' when ((Funct = "100000") and (R_type = '1')) else '0';

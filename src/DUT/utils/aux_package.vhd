@@ -105,9 +105,13 @@ package aux_package is
     end component;
 ---------------------------------------------------------  
     component control is
+    generic(
+        DATA_BUS_WIDTH : natural   := 32
+    );
     PORT(
-        Op              : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
-        Funct           : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
+        -- Op              : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
+        -- Funct           : IN    STD_LOGIC_VECTOR(5 DOWNTO 0);
+        instruction_i   : in    std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
         MemtoReg        : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);
         MemWrite        : OUT   STD_LOGIC;
         jump            : OUT   STD_LOGIC;

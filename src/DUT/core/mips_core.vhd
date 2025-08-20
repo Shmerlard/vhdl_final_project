@@ -72,6 +72,7 @@ ARCHITECTURE structure OF mips_core IS
     signal hf_cnt_s         : std_logic_vector(CLK_CNT_WIDTH-1 DOWNTO 0);
     signal pc_s             : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
 
+    signal delayd_wen       : std_logic;
 -- interrupts
     -- signal inta_s, intr_s   : std_logic;
     -- signal interrupt_done_s : std_logic_vector(7 downto 0);
@@ -182,6 +183,15 @@ BEGIN
 -- Create separators between 5 stages
 --------------------------------------------------------------------
 -- IF ID
+    process(MCLK_w, rst_i)
+    begin
+        if (rst_i = '1') then 
+            delayd_wen <= '0';
+        elsif rising_edge(MCLK_w) then
+            delayd_wen <= '1';
+        end if;
+    end process;
+
     IF_instruction : nbit_dff
     generic map (
         n => DATA_BUS_WIDTH
@@ -189,7 +199,8 @@ BEGIN
     port map (
         clk    => MCLK_w,
         rst    => rst_i,
-        en     => '1',
+        -- en     => '1',
+        en     => delayd_wen,
         d_in   => if_final_inst_w,
         q_out  => id_instruction_si
     );
@@ -203,10 +214,12 @@ BEGIN
     port map (
         clk    => MCLK_w,
         rst    => rst_i,
-        en     => '1',
+        -- en     => '1',
+        en     => delayd_wen,
         d_in   => if_pc_plus4_wo,
         q_out  => id_pc_plus4_wi
     );
+
     IF_PC_S: nbit_dff
     generic map (
         n => NEXT_PC_WIDTH
@@ -214,10 +227,12 @@ BEGIN
     port map (
         clk    => MCLK_w,
         rst    => rst_i,
-        en     => '1',
+        -- en     => '1',
+        en     => delayd_wen,
         d_in   => pc_s,
         q_out  => id_pc_s_wi
     );
+
 -- ID EX
     CTL_controls : nbit_dff
     generic map (
@@ -640,8 +655,9 @@ BEGIN
 
     CTL:   control
     PORT MAP (  
-        op          => id_instruction_wi(DATA_BUS_WIDTH-1 DOWNTO 26), -- IF => CTL
-        funct       => id_instruction_wi(5 downto 0), -- IF => CTL
+        -- op          => id_instruction_wi(DATA_BUS_WIDTH-1 DOWNTO 26), -- IF => CTL
+        -- funct       => id_instruction_wi(5 downto 0), -- IF => CTL
+        instruction_i =>  id_instruction_wi,
         MemtoReg    => ctl_memtoreg_wo, -- CTL  => ID, MIPS
         MemWrite    => ctl_memwrite_wo, -- CTL  => MEM
         jump        => j_ctl_w,         -- CTL  => IF
