@@ -78,6 +78,8 @@ ARCHITECTURE structure OF mips_core IS
 -- interrupts
     -- signal inta_s, intr_s   : std_logic;
     -- signal interrupt_done_s : std_logic_vector(7 downto 0);
+    signal epc_latched_addr_s : std_logic_vector(next_pc_width-1 downto 0);
+    signal epc_latch_ctrl_s     : std_logic;
     signal data_input2databus_en_s : std_logic;
     signal c1_cmp_s, c3_cmp_s, c1to3_cmp_s, c2to5_cmp_s : std_logic;
     signal gie_mask_s: std_logic;
@@ -195,7 +197,7 @@ BEGIN
         rst_i => rst_i,
         instruction_i => if_final_inst_w,
         instruction_o => id_instruction_si,
-        pc_plus4_i => if_pc_plus4_wo,
+        pc_plus4_i => pc_s,
         pc_plus4_o => id_pc_plus4_wi,
         pc_i => pc_s,
         pc_o => if_pc_s_wi
@@ -246,16 +248,6 @@ BEGIN
     ex_regwrite_wi  <= ctl_controls_qout_w(2);
     ex_wdsel_wi     <= ctl_controls_qout_w(1);
     ex_shamtctl_wi  <= ctl_controls_qout_w(0);
-    -- Generate 8 instances
-    -- gen_hex_drivers : for i in 0 to 7 generate
-    -- begin
-    --     hex_driver_inst : hex_driver
-    --     port map (
-    --                  num_in  => write_data_w(i * 4 + 3 downto i * 4),
-    --                  en      => '1',
-    --                  num_out => hex_o(i)
-    --              );
-    -- end generate;
 
     with rd1_sel_w select
         id_rd1_mux_w <= 
@@ -335,6 +327,18 @@ BEGIN
     mem_regwrite_wi <= ex_controls_qout_w(1);
     mem_wdsel_wi    <= ex_controls_qout_w(0);
 
+    EPC_UNIT_inst: entity work.epc
+    generic map( next_pc_width => next_pc_width)
+    port map(
+        clk_i => clk_i,
+        rst_i => rst_i,
+        ex_j_ctl_i => j_ctl_w,
+        ex_jr_ctl_i => jr_ctl_w,
+        ex_branch_ctl_i => branch_ctl_w,
+        epc_capture_i => epc_latch_ctrl_s,
+        ex_pc_plus4_i => ex_pc_plus4_wi,
+        ret_pc_o => epc_latched_addr_s
+    );
 -- MEM WB
     MEM_WB_PLR_inst: entity work.mem_wb_pipeline_reg
     generic map(
@@ -392,7 +396,6 @@ BEGIN
         c3_cmp_i        => c3_cmp_s,            -- IH   => IF
         isr_i           => mem_dtcm_data_wo(PC_WIDTH-1 downto 2),    -- MEM  => IF
         pc_o            => pc_s,                -- IF   => MIPS
-        pc_plus4_o      => if_pc_plus4_wo,      -- IF   => ID
         instruction_o   => if_instruction_wo,   -- IF   => ID, CTL
         inst_cnt_o      => inst_cnt_w           -- IF   => MIPS
     );
@@ -413,11 +416,9 @@ BEGIN
         write_reg_addr_i => write_reg_addr_w,   -- WB   => ID
         write_reg_data_i => write_data_w,       -- WB   => ID
         pc_plus4_i      => id_pc_plus4_wi,      -- IF   => ID
-        if_pc_i         => if_pc_s_wi,          -- IF   => ID
-        id_pc_i         => id_pc_s_wi,
+        pc_latch_i      => epc_latched_addr_s,
         c1_cmp_i        => c1_cmp_s,            -- IH   => ID
         c3_cmp_i        => c3_cmp_s,            -- IH   => ID
-        -- c2to5_cmp_i     => c2to5_cmp_s,         -- IH   => ID
         gie_mask_i      => gie_mask_s,
         INTR_i          => int_req_i,              -- MIPS => ID
         gie_o           => gie_o,
@@ -576,7 +577,8 @@ BEGIN
             c1to3_cmp_o         => c1to3_cmp_s,
             c2to5_cmp_o         => c2to5_cmp_s,
             reg_type_addr_sel   => reg_type_addr_sel_s,
-            reg_type_addr_o     => reg_type_addr_s
+            reg_type_addr_o     => reg_type_addr_s,
+            latch_epc_load_o    => epc_latch_ctrl_s
         );
 
     -- mem addr mux for interrupts

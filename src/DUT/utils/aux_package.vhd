@@ -251,7 +251,8 @@ package aux_package is
         c1to3_cmp_o         : out   std_logic;
         c2to5_cmp_o         : out   std_logic;
         reg_type_addr_o     : out   std_logic_vector(11 downto 0);
-        reg_type_addr_sel   : out   std_logic
+        reg_type_addr_sel   : out   std_logic;
+        latch_epc_load_o    : out   std_logic
     );
     end component;
 ---------------------------------------------------------   
@@ -272,6 +273,143 @@ package aux_package is
     end component;
 ---------------------------------------------------------   
 
+    -- mem registers
+    component ex_mem_pipeline_reg is
+        generic(
+            controls_count_JJJJ : natural := 8;
+            DATA_BUS_WIDTH : integer    := 32;
+            NEXT_PC_WIDTH : integer     := 8
+
+        );
+        port (
+            clk_i : in std_logic;
+            rst_i : in std_logic;
+
+            controls_i : in std_logic_vector;
+            controls_o : out std_logic_vector;
+
+            pc_plus4_i : in std_logic_vector;
+            pc_plus4_o : out std_logic_vector;
+
+            instruction_i : in std_logic_vector;
+            instruction_o : out std_logic_vector;
+
+
+            rd1_i : in std_logic_vector;
+            rd1_o : out std_logic_vector;
+
+            rd2_i : in std_logic_vector;
+            rd2_o : out std_logic_vector;
+
+            alu_res_i : in std_logic_vector;
+            alu_res_o : out std_logic_vector;
+
+            slt_res_i : in std_logic_vector;
+            slt_res_o : out std_logic_vector;
+
+            lui_res_i : in std_logic_vector;
+            lui_res_o : out std_logic_vector
+        );
+    end component ex_mem_pipeline_reg;
+---------------------------------------------------------  
+    component id_ex_pipeline_reg is
+        generic(
+            controls_count_JJJJ : natural := 18;
+                DATA_BUS_WIDTH : integer    := 32;
+                NEXT_PC_WIDTH : integer     := 8;
+                shamt_count : integer := 5
+
+        );
+        port (
+            clk_i : in std_logic;
+            rst_i : in std_logic;
+
+            controls_i : in std_logic_vector;
+            controls_o : out std_logic_vector;
+
+            pc_plus4_i : in std_logic_vector;
+            pc_plus4_o : out std_logic_vector;
+
+            shamt_i : in std_logic_vector;
+            shamt_o : out std_logic_vector;
+
+            instruction_i : in std_logic_vector;
+            instruction_o : out std_logic_vector;
+
+            rd1_i : in std_logic_vector;
+            rd1_o : out std_logic_vector;
+
+            rd2_i : in std_logic_vector;
+            rd2_o : out std_logic_vector;
+
+            zero_ext_i : in std_logic_vector;
+            zero_ext_o : out std_logic_vector;
+
+            sign_ext_i : in std_logic_vector;
+            sign_ext_o : out std_logic_vector
+        );
+    end component id_ex_pipeline_reg;
+---------------------------------------------------------  
+    component if_id_pipeline_reg is
+        generic(
+                DATA_BUS_WIDTH : integer    := 32;
+                NEXT_PC_WIDTH : integer     := 8
+
+        );
+        port (
+            clk_i : in std_logic;
+            rst_i : in std_logic;
+
+            instruction_i : in std_logic_vector;
+            instruction_o : out std_logic_vector;
+
+            pc_plus4_i : in std_logic_vector;
+            pc_plus4_o : out std_logic_vector;
+
+            -- TODO: find better names
+            pc_i : in std_logic_vector;
+            pc_o : out std_logic_vector
+        );
+    end component if_id_pipeline_reg;
+---------------------------------------------------------  
+    component mem_wb_pipeline_reg is
+        generic(
+            controls_count_JJJJ : natural := 6;
+            DATA_BUS_WIDTH : integer    := 32;
+            NEXT_PC_WIDTH : integer     := 8
+
+        );
+        port (
+            clk_i : in std_logic;
+            rst_i : in std_logic;
+
+            controls_i : in std_logic_vector;
+            controls_o : out std_logic_vector;
+
+            pc_plus4_i : in std_logic_vector;
+            pc_plus4_o : out std_logic_vector;
+
+            instruction_i : in std_logic_vector;
+            instruction_o : out std_logic_vector;
+
+            rd1_i : in std_logic_vector;
+            rd1_o : out std_logic_vector;
+
+            dtcm_data_i : in std_logic_vector;
+            dtcm_data_o : out std_logic_vector;
+
+            alu_res_i : in std_logic_vector;
+            alu_res_o : out std_logic_vector;
+
+
+            slt_res_i : in std_logic_vector;
+            slt_res_o : out std_logic_vector;
+
+            lui_res_i : in std_logic_vector;
+            lui_res_o : out std_logic_vector
+        );
+    end component mem_wb_pipeline_reg;
+---------------------------------------------------------  
 
 
 

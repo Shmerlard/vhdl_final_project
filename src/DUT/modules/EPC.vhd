@@ -5,7 +5,7 @@ use work.aux_package.all;
 
 entity epc is
     generic(
-        next_pc_width := natural := 8
+        next_pc_width : natural := 8
     );
     port (
         clk_i, rst_i    : in    std_logic;
@@ -14,15 +14,17 @@ entity epc is
         ex_branch_ctl_i : in    std_logic;
         epc_capture_i   : in    std_logic;
         ex_pc_plus4_i   : in    std_logic_vector(next_pc_width-1 downto 0);
-        ret_pc_o        : out   std_logic_vector(next_pc_width-1 downto 0);
+        ret_pc_o        : out   std_logic_vector(next_pc_width-1 downto 0)
     );
 end entity epc;
 
 
 architecture rtl of epc is
 -- signals declaration
-    signal  id_pc_s, ex_pc_s, ret_pc_din_s  : std_logic_vector(next_pc_width-1 downto 0);
-    signal  alt_pc_sel_s            : std_logic;
+    signal  id_pc_s         : std_logic_vector(next_pc_width-1 downto 0);
+    signal  ex_pc_s         : std_logic_vector(next_pc_width-1 downto 0);
+    signal  ret_pc_din_s    : std_logic_vector(next_pc_width-1 downto 0);
+    signal  alt_pc_sel_s    : std_logic;
 
 begin
     id_pc_s     <= ex_pc_plus4_i;
@@ -48,9 +50,9 @@ begin
         saved_ret_pc: nbit_dff
         generic map(n => next_pc_width)
         port map(
-            clk     => clk_i,
+            clk     => epc_capture_i,
             rst     => rst_i,
-            en      => epc_capture_i,
+            en      => '1',
             d_in    => ret_pc_din_s,
             q_out   => ret_pc_o
         );
