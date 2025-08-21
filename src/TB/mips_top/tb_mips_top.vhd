@@ -103,7 +103,7 @@ BEGIN
     int_proc: process
     begin
         keys_s <= "000";
-        wait for 13250 ns;
+        wait for 2225 ns;
         keys_s <= "010";
         wait;
     end process;
