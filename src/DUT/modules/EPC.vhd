@@ -12,6 +12,7 @@ entity epc is
         ex_j_ctl_i      : in    std_logic;
         ex_jr_ctl_i     : in    std_logic;
         ex_branch_ctl_i : in    std_logic;
+        epc_capture_i   : in    std_logic;
         ex_pc_plus4_i   : in    std_logic_vector(next_pc_width-1 downto 0);
         ret_pc_o        : out   std_logic_vector(next_pc_width-1 downto 0);
     );
@@ -20,7 +21,7 @@ end entity epc;
 
 architecture rtl of epc is
 -- signals declaration
-    signal  id_pc_s, ex_pc_s        : std_logic_vector(next_pc_width-1 downto 0);
+    signal  id_pc_s, ex_pc_s, ret_pc_din_s  : std_logic_vector(next_pc_width-1 downto 0);
     signal  alt_pc_sel_s            : std_logic;
 
 begin
@@ -41,6 +42,18 @@ begin
         alt_pc_sel_s <= ex_j_ctl_i or ex_jr_ctl_i or ex_branch_ctl_i;
     
     -- output mux
-        ret_pc_o <= ex_pc_s when (alt_pc_sel_s = '1') else id_pc_s;
+        ret_pc_din_s <= ex_pc_s when (alt_pc_sel_s = '1') else id_pc_s;
+
+    -- save return pc
+        saved_ret_pc: nbit_dff
+        generic map(n => next_pc_width)
+        port map(
+            clk     => clk_i,
+            rst     => rst_i,
+            en      => epc_capture_i,
+            d_in    => ret_pc_din_s,
+            q_out   => ret_pc_o
+        );
+
     
 end architecture rtl;
