@@ -33,7 +33,7 @@ package memory_map is
         BTCTL     => 16#81C#,
         BTCNT     => 16#820#,
         BTCCR0    => 16#824#,
-        BTCCR1    => 16#824#,
+        BTCCR1    => 16#828#,
 
         FIRCTL    => 16#82C#,
         FIRIN     => 16#830#,

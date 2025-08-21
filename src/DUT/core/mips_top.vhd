@@ -105,6 +105,9 @@ BEGIN
             c3      => mclk8_s);
     else generate
         mclk_s <= clk_i;
+        mclk2_s <= clk_i;
+        mclk4_s <= clk_i;
+        mclk8_s <= clk_i;
         -- TODO: connect others
     end generate;
 

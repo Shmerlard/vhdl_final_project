@@ -59,7 +59,7 @@ ARCHITECTURE structure OF mips_core IS
     SIGNAL zero_w           : STD_LOGIC;
     SIGNAL mem_read_w       : STD_LOGIC;
     SIGNAL instruction_w    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    SIGNAL MCLK_w           : STD_LOGIC;
+    -- SIGNAL clk_i           : STD_LOGIC;
     SIGNAL mclk_cnt_q       : STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);    
     SIGNAL inst_cnt_w       : STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);  
     signal write_data_w     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -177,10 +177,10 @@ BEGIN
     --   MCLK: PLL
     --     PORT MAP (
     --         inclk0  => clk_i,
-    --         c0      => MCLK_w
+    --         c0      => clk_i
     --     );
     -- else generate
-    --     MCLK_w <= clk_i;
+    --     clk_i <= clk_i;
     -- end generate;
 
 
@@ -385,7 +385,7 @@ BEGIN
         ITCM_PATH           =>  ITCM_PATH
     )
     PORT MAP (  
-        clk_i           => MCLK_w,  
+        clk_i           => clk_i,  
         rst_i           => rst_i, 
         bta_i           => bta_w,               -- ID   => IF
         jta_i           => jta_w,
@@ -409,7 +409,7 @@ BEGIN
         DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH
     )
     PORT MAP (  
-        clk_i           => MCLK_w,          
+        clk_i           => clk_i,          
         rst_i           => rst_i,
         instruction_i   => id_instruction_wi,   -- IF   => ID, CTL
         RegWrite_ctrl_i => wb_regwrite_wi,      -- CTL  => ID, MIPS
@@ -502,7 +502,7 @@ BEGIN
                 DTCM_PATH           =>  DTCM_PATH
             )
             PORT MAP ( 
-                clk_i               => MCLK_w,
+                clk_i               => clk_i,
                 rst_i               => rst_i,
                 dtcm_addr_i         => mem_alures_si((DTCM_ADDR_WIDTH+2)-1 DOWNTO 2), -- increment memory address by 4; ID => MEM
                 dtcm_data_wr_i      => mem_rd2_wi,          -- ID => MEM
@@ -519,7 +519,7 @@ BEGIN
                 DTCM_PATH           =>  DTCM_PATH
             )
             PORT MAP (  
-                clk_i               => MCLK_w,  
+                clk_i               => clk_i,  
                 rst_i               => rst_i,
                 dtcm_addr_i         => mem_alures_si(DTCM_ADDR_WIDTH-1 DOWNTO 2)&"00",  -- ID => MEM
                 dtcm_data_wr_i      => mem_rd2_wi,          -- ID => MEM
@@ -549,7 +549,7 @@ BEGIN
 -- Hazard Unit
     hazard_unit: hazardunit
     port map(
-        clk_i       => MCLK_w, 
+        clk_i       => clk_i, 
         rst_i       => rst_i,
         inst_type_i => hazard_unit_type_w,
         rs_rt_rd_i  => id_instruction_wi(25 downto 11),
@@ -564,7 +564,7 @@ BEGIN
     interrupt_handler: entity work.interrupt_handler
         generic map(data_bus_width => DATA_BUS_WIDTH)
         port map(
-            clk_i               => MCLK_w,
+            clk_i               => clk_i,
             rst_i               => rst_i,
             intr_i              => int_req_i,
             reti_ctl_i          => ctl_reti_s,
@@ -613,20 +613,20 @@ BEGIN
     strigger_o <= '1' when (pc_s = bpaddr_i) else '0';
     pc_o <= pc_s & "00" ;
 
-    process (MCLK_w , rst_i)
+    process (clk_i , rst_i)
     begin
         if rst_i = '0' then
             mclk_cnt_q  <=  (others => '0');
-        elsif falling_edge(MCLK_w) then
+        elsif falling_edge(clk_i) then
             mclk_cnt_q  <=  mclk_cnt_q + '1';
         end if;
     end process;
 
-    process (MCLK_w, rst_i)
+    process (clk_i, rst_i)
     begin
         if rst_i = '0' then
             hf_cnt_s    <=  (others => '0');
-        elsif rising_edge(MCLK_w) then
+        elsif rising_edge(clk_i) then
             if (not(rd1_sel_w = "0000") or not(rd2_sel_w = "0000")) then
                 hf_cnt_s    <=  hf_cnt_s + '1';
             end if;

@@ -60,8 +60,8 @@ BEGIN
         DATA_WORDS_NUM              => DATA_WORDS_NUM,
         CLK_CNT_WIDTH               => CLK_CNT_WIDTH,
         INST_CNT_WIDTH              => INST_CNT_WIDTH,
-        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interrupt1/DTCM.hex",
-        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interrupt1/ITCM.hex"
+        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/timer/DTCM.hex",
+        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/timer/ITCM.hex"
 
     )
     PORT MAP (

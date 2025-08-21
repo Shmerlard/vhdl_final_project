@@ -42,6 +42,7 @@ BEGIN
     (
         clk_i => FIRCLK,
         rst_i => FIRRST,
+        fir_en_i => FIRENA,
         x_i => syn_fifo_d_s,
         coeff_i => COEF_I,
         y_o => FIROUT
