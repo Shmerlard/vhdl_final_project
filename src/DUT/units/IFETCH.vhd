@@ -140,7 +140,7 @@ BEGIN
         end process;
 
 -- copy output signals - allows read inside module
-    pc_o   <=  pc_final_s;
+    pc_o                <=  pc_final_s;
     pc_plus4_o          <=  pc_din_s;
     inst_cnt_o          <=  inst_cnt_q;
     instruction_o       <=  instruction_w;

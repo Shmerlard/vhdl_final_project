@@ -179,6 +179,7 @@ package aux_package is
             write_reg_addr_i: in    STD_LOGIC_VECTOR(4 DOWNTO 0);
             write_reg_data_i: in    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             pc_plus4_i      : in    STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+            if_pc_i         : in    STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
             id_pc_i         : in    STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
             c1_cmp_i        : in    std_logic;
             c3_cmp_i        : in    std_logic;

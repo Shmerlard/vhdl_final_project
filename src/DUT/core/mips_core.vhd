@@ -99,7 +99,8 @@ ARCHITECTURE structure OF mips_core IS
         signal ctl_controls_qout_w : STD_LOGIC_VECTOR(17 DOWNTO 0);
     -- ID
         signal id_instruction_wi, id_instruction_si: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        signal id_pc_plus4_wi, id_pc_s_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+        signal id_pc_plus4_wi, if_pc_s_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+        signal id_pc_s_wi : std_logic_vector(NEXT_PC_WIDTH-1 DOWNTO 0);
         signal id_rd1_wo, id_rd2_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal id_zeroext_wo, id_signext_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal id_sub_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -232,7 +233,7 @@ BEGIN
         -- en     => '1',
         en     => delayd_wen,
         d_in   => pc_s,
-        q_out  => id_pc_s_wi
+        q_out  => if_pc_s_wi
     );
 
 -- ID EX
@@ -302,6 +303,16 @@ BEGIN
         en     => '1',
         d_in   => id_rd1_mux_w,
         q_out  => ex_rd1_wi 
+    );
+
+    ID_EX_PLR_id_pc : entity work.nbit_dff
+        generic map ( n => NEXT_PC_WIDTH )
+    port map (
+        clk    => MCLK_w,
+        rst    => rst_i,
+        en     => '1',
+        d_in   => if_pc_s_wi,
+        q_out  => id_pc_s_wi
     );
 
     -- Generate 8 instances
@@ -636,7 +647,8 @@ BEGIN
         write_reg_addr_i => write_reg_addr_w,   -- WB   => ID
         write_reg_data_i => write_data_w,       -- WB   => ID
         pc_plus4_i      => id_pc_plus4_wi,      -- IF   => ID
-        id_pc_i         => id_pc_s_wi,          -- IF   => ID
+        if_pc_i         => if_pc_s_wi,          -- IF   => ID
+        id_pc_i         => id_pc_s_wi,
         c1_cmp_i        => c1_cmp_s,            -- IH   => ID
         c3_cmp_i        => c3_cmp_s,            -- IH   => ID
         -- c2to5_cmp_i     => c2to5_cmp_s,         -- IH   => ID
