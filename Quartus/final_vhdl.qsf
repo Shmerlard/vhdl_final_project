@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE115F29C7
-set_global_assignment -name TOP_LEVEL_ENTITY tb_gpio_unit
+set_global_assignment -name TOP_LEVEL_ENTITY tb1_mips_top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 24.1STD.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "11:38:47  JULY 31, 2025"
 set_global_assignment -name LAST_QUARTUS_VERSION "24.1std.0 Lite Edition"
@@ -129,11 +129,38 @@ set_location_assignment PIN_J19 -to addr_bus_out[2]
 set_location_assignment PIN_E18 -to addr_bus_out[1]
 set_location_assignment PIN_F18 -to addr_bus_out[0]
 set_global_assignment -name OPTIMIZATION_MODE BALANCED
+set_location_assignment PIN_G21 -to leds_out[7]
+set_location_assignment PIN_G22 -to leds_out[6]
+set_location_assignment PIN_G20 -to leds_out[5]
+set_location_assignment PIN_H21 -to leds_out[4]
+set_location_assignment PIN_E24 -to leds_out[3]
+set_location_assignment PIN_E25 -to leds_out[2]
+set_location_assignment PIN_E22 -to leds_out[1]
+set_location_assignment PIN_E21 -to leds_out[0]
+set_location_assignment PIN_R24 -to sw_in[3]
+set_location_assignment PIN_N21 -to sw_in[2]
+set_location_assignment PIN_M21 -to sw_in[1]
+set_location_assignment PIN_M23 -to sw_in[0]
+set_location_assignment PIN_AD27 -to sw_in[7]
+set_location_assignment PIN_AC27 -to sw_in[6]
+set_global_assignment -name VHDL_FILE ../src/DUT/units/WRITE_BACK.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/units/interrupt_handler.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/units/IFETCH.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/units/IDECODE.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/units/HazardUnit.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/units/EXECUTE.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/units/DMEMORY.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/units/CONTROL.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/pipeline_registers/mem_wb_pipeline_reg.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/pipeline_registers/if_id_pipeline_reg.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/pipeline_registers/id_ex_pipeline_reg.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/pipeline_registers/ex_mem_pipeline_reg.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/modules/interrupt/interrupt_controller_unit.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/modules/interrupt/interrupt_controller_core.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/modules/EPC.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/core/mips_top.vhd
+set_global_assignment -name VHDL_FILE ../src/DUT/core/mips_core.vhd
 set_global_assignment -name VHDL_FILE ../src/TB/GPIO/tb_gpio_unit.vhd
-set_global_assignment -name VHDL_FILE ../src/DUT/modules/FIR/fir_unit.vhd
-set_global_assignment -name VHDL_FILE ../src/DUT/modules/FIR/fir_sync_fifo.vhd
-set_global_assignment -name VHDL_FILE ../src/DUT/modules/FIR/fir_reg_arr.vhd
-set_global_assignment -name VHDL_FILE ../src/DUT/modules/FIR/fir_core.vhd
 set_global_assignment -name VHDL_FILE ../src/DUT/modules/gpio/port_sw_interface.vhd
 set_global_assignment -name VHDL_FILE ../src/DUT/modules/gpio/port_led_interface.vhd
 set_global_assignment -name VHDL_FILE ../src/DUT/modules/gpio/port_hex_interface.vhd
@@ -160,21 +187,9 @@ set_global_assignment -name VHDL_FILE ../src/DUT/modules/nbit_latch.vhd
 set_global_assignment -name VHDL_FILE ../src/DUT/modules/nbit_encoder.vhd
 set_global_assignment -name VHDL_FILE ../src/DUT/modules/nbit_decoder.vhd
 set_global_assignment -name VHDL_FILE ../src/DUT/modules/ALU.vhd
+set_global_assignment -name VHDL_FILE ../src/TB/mips_top/tb_mips_top_1.vhd
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_location_assignment PIN_G21 -to leds_out[7]
-set_location_assignment PIN_G22 -to leds_out[6]
-set_location_assignment PIN_G20 -to leds_out[5]
-set_location_assignment PIN_H21 -to leds_out[4]
-set_location_assignment PIN_E24 -to leds_out[3]
-set_location_assignment PIN_E25 -to leds_out[2]
-set_location_assignment PIN_E22 -to leds_out[1]
-set_location_assignment PIN_E21 -to leds_out[0]
-set_location_assignment PIN_R24 -to sw_in[3]
-set_location_assignment PIN_N21 -to sw_in[2]
-set_location_assignment PIN_M21 -to sw_in[1]
-set_location_assignment PIN_M23 -to sw_in[0]
-set_location_assignment PIN_AD27 -to sw_in[7]
-set_location_assignment PIN_AC27 -to sw_in[6]
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name QIP_FILE PLL.qip

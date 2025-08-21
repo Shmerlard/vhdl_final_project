@@ -172,16 +172,16 @@ BEGIN
     MemWrite_ctrl_o     <=  mem_regwrite_wi;    
 
 -- connect the PLL component
-    pll_gen:
-    if (MODELSIM = 0) generate
-      MCLK: PLL
-        PORT MAP (
-            inclk0  => clk_i,
-            c0      => MCLK_w
-        );
-    else generate
-        MCLK_w <= clk_i;
-    end generate;
+    -- pll_gen:
+    -- if (MODELSIM = 0) generate
+    --   MCLK: PLL
+    --     PORT MAP (
+    --         inclk0  => clk_i,
+    --         c0      => MCLK_w
+    --     );
+    -- else generate
+    --     MCLK_w <= clk_i;
+    -- end generate;
 
 
 --------------------------------------------------------------------

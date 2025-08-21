@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use ieee.numeric_std_unsigned.all;
+-- use ieee.numeric_std_unsigned.all;
 use work.aux_package.all;
 use work.const_package.all;
 use work.memory_map.all;
@@ -54,16 +54,26 @@ begin
         );
     end generate;
 
-    process(rst_i, clk_i)
-    begin
-        if rst_i = '1' then
-            clr_irq_s <= (others => '0');
-        elsif rising_edge(clk_i) then
-            if to_integer(selected_sync_int) /= 0 then                  -- TODO: CHECK
-                clr_irq_s(to_integer(selected_sync_int) - 1) <= not(inta_i_b);
-            end if;
-        end if;
-    end process;
+    -- process(rst_i, clk_i)
+    -- begin
+    --     if rst_i = '1' then
+    --         clr_irq_s <= (others => '0');
+    --     elsif rising_edge(clk_i) then
+    --         -- if to_integer(selected_sync_int) /= 0 then                  -- TODO: CHECK
+    --         --     clr_irq_s(to_integer(selected_sync_int) - 1) <= not(inta_i_b);
+    --         -- end if;
+    --     end if;
+    -- end process;
+    clr_irq_s(0) <= not(inta_i_b) when (selected_sync_int = x"1") else '0';
+    clr_irq_s(1) <= not(inta_i_b) when (selected_sync_int = x"2") else '0';
+    clr_irq_s(2) <= not(inta_i_b) when (selected_sync_int = x"3") else '0';
+    clr_irq_s(3) <= not(inta_i_b) when (selected_sync_int = x"4") else '0';
+    clr_irq_s(4) <= not(inta_i_b) when (selected_sync_int = x"5") else '0';
+    clr_irq_s(5) <= not(inta_i_b) when (selected_sync_int = x"6") else '0';
+    clr_irq_s(6) <= not(inta_i_b) when (selected_sync_int = x"7") else '0';
+    clr_irq_s(7) <= not(inta_i_b) when (selected_sync_int = x"8") else '0';
+    clr_irq_s(8) <= not(inta_i_b) when (selected_sync_int = x"9") else '0';
+
     irq_dff_clr <= clr_irq_s or (8 downto 0 => rst_i);
 
     en_int_s(0) <= eint_i(0);       --TODO: CREATE A FUNCTION FOR THIS

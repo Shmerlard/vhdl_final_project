@@ -38,7 +38,7 @@ BEGIN
         clk <= not clk;
     end process;
 
-    DUT: timer_unit
+    DUT: entity work.timer_unit
     generic map(
         REG_SIZE => 8,
         TIMER_UNIT_ADDRESS_ARRAY => timer_mem_map,

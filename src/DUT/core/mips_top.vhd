@@ -4,6 +4,7 @@ USE IEEE.STD_LOGIC_ARITH.ALL;
 use ieee.std_logic_unsigned.all;
 USE work.cond_comilation_package.all;
 USE work.aux_package.all;
+use work.memory_map.all;
 
 ENTITY mips_top IS
     generic( 
@@ -51,9 +52,16 @@ ARCHITECTURE rtl OF mips_top IS
     signal int_src_s : std_logic_vector(8 downto 0) := (others => '0');
     signal gie_s     : std_logic;
 
-    signal data_bus_s    :STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal     addr_bus_s:  STD_LOGIC_VECTOR((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
-    signal     ctrl_bus_s:  STD_LOGIC_VECTOR(1 DOWNTO 0);
+    signal data_bus_s :STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+    signal addr_bus_s :  STD_LOGIC_VECTOR((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
+    signal ctrl_bus_s :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+    signal mclk_s   : std_logic;
+    signal mclk2_s  : std_logic;
+    signal mclk4_s  : std_logic;
+    signal mclk8_s  : std_logic;
+
+    signal pwm_out_s: std_logic;
+    signal btifg_out_s: std_logic;
 
 BEGIN
     mips_core_inst: entity work.mips_core
@@ -74,7 +82,7 @@ BEGIN
     )
     port map(
         rst_i => rst_i,
-        clk_i => clk_i,
+        clk_i => mclk_s,
         bpaddr_i => bpaddr_i,
         int_req_i => int_req_s,
         interrupt_src_i =>  int_src_s,
@@ -86,7 +94,20 @@ BEGIN
         gie_o   => gie_s
     );
 
-    int_src_s(6 downto 4) <= keys_i;
+    pll_gen:
+    if (MODELSIM = 0) generate
+      MCLK: PLL
+        PORT MAP (
+            inclk0  => clk_i,
+            c0      => mclk_s,
+            c1      => mclk2_s,
+            c2      => mclk4_s,
+            c3      => mclk8_s);
+    else generate
+        mclk_s <= clk_i;
+        -- TODO: connect others
+    end generate;
+
     interrupt_controller_unit_inst: entity work.interrupt_controller_unit
     generic map(
         ADDRESS_BUS_WIDTH => DTCM_ADDR_WIDTH+2,
@@ -96,11 +117,10 @@ BEGIN
         -- INT_IFG_COUNT => INT_IFG_COUNT
     )
     port map(
-        clk_i => clk_i,
+        clk_i => mclk_s,
         rst_i => rst_i,
         inta_i => int_ack_s,
         interrupt_src_i => int_src_s,
-        -- reti_i => reti_i,
         gie_i => gie_s,
         mem_write_c_i => ctrl_bus_s(0),
         mem_read_c_i => ctrl_bus_s(1),
@@ -108,4 +128,24 @@ BEGIN
         data_bus_io => data_bus_s,
         int_req_o => int_req_s
     );
+
+    timer_unit_inst: entity work.timer_unit
+    port map(
+        mclk_i => mclk_s,
+        mclk_i2_i => mclk2_s,
+        mclk_i4_i => mclk4_s,
+        mclk_i8_i => mclk8_s,
+        rst_i => rst_i,
+        mem_write_c_i => ctrl_bus_s(0),
+        mem_read_c_i => ctrl_bus_s(1),
+        address_bus_i => addr_bus_s,
+        data_bus_io => data_bus_s,
+        BTIFG => btifg_out_s,
+        PWMOUT => pwm_out_s
+        -- debug_btctl_o => debug_btctl_o,
+        -- debug_btcnt_o => debug_btcnt_o,
+        -- debug_btccr0_o => debug_btccr0_o,
+        -- debug_btccr1_o => debug_btccr1_o
+    );
+    int_src_s(6 downto 4) <= keys_i;
 END ARCHITECTURE rtl;
