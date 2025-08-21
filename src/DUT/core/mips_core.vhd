@@ -46,7 +46,7 @@ ENTITY mips_core IS
             RegWrite_ctrl_o     :OUT    STD_LOGIC;
             mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
             inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
-            hex_o               :OUT    t_hex_array(0 to 7);
+            -- hex_o               :OUT    t_hex_array(0 to 7);
             flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             strigger_o          :OUT    std_logic
@@ -247,15 +247,15 @@ BEGIN
     ex_wdsel_wi     <= ctl_controls_qout_w(1);
     ex_shamtctl_wi  <= ctl_controls_qout_w(0);
     -- Generate 8 instances
-    gen_hex_drivers : for i in 0 to 7 generate
-    begin
-        hex_driver_inst : hex_driver
-        port map (
-                     num_in  => write_data_w(i * 4 + 3 downto i * 4),
-                     en      => '1',
-                     num_out => hex_o(i)
-                 );
-    end generate;
+    -- gen_hex_drivers : for i in 0 to 7 generate
+    -- begin
+    --     hex_driver_inst : hex_driver
+    --     port map (
+    --                  num_in  => write_data_w(i * 4 + 3 downto i * 4),
+    --                  en      => '1',
+    --                  num_out => hex_o(i)
+    --              );
+    -- end generate;
 
     with rd1_sel_w select
         id_rd1_mux_w <= 

@@ -24,7 +24,7 @@ ENTITY mips_top IS
     PORT(   rst_i               :IN STD_LOGIC;
             clk_i               :IN STD_LOGIC; 
             bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
-            keys_i              : in std_logic_vector(2 downto 0);
+            keys_i              : in std_logic_vector(2 downto 0)
             -- Output important signals to pins for easy display in SignalTap
             -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
             -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -38,7 +38,7 @@ ENTITY mips_top IS
             -- RegWrite_ctrl_o     :OUT    STD_LOGIC;
             -- mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
             -- inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
-            hex_o               :OUT    t_hex_array(0 to 7)
+            -- hex_o               :OUT    t_hex_array(0 to 7)
             -- flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             -- hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             -- strigger_o          :OUT    std_logic
