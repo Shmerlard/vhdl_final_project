@@ -351,7 +351,7 @@ BEGIN
     with rd2_sel_w select
         id_rd2_mux_w <= 
             id_rd2_wo           when "0000",
-            
+
             ex_alures_wo        when "0001",
             ex_sltres_wo        when "0010",
             ex_luires_wo        when "0011",
