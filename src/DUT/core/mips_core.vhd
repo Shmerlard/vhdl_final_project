@@ -186,68 +186,55 @@ BEGIN
 -- Create separators between 5 stages
 --------------------------------------------------------------------
 -- IF ID
-    process(MCLK_w, rst_i)
-    begin
-        if (rst_i = '1') then 
-            delayd_wen <= '0';
-        elsif rising_edge(MCLK_w) then
-            delayd_wen <= '1';
-        end if;
-    end process;
-
-    IF_instruction : nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        -- en     => '1',
-        en     => delayd_wen,
-        d_in   => if_final_inst_w,
-        q_out  => id_instruction_si
+    IF_ID_PLR_inst: entity work.if_id_pipeline_reg
+    generic map(
+        DATA_BUS_WIDTH => DATA_BUS_WIDTH,
+        NEXT_PC_WIDTH => NEXT_PC_WIDTH)
+    port map(
+        clk_i => clk_i,
+        rst_i => rst_i,
+        instruction_i => if_final_inst_w,
+        instruction_o => id_instruction_si,
+        pc_plus4_i => if_pc_plus4_wo,
+        pc_plus4_o => id_pc_plus4_wi,
+        pc_i => pc_s,
+        pc_o => if_pc_s_wi
     );
 
     id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0') else (others => '0');
 
-    IF_pc_plus4 : nbit_dff
-    generic map (
-        n => NEXT_PC_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        -- en     => '1',
-        en     => delayd_wen,
-        d_in   => if_pc_plus4_wo,
-        q_out  => id_pc_plus4_wi
-    );
-
-    IF_PC_S: nbit_dff
-    generic map (
-        n => NEXT_PC_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        -- en     => '1',
-        en     => delayd_wen,
-        d_in   => pc_s,
-        q_out  => if_pc_s_wi
-    );
 
 -- ID EX
-    CTL_controls : nbit_dff
-    generic map (
-        n => 18
+
+    ID_EX_PLR_inst: entity work.id_ex_pipeline_reg
+    generic map(
+        controls_count_JJJJ => 18,
+        DATA_BUS_WIDTH => DATA_BUS_WIDTH,
+        NEXT_PC_WIDTH => NEXT_PC_WIDTH,
+        shamt_count => 5
     )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo,
-        q_out  => ctl_controls_qout_w
+    port map(
+        clk_i => clk_i,
+        rst_i => rst_i,
+        controls_i => ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo,
+        controls_o => ctl_controls_qout_w,
+        pc_plus4_i => id_pc_plus4_wi,
+        pc_plus4_o => ex_pc_plus4_wi,
+        shamt_i => id_instruction_wi(10 downto 6),
+        shamt_o => ex_shamt_wi                   ,
+        instruction_i => id_instruction_wi,
+        instruction_o => ex_instruction_wi,
+        rd1_i => id_rd1_mux_w,
+        rd1_o => ex_rd1_wi   ,
+        rd2_i => id_rd2_mux_w,
+        rd2_o => ex_rd2_wi   ,
+        zero_ext_i => id_zeroext_wo,
+        zero_ext_o => ex_zeroext_wi,
+        sign_ext_i => id_signext_wo,
+        sign_ext_o => ex_signext_wi
     );
+
+
     ex_memread_wi   <= ctl_controls_qout_w(17);
     ex_memtoreg_wi  <= ctl_controls_qout_w(16 downto 15);
     ex_memwrite_wi  <= ctl_controls_qout_w(14);
@@ -259,62 +246,6 @@ BEGIN
     ex_regwrite_wi  <= ctl_controls_qout_w(2);
     ex_wdsel_wi     <= ctl_controls_qout_w(1);
     ex_shamtctl_wi  <= ctl_controls_qout_w(0);
-    
-    ID_pc_plus4 : nbit_dff
-    generic map (
-        n => NEXT_PC_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => id_pc_plus4_wi,
-        q_out  => ex_pc_plus4_wi
-    );
-    ID_shamt : nbit_dff
-    generic map (
-        n => 5
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => id_instruction_wi(10 downto 6),
-        q_out  => ex_shamt_wi
-    );
-    ID_inst : nbit_dff
-    generic map (
-        n => 32
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => id_instruction_wi,
-        q_out  => ex_instruction_wi
-    );
-    ID_rd1 : nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => id_rd1_mux_w,
-        q_out  => ex_rd1_wi 
-    );
-
-    ID_EX_PLR_id_pc : entity work.nbit_dff
-        generic map ( n => NEXT_PC_WIDTH )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => if_pc_s_wi,
-        q_out  => id_pc_s_wi
-    );
-
     -- Generate 8 instances
     gen_hex_drivers : for i in 0 to 7 generate
     begin
@@ -348,17 +279,6 @@ BEGIN
             id_rd1_wo           when others;
 
 
-    ID_rd2 : nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => id_rd2_mux_w,
-        q_out  => ex_rd2_wi
-    );
 
     with rd2_sel_w select
         id_rd2_mux_w <= 
@@ -381,39 +301,32 @@ BEGIN
 
             id_rd2_wo           when others;
 
-    id_zero_ext : nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => id_zeroext_wo,
-        q_out  => ex_zeroext_wi
-    );
-    id_sign_ext : nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => id_signext_wo,
-        q_out  => ex_signext_wi
-    );
 -- EX MEM
-    EX_controls: entity work.nbit_dff
-    generic map (
-        n => 8
+    EX_MEM_PLR_inst: entity work.ex_mem_pipeline_reg
+    generic map(
+        controls_count_JJJJ => 8,
+        DATA_BUS_WIDTH => DATA_BUS_WIDTH,
+        NEXT_PC_WIDTH => NEXT_PC_WIDTH
     )
     port map(
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => ex_memread_wi & ex_memtoreg_wi & ex_memwrite_wi & ex_regdst_wi & ex_regwrite_wi & ex_wdsel_wi,
-        q_out  => ex_controls_qout_w
+        clk_i => clk_i,
+        rst_i => rst_i,
+        controls_i => ex_memread_wi & ex_memtoreg_wi & ex_memwrite_wi & ex_regdst_wi & ex_regwrite_wi & ex_wdsel_wi,
+        controls_o => ex_controls_qout_w,
+        pc_plus4_i => ex_pc_plus4_wi,
+        pc_plus4_o => mem_pc_plus4_wi,
+        instruction_i => ex_instruction_wi,
+        instruction_o => mem_instruction_wi,
+        rd1_i => ex_rd1_final_w,
+        rd1_o => mem_rd1_wi    ,
+        rd2_i => ex_rd2_final_w,
+        rd2_o => mem_rd2_wi    ,
+        alu_res_i => ex_alures_wo,
+        alu_res_o => mem_alures_wi,
+        slt_res_i => ex_sltres_wo,
+        slt_res_o => mem_sltres_wi,
+        lui_res_i => ex_luires_wo,
+        lui_res_o => mem_luires_wi
     );
     mem_memread_wi  <= ex_controls_qout_w(7);
     mem_memtoreg_wi <= ex_controls_qout_w(6 downto 5);
@@ -422,185 +335,38 @@ BEGIN
     mem_regwrite_wi <= ex_controls_qout_w(1);
     mem_wdsel_wi    <= ex_controls_qout_w(0);
 
-    -- Control BUS
-    -- control_bus_s <= mem_memread_wi & mem_memwrite_wi;
-    
-    EX_pc_plus4 : nbit_dff
-    generic map (
-        n => NEXT_PC_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => ex_pc_plus4_wi,
-        q_out  => mem_pc_plus4_wi
-    );
-    EX_inst : nbit_dff
-    generic map (
-        n => 32
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => ex_instruction_wi,
-        q_out  => mem_instruction_wi
-    );
-    EX_rd1: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => ex_rd1_final_w,
-        q_out  => mem_rd1_wi
-    );
-    EX_rd2: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => ex_rd2_final_w,
-        q_out  => mem_rd2_wi
-    );
-    EX_alures: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => ex_alures_wo,
-        q_out  => mem_alures_wi
-    );
-
-    EX_sltres: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => ex_sltres_wo,
-        q_out  => mem_sltres_wi
-    );
-
-    EX_luires: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => ex_luires_wo,
-        q_out  => mem_luires_wi
-    );
 -- MEM WB
-    MEM_controls: nbit_dff
-    generic map (
-        n => 6
+    MEM_WB_PLR_inst: entity work.mem_wb_pipeline_reg
+    generic map(
+        controls_count_JJJJ => 6,
+        DATA_BUS_WIDTH => DATA_BUS_WIDTH,
+        NEXT_PC_WIDTH => NEXT_PC_WIDTH
     )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => mem_memtoreg_wi & mem_regdst_wi & mem_regwrite_wi & mem_wdsel_wi,
-        q_out  => mem_controls_qout_w
+    port map(
+        clk_i => clk_i,
+        rst_i => rst_i,
+        controls_i => mem_memtoreg_wi & mem_regdst_wi & mem_regwrite_wi & mem_wdsel_wi,
+        controls_o => mem_controls_qout_w                                             ,
+        pc_plus4_i => mem_pc_plus4_wi,
+        pc_plus4_o => wb_pc_plus4_wi ,
+        instruction_i => mem_instruction_wi,
+        instruction_o => wb_instruction_wi ,
+        rd1_i => mem_rd1_wi,
+        rd1_o => wb_rd1_wi ,
+        dtcm_data_i => mem_dtcm_data_wo,
+        dtcm_data_o => wb_dtcm_data_wi ,
+        alu_res_i => mem_alures_wi,
+        alu_res_o => wb_alures_wi ,
+        slt_res_i => mem_sltres_wi,
+        slt_res_o => wb_sltres_wi ,
+        lui_res_i => mem_luires_wi,
+        lui_res_o => wb_luires_wi 
     );
+
     wb_memtoreg_wi  <= mem_controls_qout_w(5 downto 4);
     wb_regdst_wi    <= mem_controls_qout_w(3 downto 2);
     wb_regwrite_wi  <= mem_controls_qout_w(1);
     wb_wdsel_wi     <= mem_controls_qout_w(0);
-    
-    MEM_pc_plus4 : nbit_dff
-    generic map (
-        n => NEXT_PC_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => mem_pc_plus4_wi,
-        q_out  => wb_pc_plus4_wi
-    );
-    MEM_inst : nbit_dff
-    generic map (
-        n => 32
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => mem_instruction_wi,
-        q_out  => wb_instruction_wi
-    );
-    MEM_rd1: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => mem_rd1_wi,
-        q_out  => wb_rd1_wi
-    );
-    MEM_dtcm_data: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => mem_dtcm_data_wo,
-        q_out  => wb_dtcm_data_wi
-    );
-    MEM_alures: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => mem_alures_wi,
-        q_out  => wb_alures_wi
-    );
-
-    MEM_sltres: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => mem_sltres_wi,
-        q_out  => wb_sltres_wi
-    );
-
-    MEM_luires: nbit_dff
-    generic map (
-        n => DATA_BUS_WIDTH
-    )
-    port map (
-        clk    => MCLK_w,
-        rst    => rst_i,
-        en     => '1',
-        d_in   => mem_luires_wi,
-        q_out  => wb_luires_wi
-    );
-
 
 -- Connect the 5 MIPS stages   
 -- IF
