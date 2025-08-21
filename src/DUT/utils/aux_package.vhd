@@ -526,20 +526,20 @@ package aux_package is
     -- );
     -- end component;
 ---------------------------------------------------------
-    -- component fir_reg_arr is
-    --     generic(
-    --         w: integer := 24;
-    --         m: integer := 8;
-    --         q: integer := 8
-    --     );
-    --     port (
-    --         clk_i   : in STD_LOGIC;
-    --         rst_i   : in STD_LOGIC;
-    --         x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
-    --         coeff_i : in t_vec_array(0 to M-2)(q-1 downto 0);
-    --         y_o     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
-    --     );
-    -- end component fir_reg_arr;
+    component fir_reg_arr is
+        generic(
+            w: integer := 24;
+            m: integer := 8;
+            q: integer := 8
+        );
+        port (
+            clk_i   : in STD_LOGIC;
+            rst_i   : in STD_LOGIC;
+            x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
+            coeff_i : in t_vec_array(0 to M-2)(q-1 downto 0);
+            y_o     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+        );
+    end component fir_reg_arr;
 ---------------------------------------------------------
     component interrupt_controller_core is
     generic (

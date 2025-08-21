@@ -8,7 +8,8 @@ entity fir_core is
         w: integer := 24;
         m: integer := 8;
         q: integer := 8;
-        k: integer := 32                -- TODO: check this number
+        k: integer := 32;
+        k_log: integer := 3                -- TODO: check this number
     );
     port (
         FIFOCLK : in STD_LOGIC;
@@ -34,7 +35,7 @@ end entity fir_core;
 ARCHITECTURE rtl OF fir_core IS
     signal syn_fifo_d_s : STD_LOGIC_VECTOR(w+q-1 downto 0);
 BEGIN
-    fir_reg_arr_inst: fir_reg_arr
+    fir_reg_arr_inst: entity work.fir_reg_arr
     generic map
     ( w => w, m => m, q => q)
     port map
@@ -46,9 +47,9 @@ BEGIN
         y_o => FIROUT
     );
 
-    fir_sync_fifo_inst: fir_sync_fifo
+    fir_sync_fifo_inst: entity work.fir_sync_fifo
     generic map
-    ( w => w, q => q, k => k)
+    ( w => w, k => k, k_log => k_log)
     port map
     (
         FIFOCLK => FIFOCLK,

@@ -31,7 +31,7 @@ ARCHITECTURE rtl OF fir_sync_fifo IS
     signal wr_ptr_s: STD_LOGIC_VECTOR(k_log-1 downto 0);
     signal rd_ptr_s: STD_LOGIC_VECTOR(k_log-1 downto 0);
     -- signal rd_ptr_latched_s: STD_LOGIC_VECTOR(k_log-1 downto 0);
-    signal selected_rd_reg_s: STD_LOGIC_VECTOR(k_log-1 downto 0);
+    signal selected_rd_reg_s: std_logic_vector(k_log-1 downto 0);
 
     signal used_space_cnt_s: std_logic;
     signal used_space_dir_s: std_logic;
@@ -78,17 +78,17 @@ BEGIN
         d_in => (others => '0')
     );
 
-    -- latched_rd_ptr: entity work.nbit_dff
-    --  generic map(
-    --     n => k_log
-    -- )
-    --  port map(
-    --     clk => FIFOCLK,
-    --     rst => FIFORST,
-    --     en => FIFOREN,
-    --     d_in => rd_ptr_s,
-    --     q_out => selected_rd_reg_s
-    -- );
+    latched_rd_ptr: entity work.nbit_dff
+     generic map(
+        n => k_log
+    )
+     port map(
+        clk => FIFOCLK,
+        rst => FIFORST,
+        en => FIFOREN,
+        d_in => rd_ptr_s,
+        q_out => selected_rd_reg_s
+    );
 
     -- decoder for selectign the register to write into
     wr_decoder: entity work.nbit_decoder
@@ -116,10 +116,9 @@ BEGIN
     used_space_cnt_s <= FIFOREN xor FIFOWEN;  -- we change the amount of used space when we only read or only write.
     used_space_dir_s <= FIFOWEN;                -- when we write we count up
 
-    FIFOEMPTY <= '1' when used_space_s = (others => '0') else '0';
-    FIFOFULL  <= '1' when used_space_s = (others => '1') else '0';
+    FIFOEMPTY <= '1' when (unsigned(used_space_s) = 0) else '0';
+    FIFOFULL  <= '1' when (signed(used_space_s) = -1) else '0';
     -- muxing the output based on read pointer
-    DATAOUT <= (others => '0') when FIFOREN
-               else reg_data_o_arr_s(to_integer(unsigned(selected_rd_reg_s)));
+    DATAOUT <= (others => '0') when FIFOREN else reg_data_o_arr_s(to_integer(unsigned(selected_rd_reg_s)));
 
 END ARCHITECTURE rtl;
