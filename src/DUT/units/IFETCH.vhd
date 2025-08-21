@@ -27,7 +27,6 @@ ENTITY Ifetch IS
         c3_cmp_i        : in    std_logic;
         isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
         pc_o            : out   std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
-        pc_plus4_o      : out   std_logic_vector(next_pc_width-1 downto 0);
         instruction_o   : out   std_logic_vector(data_bus_width-1 downto 0);
         inst_cnt_o      : out   std_logic_vector(inst_cnt_width-1 downto 0) 
     );
@@ -111,9 +110,6 @@ BEGIN
         end if;
     end process;
 
-    -- pc_plus4_s <= pc_s + 1;
-
-
 -- IPC - instruction counter register
     -- update previous PC signal 
         process (clk_i , rst_i)
@@ -141,7 +137,6 @@ BEGIN
 
 -- copy output signals - allows read inside module
     pc_o                <=  pc_final_s;
-    pc_plus4_o          <=  pc_din_s;
     inst_cnt_o          <=  inst_cnt_q;
     instruction_o       <=  instruction_w;
 END behavior;
