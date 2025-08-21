@@ -12,6 +12,7 @@ entity interrupt_handler is
         reti_ctl_i          : in    std_logic;
         instruction_id_i    : in    std_logic_vector(data_bus_width-1 downto 0);
         int_ack_o           : out   std_logic;
+        gie_mask_o          : out   std_logic;
         c1_cmp_o            : out   std_logic;
         c3_cmp_o            : out   std_logic;
         load_from_type_o    : out   std_logic;
@@ -27,17 +28,21 @@ architecture struct of interrupt_handler is
     signal icc_s            : std_logic_vector(2 downto 0);
     signal inta_proc1_s, inta_proc2_s, inta_proc3_s: std_logic;
 
+    signal gie_mask_s: std_logic;
     signal c1_cmp_s, c2_cmp_s, c3_cmp_s, c4_cmp_s, c5_cmp_s: std_logic;
 
 
 begin
 -- interrupt cycle counter FSM (ICC)
-    process(rst_i, clk_i)
+    process(rst_i, clk_i, reti_ctl_i)
     begin
         if (rst_i = '1') then
             icc_s <= "000";
             int_ack_o <= '1';
+            gie_mask_s <= '1';
             reg_type_addr_sel <= '0';
+        elsif reti_ctl_i = '1' then
+            gie_mask_s <= '1';
         elsif rising_edge(clk_i) then
             case icc_s is
                 when "000" => 
@@ -46,6 +51,7 @@ begin
                         int_ack_o <= '0';
                     end if;
                 when "001" => 
+                    gie_mask_s <= '0';
                     icc_s <= "010";
                 when "010" => 
                     reg_type_addr_sel <= '1';
@@ -57,47 +63,24 @@ begin
                     reg_type_addr_sel <= '0';
                     icc_s <= "101";
                 when "101" => 
-                    if (reti_ctl_i = '1') then
-                        icc_s <= "110";
+                    if (gie_mask_s = '1') then
+                        if (intr_i = '1') then
+                            icc_s <= "001";
+                            int_ack_o <= '0';
+                        else
+                            icc_s <= "000";
+                        end if;
                     end if;
-                when "110" => 
-                    icc_s <= "000";
                 when others =>
                     icc_s <= "000";
             end case;
         end if;
     end process;
 
-    -- INTA logic
-        -- process(rst_i, clk_i)
-        -- begin
-        --     if not(rst_i) = '1' then
-        --         inta_proc1_s <= '1';
-        --     elsif rising_edge(clk_i) then
-        --         inta_proc1_s <= intr_i;
-        --     end if;
-        -- end process;
-        --
-        -- process(rst_i, clk_i)
-        -- begin
-        --     if not(rst_i) = '1' then
-        --         inta_proc2_s <= '1';
-        --     elsif rising_edge(clk_i) then
-        --         inta_proc2_s <= inta_proc1_s;
-        --     end if;
-        -- end process;
-        --
-        -- process(rst_i, clk_i)
-        -- begin
-        --     if not(rst_i) = '1' then
-        --         inta_proc3_s <= '1';
-        --     elsif rising_edge(clk_i) then
-        --         inta_proc3_s <= inta_proc2_s;
-        --     end if;
-        -- end process;
 
 -- outputs assignments
     -- int_ack_o   <= not(not(rst_i) and not(inta_proc3_s) and inta_proc1_s);
+    gie_mask_o  <= gie_mask_s;
     c1_cmp_s    <= '1' when (icc_s = "001") else '0';
     c2_cmp_s    <= '1' when (icc_s = "010") else '0';
     c3_cmp_s    <= '1' when (icc_s = "011") else '0';

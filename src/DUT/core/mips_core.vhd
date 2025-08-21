@@ -80,10 +80,11 @@ ARCHITECTURE structure OF mips_core IS
     -- signal interrupt_done_s : std_logic_vector(7 downto 0);
     signal data_input2databus_en_s : std_logic;
     signal c1_cmp_s, c3_cmp_s, c1to3_cmp_s, c2to5_cmp_s : std_logic;
+    signal gie_mask_s: std_logic;
 
 -- Buses
     signal address_bus_s    : std_logic_vector((DTCM_ADDR_WIDTH + 2)-1 downto 0);
-    signal data_bus_s       : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+    -- signal data_bus_s       : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
     signal control_bus_s    : std_logic_vector(1 downto 0); -- [mem_read, mem_write]
     
 -- Pipeline
@@ -638,7 +639,8 @@ BEGIN
         id_pc_i         => id_pc_s_wi,          -- IF   => ID
         c1_cmp_i        => c1_cmp_s,            -- IH   => ID
         c3_cmp_i        => c3_cmp_s,            -- IH   => ID
-        c2to5_cmp_i     => c2to5_cmp_s,         -- IH   => ID
+        -- c2to5_cmp_i     => c2to5_cmp_s,         -- IH   => ID
+        gie_mask_i      => gie_mask_s,
         INTR_i          => int_req_i,              -- MIPS => ID
         gie_o           => gie_o,
         read_data1_o    => id_rd1_wo,           -- ID   => IF, EX, MIPS
@@ -791,6 +793,7 @@ BEGIN
             int_ack_o           => int_ack_o,
             c1_cmp_o            => c1_cmp_s,
             c3_cmp_o            => c3_cmp_s,
+            gie_mask_o          => gie_mask_s,
             load_from_type_o    => load_from_type_s,
             c1to3_cmp_o         => c1to3_cmp_s,
             c2to5_cmp_o         => c2to5_cmp_s,
@@ -799,7 +802,7 @@ BEGIN
         );
 
     -- mem addr mux for interrupts
-        mem_alures_si <= data_bus_s when (c3_cmp_s = '1') else mem_alures_wi;
+        mem_alures_si <= data_bus_o when (c3_cmp_s = '1') else mem_alures_wi;
 
     -- address bus written from alures
         address_bus_s <= mem_alures_wi((DTCM_ADDR_WIDTH + 2)-1 downto 0);
@@ -811,17 +814,17 @@ BEGIN
             Dout    => mem_rd2_wi,
             en      => mem_alures_wi(11) and mem_memwrite_wi,   -- peripherals addresses are 0x800 and above
             Din     => open,
-            IOpin   => data_bus_s
+            IOpin   => data_bus_o
         );
 
     -- Mem Data Read
-        mem_dtcm_data_wo <= mem_dtcm_rd_s when ((mem_alures_wi(11) and mem_memread_wi) = '0') else data_bus_s; 
+        mem_dtcm_data_wo <= mem_dtcm_rd_s when ((mem_alures_wi(11) and mem_memread_wi) = '0') else data_bus_o; 
 
     -- write from dtcm input to data bus enable tri-state
         data_input2databus_en_s <= mem_memwrite_wi and mem_alures_wi(11);
 
 -- Buses outputs assignments
-    data_bus_o  <= data_bus_s;
+    -- data_bus_o  <= data_bus_s;
     addr_bus_o  <= address_bus_s when reg_type_addr_sel_s = '0' else reg_type_addr_s; -- to select regular addr_bus or the address of tpye register
     ctrl_bus_o  <= control_bus_s;
 ---------------------------------------------------------------------------------------

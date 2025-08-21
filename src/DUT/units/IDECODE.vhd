@@ -18,7 +18,8 @@ ENTITY Idecode IS
             id_pc_i         : in    STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
             c1_cmp_i        : in    std_logic;
             c3_cmp_i        : in    std_logic;
-            c2to5_cmp_i     : in    std_logic;
+            -- c2to5_cmp_i     : in    std_logic;
+            gie_mask_i      : in    std_logic;
             INTR_i          : in    std_logic;
             gie_o           : out    std_logic;
             read_data1_o    : OUT   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -104,8 +105,8 @@ BEGIN
     write_reg_data_s    <= write_reg_data_i when (c3_cmp_i = '0') else (x"000000" & id_pc_latch_s);
 
 -- GIE logic
-    gie_o <= RF_q(26)(0) and gie_mask_s;
-    gie_mask_s <= '0' when (rst_i = '0') and (c2to5_cmp_i = '1') else '1';
+    gie_o <= RF_q(26)(0) and gie_mask_i;
+    -- gie_mask_s <= '0' when (rst_i = '0') and (c2to5_cmp_i = '1') else '1';
 
 END behavior;
 

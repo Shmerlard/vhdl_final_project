@@ -86,7 +86,8 @@ BEGIN
     );
         
 -- PC data input logic
-    process(rst_i, bta_i, jta_i, branch_ctl_i, read_data1_i, j_ctl_i, jr_ctl_i, pc_plus4_s)
+    process(rst_i, bta_i, jta_i, branch_ctl_i, read_data1_i, j_ctl_i, jr_ctl_i, pc_plus4_s, 
+            c3_cmp_i, isr_i)
     begin
         if (rst_i = '1') then 
             pc_din_s <= (others => '0');

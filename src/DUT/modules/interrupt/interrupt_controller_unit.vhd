@@ -122,11 +122,11 @@ begin
         q_out => type_out_s
     );
     type_bidir: entity work.nbit_bidir
-    generic map( width => 8)
+    generic map( width => DATA_BUS_WIDTH)
     port map(
-        Dout => type_out_s,
+        Dout => x"000000" & type_out_s,
         en => cs_mem_read_s(2),
-        IOpin => data_bus_io(7 downto 0)
+        IOpin => data_bus_io
     );
 
 
