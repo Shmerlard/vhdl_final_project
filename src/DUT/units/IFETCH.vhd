@@ -41,6 +41,10 @@ ARCHITECTURE behavior OF Ifetch IS
     signal pc_prev_q            : std_logic_vector(pc_width-1 downto 0); 
     signal instruction_w        : std_logic_vector(data_bus_width-1 downto 0);
     signal pc_s                 : std_logic_vector(next_pc_width-1 downto 0);
+    signal pc_final_s           : std_logic_vector(next_pc_width-1 downto 0);
+    signal pc_final_sel_s       : std_logic;
+    signal alt_pc_add_s         : std_logic_vector(next_pc_width-1 downto 0);
+    signal delayed_reset        : std_logic;
 BEGIN
 
 --ROM for Instruction Memory
@@ -53,10 +57,7 @@ BEGIN
         lpm_hint => "ENABLE_RUNTIME_MOD = YES,INSTANCE_NAME = ITCM",
         lpm_type => "altsyncram",
         outdata_reg_a => "UNREGISTERED",
-        -- init_file => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\lab5\vhdl_lab5\src\SW\test3\bin\ITCM.hex",
-        -- init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test2/bin/ITCM.hex",
         init_file => ITCM_PATH,
-        -- init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test1/bin/ITCM.hex",
         intended_device_family => "Cyclone"
     )
     PORT MAP (
@@ -68,42 +69,49 @@ BEGIN
     -- send address to inst. memory address register
     G1: 
     if (WORD_GRANULARITY = True) generate       -- i.e. each WORD has unike address
-        itcm_addr_w <= "00" & pc_s;
+        itcm_addr_w <= "00" & pc_final_s;
     elsif (WORD_GRANULARITY = False) generate   -- i.e. each BYTE has unike address
-        itcm_addr_w <= "00" & pc_s & "00";
+        itcm_addr_w <= "00" & pc_final_s & "00";
     end generate;
 
 
+    process(clk_i)
+    begin
+        if rising_edge(clk_i) then
+            delayed_reset <= rst_i;
+        end if;
+    end process;
 -- PC Register
     PC_Reg : entity work.nbit_dff
     generic map(n => NEXT_PC_WIDTH)
     port map(
         clk     => clk_i,
-        rst     => rst_i,
+        rst     => delayed_reset,
         en      => '1',
         d_in    => pc_din_s,
         q_out   => pc_s
     );
-        
--- PC data input logic
-    process(rst_i, bta_i, jta_i, branch_ctl_i, read_data1_i, j_ctl_i, jr_ctl_i, pc_plus4_s, 
-            c3_cmp_i, isr_i)
+
+    pc_din_s <= pc_final_s + 1;
+
+    pc_final_sel_s <= branch_ctl_i or j_ctl_i or jr_ctl_i or c3_cmp_i;
+    pc_final_s      <= alt_pc_add_s when pc_final_sel_s = '1' else pc_s;
+
+    process(branch_ctl_i, j_ctl_i, jr_ctl_i, c3_cmp_i,
+            bta_i, jta_i, read_data1_i, isr_i)
     begin
-        if (rst_i = '1') then 
-            pc_din_s <= (others => '0');
-        elsif (c3_cmp_i = '1') then 
-            pc_din_s <= isr_i;
-        elsif (branch_ctl_i = '1') then
-            pc_din_s <= bta_i;
-        elsif (j_ctl_i = '1') then
-            pc_din_s <= jta_i;
-        elsif (jr_ctl_i = '1') then
-            pc_din_s <= read_data1_i;
-        else pc_din_s <= pc_plus4_s;
+        if branch_ctl_i = '1' then
+            alt_pc_add_s <= bta_i;
+        elsif j_ctl_i = '1' then
+            alt_pc_add_s <= jta_i;
+        elsif jr_ctl_i = '1' then
+            alt_pc_add_s <= read_data1_i;
+        else
+            alt_pc_add_s <= isr_i;
         end if;
     end process;
 
-    pc_plus4_s <= pc_s + 1;
+    -- pc_plus4_s <= pc_s + 1;
 
 
 -- IPC - instruction counter register
@@ -113,7 +121,7 @@ BEGIN
             if rst_i = '1' then
                 pc_prev_q   <=  (others => '0');
             elsif falling_edge(clk_i) then
-                pc_prev_q(pc_width-1 downto 2)   <=  pc_s;
+                pc_prev_q(pc_width-1 downto 2)   <=  pc_final_s;
             end if;
         end process;
 
@@ -132,9 +140,8 @@ BEGIN
         end process;
 
 -- copy output signals - allows read inside module
-    pc_o   <=  pc_s;
-    -- pc_o(1 downto 0)    <= "00";
-    pc_plus4_o          <=  pc_plus4_s;
+    pc_o   <=  pc_final_s;
+    pc_plus4_o          <=  pc_din_s;
     inst_cnt_o          <=  inst_cnt_q;
     instruction_o       <=  instruction_w;
 END behavior;

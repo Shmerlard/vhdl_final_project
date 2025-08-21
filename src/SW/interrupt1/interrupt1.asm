@@ -45,8 +45,6 @@ ret:
 	add $t4, $0, 10
 	add $t5, $0, 11
 	add $t6, $0, 12
-	add $t1, $0, 13
-	add $t1, $0, 14
 
 lb1:
 	addi $t1, $0, 309
@@ -61,8 +59,8 @@ KEY1_ISR:
 	j    KEY1_ISR		    				# infinite loop
 
 KEY2_ISR:
-	addi $t5, $t0, 500
-	addi $t5, $t0, 500
+	addi $t7, $t0, 500
+	addi $t7, $t0, 542
 	jr $k1
 	
 KEY3_ISR:

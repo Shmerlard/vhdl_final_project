@@ -54,12 +54,16 @@ begin
         );
     end generate;
 
-    -- process(s)
-    -- begin
-    --     -- logic here
-    -- end process;
-    clr_irq_s <= (others => '0');
-    clr_irq_s(to_integer(selected_sync_int)) <= not gie_i;      -- TODO: CHECK
+    process(rst_i, clk_i)
+    begin
+        if rst_i = '1' then
+            clr_irq_s <= (others => '0');
+        elsif rising_edge(clk_i) then
+            if to_integer(selected_sync_int) /= 0 then                  -- TODO: CHECK
+                clr_irq_s(to_integer(selected_sync_int) - 1) <= not(inta_i_b);
+            end if;
+        end if;
+    end process;
     irq_dff_clr <= clr_irq_s or (8 downto 0 => rst_i);
 
     en_int_s(0) <= eint_i(0);       --TODO: CREATE A FUNCTION FOR THIS

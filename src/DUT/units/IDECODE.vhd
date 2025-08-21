@@ -91,9 +91,11 @@ BEGIN
     end process;
 
 -- Store ID_PC when interrupt starts
-    id_pc_latch : entity work.nbit_latch
+    id_pc_latch : entity work.nbit_dff
     generic map (n => NEXT_PC_WIDTH)
     port map (
+        clk   => not(clk_i),
+        rst   => rst_i,
         en    => c1_cmp_i,
         d_in  => id_pc_i,
         q_out => id_pc_latch_s
