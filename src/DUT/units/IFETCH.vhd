@@ -44,6 +44,7 @@ ARCHITECTURE behavior OF Ifetch IS
     signal pc_final_s           : std_logic_vector(next_pc_width-1 downto 0);
     signal pc_final_sel_s       : std_logic;
     signal alt_pc_add_s         : std_logic_vector(next_pc_width-1 downto 0);
+    signal delayed_reset        : std_logic;
 BEGIN
 
 --ROM for Instruction Memory
@@ -74,12 +75,18 @@ BEGIN
     end generate;
 
 
+    process(clk_i)
+    begin
+        if rising_edge(clk_i) then
+            delayed_reset <= rst_i;
+        end if;
+    end process;
 -- PC Register
     PC_Reg : entity work.nbit_dff
     generic map(n => NEXT_PC_WIDTH)
     port map(
         clk     => clk_i,
-        rst     => rst_i,
+        rst     => delayed_reset,
         en      => '1',
         d_in    => pc_din_s,
         q_out   => pc_s
