@@ -140,17 +140,17 @@ BEGIN
 
     timer_unit_inst: entity work.timer_unit
     port map(
-        mclk_i => mclk_s,
-        mclk_i2_i => mclk2_s,
-        mclk_i4_i => mclk4_s,
-        mclk_i8_i => mclk8_s,
-        rst_i => rst_i,
+        mclk_i        => mclk_s,
+        mclk_i2_i     => mclk2_s,
+        mclk_i4_i     => mclk4_s,
+        mclk_i8_i     => mclk8_s,
+        rst_i         => rst_i,
         mem_write_c_i => ctrl_bus_s(0),
-        mem_read_c_i => ctrl_bus_s(1),
+        mem_read_c_i  => ctrl_bus_s(1),
         address_bus_i => addr_bus_s,
-        data_bus_io => data_bus_s,
-        BTIFG => btifg_out_s,
-        PWMOUT => pwm_out_s
+        data_bus_io   => data_bus_s,
+        BTIFG         => btifg_out_s,
+        PWMOUT        => pwm_out_s
         -- debug_btctl_o => debug_btctl_o,
         -- debug_btcnt_o => debug_btcnt_o,
         -- debug_btccr0_o => debug_btccr0_o,
@@ -159,6 +159,7 @@ BEGIN
 
     gpio_unit_inst: entity work.gpio_unit
     port map(
+        clk_i         => mclk_s,
         rst_i         => rst_i,
         mem_wr_c_in   => ctrl_bus_s(0),
         mem_rd_c_in   => ctrl_bus_s(1),

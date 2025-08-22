@@ -428,7 +428,7 @@ package aux_package is
             SW_ARR_CNT: natural := 1
         );
         port (
-        -- clk_i : in std_logic;
+            clk_i : in std_logic;
             rst_i : in std_logic;
             mem_wr_c_in : in std_logic;
             mem_rd_c_in : in std_logic;
@@ -451,6 +451,8 @@ package aux_package is
 ---------------------------------------------------------   
     component port_led_interface is
     port (
+        rst_i       : in STD_LOGIC;
+        clk_i       : in STD_LOGIC;
         data_i      : in STD_LOGIC_VECTOR(7 downto 0);
         cs_i        : in STD_LOGIC;
         led_o       : out STD_LOGIC_VECTOR(7 downto 0)

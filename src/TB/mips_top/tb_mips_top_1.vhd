@@ -9,7 +9,7 @@ USE work.aux_package.all;
 ENTITY tb1_mips_top IS
     generic( 
         WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
-        MODELSIM : integer          := G_MODELSIM;
+        MODELSIM : integer          := 0;
         DATA_BUS_WIDTH : integer    := 32;
         ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
         DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
@@ -19,27 +19,16 @@ ENTITY tb1_mips_top IS
         CLK_CNT_WIDTH : integer     := 16;
         INST_CNT_WIDTH : integer    := 16
     );
+    port(
+        clk_i      : std_logic;
+        keys_i     : std_logic_vector(3 downto 0);
+        switches_i : std_logic_vector(7 downto 0);
+        leds_o     : std_logic_vector(7 downto 0)
+    );
 END tb1_mips_top ;
 
 
 ARCHITECTURE struct OF tb1_mips_top IS
-   -- Internal signal declarations
-   SIGNAL rst_tb_i              : STD_LOGIC;
-   SIGNAL clk_tb_i              : STD_LOGIC;
-   
-   SIGNAL alu_result_tb_o       : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL Branch_ctrl_tb_o      : STD_LOGIC;
-   SIGNAL instruction_top_tb_o  : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL MemWrite_ctrl_tb_o    : STD_LOGIC;
-   SIGNAL pc_tb_o               : STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0 );
-   SIGNAL RegWrite_ctrl_tb_o    : STD_LOGIC;
-   SIGNAL Zero_tb_o             : STD_LOGIC;
-   SIGNAL read_data1_tb_o       : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL read_data2_tb_o       : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL write_data_tb_o       : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL mclk_cnt_tb_o         : STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
-   SIGNAL inst_cnt_tb_o         : STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
-
     signal keys_s               : std_logic_vector(2 downto 0);
    
 BEGIN
@@ -60,10 +49,14 @@ BEGIN
 
     )
     PORT MAP (
-        rst_i               => rst_tb_i,
-        clk_i               => clk_tb_i,
+        rst_i               => not keys_i(0),
+        clk_i               => clk_i,
         bpaddr_i            => "00000000",
-        keys_i              => keys_s
+        keys_i              => not keys_s,
+
+        switches_i          => switches_i,
+        leds_o              => leds_o
+
 
         -- pc_o                => pc_tb_o,
         -- alu_result_o        => alu_result_tb_o,
@@ -77,6 +70,8 @@ BEGIN
         -- RegWrite_ctrl_o     => RegWrite_ctrl_tb_o,
         -- mclk_cnt_o          => mclk_cnt_tb_o,
         -- inst_cnt_o          => inst_cnt_tb_o
-    );  
+    );
+
+    keys_s <= not keys_i(3 downto 1);
 --------------------------------------------------------------------    
 END struct;

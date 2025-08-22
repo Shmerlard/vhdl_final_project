@@ -15,7 +15,7 @@ entity gpio_unit is
         SW_ARR_CNT: natural := 1
     );
     port (
-        -- clk_i : in std_logic;
+        clk_i : in std_logic;
         rst_i : in std_logic;
         mem_wr_c_in : in std_logic;
         mem_rd_c_in : in std_logic;
@@ -49,38 +49,68 @@ begin
         cs_mem_write_o => gpio_wr_cs_s,
         cs_mem_read_o => gpio_rd_cs_s
     );
+    led_inter_ins: entity work.port_led_interface
+    port map(
+        clk_i => clk_i,
+        rst_i => rst_i,
+        data_i => data_bus_io(7 downto 0),
+        cs_i => gpio_wr_cs_s(0),
+        led_o => leds_out(7 downto 0));
 
-    gen_leds: if LED_ARR_CNT > 0 generate
-        gen_leds_loop: for i in 0 to LED_ARR_CNT-1 generate
-            led_inter_ins: entity work.port_led_interface
-            port map(
-                data_i => data_bus_io(7 downto 0),
-                cs_i => gpio_wr_cs_s(i),
-                led_o => leds_out(i*8+7 downto i*8));
-            end generate;
-    end generate;
+    hex_inter_ins: entity work.port_hex_interface
+    port map(
+        data_i => data_bus_io(3 downto 0),
+        cs_i => gpio_wr_cs_s(2 downto 1),
+        hex_o => hex_out(0 to 1));
+    hex_inter_ins2: entity work.port_hex_interface
+    port map(
+        data_i => data_bus_io(3 downto 0),
+        cs_i => gpio_wr_cs_s(4 downto 3),
+        hex_o => hex_out(2 to 3));
+    hex_inter_ins3: entity work.port_hex_interface
+    port map(
+        data_i => data_bus_io(3 downto 0),
+        cs_i => gpio_wr_cs_s(6 downto 5),
+        hex_o => hex_out(4 to 5));
 
-    gen_hex: if HEX_ARR_CNT > 0 generate
-        gen_hex_loop: for i in 0 to HEX_ARR_CNT-1 generate
-            hex_inter_ins: entity work.port_hex_interface
-            port map(
-                data_i => data_bus_io(3 downto 0),
-                cs_i => gpio_wr_cs_s(first_hex_idx+2*i +1 downto first_hex_idx+2*i),
-                hex_o => hex_out(2*i to 2*i+1)
-            );
-        end generate;
-    end generate;
+    sw_inter_ins: entity work.port_sw_interface
+    generic map( n => 8 )
+    port map(
+        sw_i => switches_in(7 downto 0),
+        cs_i => gpio_rd_cs_s(7),
+        data_o => data_bus_io(7 downto 0));
 
-    gen_sw: if SW_ARR_CNT > 0 generate
-        gen_sw_loop: for i in 0 to SW_ARR_CNT-1 generate
-            sw_inter_ins: entity work.port_sw_interface
-            generic map( n => 8)
-            port map(
-                        sw_i => switches_in(i*8+7 downto 0),
-                        cs_i => gpio_rd_cs_s(first_sw_idx+i),
-                        data_o => data_bus_io(7 downto 0)
-                    );
-            end generate;
-    end generate;
+    -- gen_leds: if LED_ARR_CNT > 0 generate
+    --     gen_leds_loop: for i in 0 to LED_ARR_CNT-1 generate
+    --         led_inter_ins: entity work.port_led_interface
+    --         port map(
+    --             data_i => data_bus_io(7 downto 0),
+    --             cs_i => gpio_wr_cs_s(i),
+    --             led_o => leds_out(i*8+7 downto i*8));
+    --         end generate;
+    -- end generate;
+
+    -- gen_hex: if HEX_ARR_CNT > 0 generate
+    --     gen_hex_loop: for i in 0 to HEX_ARR_CNT-1 generate
+    --         hex_inter_ins: entity work.port_hex_interface
+    --         port map(
+    --             data_i => data_bus_io(3 downto 0),
+    --             cs_i => gpio_wr_cs_s(first_hex_idx+2*i +1 downto first_hex_idx+2*i),
+    --             hex_o => hex_out(2*i to 2*i+1)
+    --         );
+    --     end generate;
+    -- end generate;
+
+    -- gen_sw: if SW_ARR_CNT > 0 generate
+    --     gen_sw_loop: for i in 0 to SW_ARR_CNT-1 generate
+    --         sw_inter_ins: entity work.port_sw_interface
+    --         generic map( n => 8 )
+    --         port map(
+    --                     sw_i => switches_in(i*8+7 downto i*8),
+    --                     cs_i => gpio_rd_cs_s(first_sw_idx+i),
+    --                     data_o => data_bus_io(7 downto 0)
+    --                 );
+    --         end generate;
+    -- end generate;
 
 end architecture rtl;
