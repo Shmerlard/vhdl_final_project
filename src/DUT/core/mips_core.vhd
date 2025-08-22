@@ -336,7 +336,7 @@ BEGIN
         ex_jr_ctl_i => jr_ctl_w,
         ex_branch_ctl_i => branch_ctl_w,
         epc_capture_i => epc_latch_ctrl_s,
-        ex_pc_plus4_i => ex_pc_plus4_wi,
+        ex_pc_plus4_i => mem_pc_plus4_wi,
         ret_pc_o => epc_latched_addr_s
     );
 -- MEM WB

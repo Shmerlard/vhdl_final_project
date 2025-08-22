@@ -21,8 +21,8 @@ ENTITY mips_top IS
             DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
             CLK_CNT_WIDTH : integer     := 16;
             INST_CNT_WIDTH : integer    := 16;
-            DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/timer/DTCM.hex";
-            ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/timer/ITCM.hex"
+            DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test1/bin/M9K/DTCM.hex";
+            ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
     );
     PORT(
         rst_i               : in std_logic;
