@@ -9,7 +9,9 @@ use work.memory_map.all;
 ENTITY mips_top IS
     generic( 
             WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
-            MODELSIM : integer          := G_MODELSIM;
+            USE_ALT_CLK: boolean        := false;
+            -- MODELSIM : integer          := G_MODELSIM;
+            MODELSIM : integer          := 0;
             DATA_BUS_WIDTH : integer    := 32;
             ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
             DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
@@ -19,8 +21,8 @@ ENTITY mips_top IS
             DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
             CLK_CNT_WIDTH : integer     := 16;
             INST_CNT_WIDTH : integer    := 16;
-            DTCM_PATH : string;
-            ITCM_PATH : string
+            DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/timer/DTCM.hex";
+            ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/timer/ITCM.hex"
     );
     PORT(
         rst_i               : in std_logic;
@@ -30,25 +32,25 @@ ENTITY mips_top IS
         switches_i          : in std_logic_vector(7 downto 0);
 
         hex_arr_o           : out t_hex_array(0 to 5);
-        leds_o              : out std_logic_vector(7 downto 0)
+        leds_o              : out std_logic_vector(7 downto 0);
 
         -- Output important signals to pins for easy display in SignalTap
-        -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
-        -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- Branch_ctrl_o       :OUT    STD_LOGIC;
-        -- Zero_o              :OUT    STD_LOGIC;
-        -- MemWrite_ctrl_o     :OUT    STD_LOGIC;
-        -- RegWrite_ctrl_o     :OUT    STD_LOGIC;
-        -- mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
-        -- inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
+        pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
+        alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        Branch_ctrl_o       :OUT    STD_LOGIC;
+        Zero_o              :OUT    STD_LOGIC;
+        MemWrite_ctrl_o     :OUT    STD_LOGIC;
+        RegWrite_ctrl_o     :OUT    STD_LOGIC;
+        mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
+        inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
         -- hex_o               :OUT    t_hex_array(0 to 7)
-        -- flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-        -- hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-        -- strigger_o          :OUT    std_logic
+        flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+        hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+        strigger_o          :OUT    std_logic
     );
 END mips_top;
 
@@ -58,8 +60,10 @@ ARCHITECTURE rtl OF mips_top IS
     signal int_src_s    : std_logic_vector(8 downto 0) := (others => '0');
     signal gie_s        : std_logic;
 
+    signal rst_s        : std_logic;
+
     signal data_bus_s   : std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal addr_bus_s   : std_logic_vector((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
+    signal addr_bus_s   : std_logic_vector((PC_WIDTH + 2)-1 DOWNTO 0);
     signal ctrl_bus_s   : std_logic_vector(1 DOWNTO 0);
     signal mclk_s       : std_logic;
     signal mclk2_s      : std_logic;
@@ -70,6 +74,14 @@ ARCHITECTURE rtl OF mips_top IS
     signal btifg_out_s  : std_logic;
 
 BEGIN
+    rst_gen:
+        if (MODELSIM = 0) generate
+            rst_s <= not rst_i;
+        else generate
+            rst_s <= rst_i;
+        end generate;
+
+
     mips_core_inst: entity work.mips_core
     generic map(
         WORD_GRANULARITY => WORD_GRANULARITY,
@@ -87,22 +99,24 @@ BEGIN
         ITCM_PATH => ITCM_PATH
     )
     port map(
-        rst_i => rst_i,
+        rst_i => rst_s,
         clk_i => mclk_s,
         bpaddr_i => bpaddr_i,
         int_req_i => int_req_s,
-        interrupt_src_i =>  int_src_s,
+        -- interrupt_src_i =>  int_src_s,
 
         data_bus_o => data_bus_s,
         addr_bus_o => addr_bus_s,
         ctrl_bus_o => ctrl_bus_s,
         int_ack_o => int_ack_s,
-        gie_o   => gie_s
+        gie_o   => gie_s,
+
+        strigger_o => strigger_o
     );
 
     pll_gen:
-    if (MODELSIM = 0) generate
-      MCLK: PLL
+    if (MODELSIM = 0 and USE_ALT_CLK = false) generate
+        MCLK: entity work.PLL
         PORT MAP (
             inclk0  => clk_i,
             c0      => mclk_s,
@@ -119,7 +133,7 @@ BEGIN
 
     interrupt_controller_unit_inst: entity work.interrupt_controller_unit
     generic map(
-        ADDRESS_BUS_WIDTH => DTCM_ADDR_WIDTH+2,
+        ADDRESS_BUS_WIDTH => PC_WIDTH+2,
         DATA_BUS_WIDTH => DATA_BUS_WIDTH
         -- INT_UNIT_ADDRESS_ARRAY => INT_UNIT_ADDRESS_ARRAY,
         -- INT_SRC_COUNT => INT_SRC_COUNT,
@@ -127,7 +141,7 @@ BEGIN
     )
     port map(
         clk_i => mclk_s,
-        rst_i => rst_i,
+        rst_i => rst_s,
         inta_i => int_ack_s,
         interrupt_src_i => int_src_s,
         gie_i => gie_s,
@@ -144,7 +158,7 @@ BEGIN
         mclk_i2_i     => mclk2_s,
         mclk_i4_i     => mclk4_s,
         mclk_i8_i     => mclk8_s,
-        rst_i         => rst_i,
+        rst_i         => rst_s,
         mem_write_c_i => ctrl_bus_s(0),
         mem_read_c_i  => ctrl_bus_s(1),
         address_bus_i => addr_bus_s,
@@ -160,7 +174,7 @@ BEGIN
     gpio_unit_inst: entity work.gpio_unit
     port map(
         clk_i         => mclk_s,
-        rst_i         => rst_i,
+        rst_i         => rst_s,
         mem_wr_c_in   => ctrl_bus_s(0),
         mem_rd_c_in   => ctrl_bus_s(1),
         address_bus_i => addr_bus_s,

@@ -14,7 +14,8 @@ USE work.aux_package.all;
 ENTITY tb_mips_top IS
     generic( 
         WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
-        MODELSIM : integer          := G_MODELSIM;
+        -- MODELSIM : integer          := G_MODELSIM;
+        MODELSIM : integer          := 1;
         DATA_BUS_WIDTH : integer    := 32;
         ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
         DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
@@ -74,15 +75,19 @@ BEGIN
     gen_rst : 
     process
         begin
-          rst_tb_i <='1','0' after 200 ns;
+          rst_tb_i <='1';
+          wait for 200 ns;
+          rst_tb_i <= '0';
+          wait for 2000 ns;
+          rst_tb_i <= '1';
+          wait for 200 ns;
+          rst_tb_i <= '0';
           wait;
     end process;
 
     int_proc: process
     begin
         keys_s <= "000";
-        wait for 2225 ns;
-        keys_s <= "010";
         wait;
     end process;
 

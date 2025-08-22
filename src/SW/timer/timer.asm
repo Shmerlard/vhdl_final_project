@@ -11,6 +11,32 @@ btccr1_val: .word 300
 #							 Code Segment
 #--------------------------------------------------------------
 .text
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	
 	lw   $t3,btccr0_val
 	sw   $t3,BTCCR0
 	lw   $t3,btccr1_val
