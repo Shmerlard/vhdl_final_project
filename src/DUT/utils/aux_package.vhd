@@ -81,27 +81,33 @@ package aux_package is
             DTCM_PATH : string;
             ITCM_PATH : string
     );
-    PORT(   rst_i               :IN STD_LOGIC;
-            clk_i               :IN STD_LOGIC; 
-            bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
-            keys_i              : in std_logic_vector(2 downto 0);
-            -- Output important signals to pins for easy display in SignalTap
-            -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
-            -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- Branch_ctrl_o       :OUT    STD_LOGIC;
-            -- Zero_o              :OUT    STD_LOGIC;
-            -- MemWrite_ctrl_o     :OUT    STD_LOGIC;
-            -- RegWrite_ctrl_o     :OUT    STD_LOGIC;
-            -- mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
-            -- inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
-            hex_o               :OUT    t_hex_array(0 to 7)
-            -- flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-            -- hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-            -- strigger_o          :OUT    std_logic
+    PORT(
+        rst_i               : in std_logic;
+        clk_i               : in std_logic; 
+        bpaddr_i            : in std_logic_vector(7 downto 0);
+        keys_i              : in std_logic_vector(2 downto 0);
+        switches_i          : in std_logic_vector(7 downto 0);
+
+        hex_arr_o           : out t_hex_array(0 to 5);
+        leds_o              : out std_logic_vector(7 downto 0)
+
+        -- Output important signals to pins for easy display in SignalTap
+        -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
+        -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- Branch_ctrl_o       :OUT    STD_LOGIC;
+        -- Zero_o              :OUT    STD_LOGIC;
+        -- MemWrite_ctrl_o     :OUT    STD_LOGIC;
+        -- RegWrite_ctrl_o     :OUT    STD_LOGIC;
+        -- mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
+        -- inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
+        -- hex_o               :OUT    t_hex_array(0 to 7)
+        -- flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+        -- hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+        -- strigger_o          :OUT    std_logic
     );
     end component;
 ---------------------------------------------------------  
@@ -410,11 +416,55 @@ package aux_package is
         );
     end component mem_wb_pipeline_reg;
 ---------------------------------------------------------  
+    -- GPIO
+    component gpio_unit is
+        generic(
+            ADDRESS_BUS_WIDTH: integer := 12;
+            DATA_BUS_WIDTH: integer := 32;
+            ADDRESS_ARRAY : t_addr_array;
 
+            LED_ARR_CNT: natural := 1;
+            HEX_ARR_CNT: natural := 3;
+            SW_ARR_CNT: natural := 1
+        );
+        port (
+        -- clk_i : in std_logic;
+            rst_i : in std_logic;
+            mem_wr_c_in : in std_logic;
+            mem_rd_c_in : in std_logic;
+            address_bus_i : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+            switches_in : in std_logic_vector;
 
-
-
-
+            data_bus_io : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+            hex_out: out t_hex_array;
+            leds_out: out std_logic_vector
+        );
+    end component gpio_unit;
+---------------------------------------------------------   
+    component port_hex_interface is
+        port (
+            data_i      : in STD_LOGIC_VECTOR(3 downto 0);
+            cs_i        : in STD_LOGIC_Vector(1 downto 0);
+            hex_o       : out t_hex_array(0 to 1)
+        );
+    end component port_hex_interface;
+---------------------------------------------------------   
+    component port_led_interface is
+    port (
+        data_i      : in STD_LOGIC_VECTOR(7 downto 0);
+        cs_i        : in STD_LOGIC;
+        led_o       : out STD_LOGIC_VECTOR(7 downto 0)
+    );
+    end component port_led_interface;
+---------------------------------------------------------   
+    component port_sw_interface is
+        generic( n: integer := 8 );
+        port (
+            sw_i        : in STD_LOGIC_VECTOR(n-1 downto 0);
+            cs_i        : in STD_LOGIC;
+            data_o      : out STD_LOGIC_VECTOR(n-1 downto 0)
+        );
+    end component port_sw_interface;
 
 
 ---------------------------------------------------------   

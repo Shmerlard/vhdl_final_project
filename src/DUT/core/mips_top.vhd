@@ -22,46 +22,52 @@ ENTITY mips_top IS
             DTCM_PATH : string;
             ITCM_PATH : string
     );
-    PORT(   rst_i               :IN STD_LOGIC;
-            clk_i               :IN STD_LOGIC; 
-            bpaddr_i            :IN STD_LOGIC_VECTOR(7 downto 0);
-            keys_i              : in std_logic_vector(2 downto 0)
-            -- Output important signals to pins for easy display in SignalTap
-            -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
-            -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            -- Branch_ctrl_o       :OUT    STD_LOGIC;
-            -- Zero_o              :OUT    STD_LOGIC;
-            -- MemWrite_ctrl_o     :OUT    STD_LOGIC;
-            -- RegWrite_ctrl_o     :OUT    STD_LOGIC;
-            -- mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
-            -- inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
-            -- hex_o               :OUT    t_hex_array(0 to 7)
-            -- flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-            -- hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-            -- strigger_o          :OUT    std_logic
+    PORT(
+        rst_i               : in std_logic;
+        clk_i               : in std_logic; 
+        bpaddr_i            : in std_logic_vector(7 downto 0);
+        keys_i              : in std_logic_vector(2 downto 0);
+        switches_i          : in std_logic_vector(7 downto 0);
+
+        hex_arr_o           : out t_hex_array(0 to 5);
+        leds_o              : out std_logic_vector(7 downto 0)
+
+        -- Output important signals to pins for easy display in SignalTap
+        -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
+        -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- Branch_ctrl_o       :OUT    STD_LOGIC;
+        -- Zero_o              :OUT    STD_LOGIC;
+        -- MemWrite_ctrl_o     :OUT    STD_LOGIC;
+        -- RegWrite_ctrl_o     :OUT    STD_LOGIC;
+        -- mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
+        -- inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
+        -- hex_o               :OUT    t_hex_array(0 to 7)
+        -- flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+        -- hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+        -- strigger_o          :OUT    std_logic
     );
 END mips_top;
 
 ARCHITECTURE rtl OF mips_top IS
-    signal int_req_s : std_logic;
-    signal int_ack_s : std_logic;
-    signal int_src_s : std_logic_vector(8 downto 0) := (others => '0');
-    signal gie_s     : std_logic;
+    signal int_req_s    : std_logic;
+    signal int_ack_s    : std_logic;
+    signal int_src_s    : std_logic_vector(8 downto 0) := (others => '0');
+    signal gie_s        : std_logic;
 
-    signal data_bus_s :STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-    signal addr_bus_s :  STD_LOGIC_VECTOR((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
-    signal ctrl_bus_s :  STD_LOGIC_VECTOR(1 DOWNTO 0);
-    signal mclk_s   : std_logic;
-    signal mclk2_s  : std_logic;
-    signal mclk4_s  : std_logic;
-    signal mclk8_s  : std_logic;
+    signal data_bus_s   : std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0);
+    signal addr_bus_s   : std_logic_vector((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
+    signal ctrl_bus_s   : std_logic_vector(1 DOWNTO 0);
+    signal mclk_s       : std_logic;
+    signal mclk2_s      : std_logic;
+    signal mclk4_s      : std_logic;
+    signal mclk8_s      : std_logic;
 
-    signal pwm_out_s: std_logic;
-    signal btifg_out_s: std_logic;
+    signal pwm_out_s    : std_logic;
+    signal btifg_out_s  : std_logic;
 
 BEGIN
     mips_core_inst: entity work.mips_core
@@ -150,5 +156,19 @@ BEGIN
         -- debug_btccr0_o => debug_btccr0_o,
         -- debug_btccr1_o => debug_btccr1_o
     );
+
+    gpio_unit_inst: entity work.gpio_unit
+    port map(
+        rst_i         => rst_i,
+        mem_wr_c_in   => ctrl_bus_s(0),
+        mem_rd_c_in   => ctrl_bus_s(1),
+        address_bus_i => addr_bus_s,
+        switches_in   => switches_i,
+        data_bus_io   => data_bus_s,
+        hex_out       => hex_arr_o,
+        leds_out      => leds_o
+    );
+
+
     int_src_s(6 downto 4) <= keys_i;
 END ARCHITECTURE rtl;
