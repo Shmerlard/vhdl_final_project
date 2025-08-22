@@ -52,7 +52,7 @@ BEGIN
         INST_CNT_WIDTH              => INST_CNT_WIDTH,
         -- DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex",
         -- ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
-        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/branches/ITCM.hex",
+        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex",
         DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex"
 
     )
@@ -79,11 +79,6 @@ BEGIN
         begin
           rst_tb_i <='1';
           wait for 200 ns;
-          rst_tb_i <= '0';
-          wait for 2000 ns;
-          rst_tb_i <= '1';
-          wait for 200 ns;
-          rst_tb_i <= '0';
           wait;
     end process;
 

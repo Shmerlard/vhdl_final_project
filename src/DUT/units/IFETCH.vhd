@@ -28,13 +28,14 @@ ENTITY Ifetch IS
         isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
         pc_o            : out   std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
         instruction_o   : out   std_logic_vector(data_bus_width-1 downto 0);
-        inst_cnt_o      : out   std_logic_vector(inst_cnt_width-1 downto 0) 
+        inst_cnt_o      : out   std_logic_vector(inst_cnt_width-1 downto 0);
+        pc_plus4_o      : out   std_logic_vector(next_pc_width-1 downto 0)
     );
 END Ifetch;
 
 
 ARCHITECTURE behavior OF Ifetch IS
-    signal  pc_din_s, pc_plus4_s    : std_logic_vector(next_pc_width-1 downto 0);
+    signal  pc_din_s            : std_logic_vector(next_pc_width-1 downto 0);
     signal itcm_addr_w          : std_logic_vector(itcm_addr_width-1 downto 0);
     signal inst_cnt_q           : std_logic_vector(inst_cnt_width-1 downto 0);
     signal pc_prev_q            : std_logic_vector(pc_width-1 downto 0); 
@@ -136,8 +137,8 @@ BEGIN
         end process;
 
 -- copy output signals - allows read inside module
-    -- pc_o                <=  pc_final_s;
-    pc_o                <=  pc_din_s;
+    pc_o                <=  pc_final_s;
+    pc_plus4_o          <=  pc_din_s;
     inst_cnt_o          <=  inst_cnt_q;
     instruction_o       <=  instruction_w;
 END behavior;

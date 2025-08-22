@@ -224,7 +224,8 @@ package aux_package is
         isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
         pc_o            : out   std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
         instruction_o   : out   std_logic_vector(data_bus_width-1 downto 0);
-        inst_cnt_o      : out   std_logic_vector(inst_cnt_width-1 downto 0) 
+        inst_cnt_o      : out   std_logic_vector(inst_cnt_width-1 downto 0);
+        pc_plus4_o      : out   std_logic_vector(next_pc_width-1 downto 0)
     );
     END component;
 ---------------------------------------------------------       
@@ -334,6 +335,9 @@ package aux_package is
             controls_i : in std_logic_vector;
             controls_o : out std_logic_vector;
 
+            pc_i : in std_logic_vector;
+            pc_o : out std_logic_vector;
+
             pc_plus4_i : in std_logic_vector;
             pc_plus4_o : out std_logic_vector;
 
@@ -384,7 +388,6 @@ package aux_package is
             controls_count_JJJJ : natural := 6;
             DATA_BUS_WIDTH : integer    := 32;
             NEXT_PC_WIDTH : integer     := 8
-
         );
         port (
             clk_i : in std_logic;

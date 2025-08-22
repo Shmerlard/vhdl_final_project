@@ -20,6 +20,9 @@ entity id_ex_pipeline_reg is
         controls_i : in std_logic_vector;
         controls_o : out std_logic_vector;
 
+        pc_i : in std_logic_vector;
+        pc_o : out std_logic_vector;
+
         pc_plus4_i : in std_logic_vector;
         pc_plus4_o : out std_logic_vector;
 
@@ -54,6 +57,16 @@ BEGIN
         en     => '1',
         d_in   => controls_i,
         q_out  => controls_o
+    );
+
+    ID_EX_PLR_pc_inst : entity work.nbit_dff
+    generic map ( n => NEXT_PC_WIDTH)
+    port map (
+        clk    => clk_i,
+        rst    => rst_i,
+        en     => '1',
+        d_in   => pc_i,
+        q_out  => pc_o
     );
 
     ID_EX_PLR_pc_plus4 : entity work.nbit_dff

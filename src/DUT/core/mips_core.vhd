@@ -93,6 +93,7 @@ ARCHITECTURE structure OF mips_core IS
     -- IF
         signal if_instruction_wo, if_final_inst_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal if_pc_plus4_wo   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
+
     -- CTL
         signal ctl_memwrite_wo, ctl_beq_wo, ctl_bne_wo, ctl_shamtctl_wo, ctl_regwrite_wo, ctl_wdsel_wo, ctl_regwrite_fwo, ctl_memread_wo : std_logic;
         signal ctl_memtoreg_wo, ctl_alusrc_wo, ctl_regdst_wo    : STD_LOGIC_VECTOR(1 DOWNTO 0);
@@ -120,6 +121,7 @@ ARCHITECTURE structure OF mips_core IS
         signal ex_sltres_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal ex_luires_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal ex_controls_qout_w : STD_LOGIC_VECTOR(7 DOWNTO 0);
+        signal ex_pc_s_wi:      std_logic_vector(next_pc_width-1 downto 0);
     -- MEM
         signal mem_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal mem_pc_plus4_wi  : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
@@ -197,7 +199,7 @@ BEGIN
         rst_i => rst_i,
         instruction_i => if_final_inst_w,
         instruction_o => id_instruction_si,
-        pc_plus4_i => pc_s,
+        pc_plus4_i => if_pc_plus4_wo,
         pc_plus4_o => id_pc_plus4_wi,
         pc_i => pc_s,
         pc_o => if_pc_s_wi
@@ -220,6 +222,8 @@ BEGIN
         rst_i => rst_i,
         controls_i => ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo,
         controls_o => ctl_controls_qout_w,
+        pc_i    => if_pc_s_wi,
+        pc_o    => ex_pc_s_wi,
         pc_plus4_i => id_pc_plus4_wi,
         pc_plus4_o => ex_pc_plus4_wi,
         shamt_i => id_instruction_wi(10 downto 6),
@@ -336,7 +340,7 @@ BEGIN
         ex_jr_ctl_i => jr_ctl_w,
         ex_branch_ctl_i => branch_ctl_w,
         epc_capture_i => epc_latch_ctrl_s,
-        ex_pc_plus4_i => mem_pc_plus4_wi,
+        ex_pc_plus4_i => ex_pc_s_wi,
         ret_pc_o => epc_latched_addr_s
     );
 -- MEM WB
@@ -397,7 +401,8 @@ BEGIN
         isr_i           => mem_dtcm_data_wo(PC_WIDTH-1 downto 2),    -- MEM  => IF
         pc_o            => pc_s,                -- IF   => MIPS
         instruction_o   => if_instruction_wo,   -- IF   => ID, CTL
-        inst_cnt_o      => inst_cnt_w           -- IF   => MIPS
+        inst_cnt_o      => inst_cnt_w,          -- IF   => MIPS
+        pc_plus4_o      => if_pc_plus4_wo
     );
 
     if_final_inst_w <= if_instruction_wo when (flush_ctl_w = '0') else (others => '0');
@@ -507,7 +512,8 @@ BEGIN
                 dtcm_addr_i         => mem_alures_si((DTCM_ADDR_WIDTH+2)-1 DOWNTO 2), -- increment memory address by 4; ID => MEM
                 dtcm_data_wr_i      => mem_rd2_wi,          -- ID => MEM
                 MemRead_ctrl_i      => mem_memread_wi,      -- no use inside entity
-                MemWrite_ctrl_i     => mem_memwrite_wi,     -- CTL => MEM
+                MemWrite_ctrl_i     => mem_memwrite_wi and not(mem_alures_wi(11)),     -- CTL => MEM
+                                                                                        --TODO: better naming
                 dtcm_data_rd_o      => mem_dtcm_rd_s        -- MEM => ID, IF, MIPS
             );
     elsif (WORD_GRANULARITY = False) generate -- i.e. each BYTE has a unike address 

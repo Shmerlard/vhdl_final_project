@@ -8,21 +8,21 @@ use work.memory_map.all;
 
 ENTITY mips_top IS
     generic( 
-            WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
-            USE_ALT_CLK: boolean        := false;
-            -- MODELSIM : integer          := G_MODELSIM;
-            MODELSIM : integer          := 0;
-            DATA_BUS_WIDTH : integer    := 32;
-            ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
-            DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
-            PC_WIDTH : integer          := 10;
-            NEXT_PC_WIDTH : integer     := 8;
-            FUNCT_WIDTH : integer       := 6;
-            DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
-            CLK_CNT_WIDTH : integer     := 16;
-            INST_CNT_WIDTH : integer    := 16;
-            DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test1/bin/M9K/DTCM.hex";
-            ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
+        WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
+        USE_ALT_CLK: boolean        := false;
+        -- MODELSIM : integer          := G_MODELSIM;
+        MODELSIM : integer          := 0;
+        DATA_BUS_WIDTH : integer    := 32;
+        ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
+        DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
+        PC_WIDTH : integer          := 10;
+        NEXT_PC_WIDTH : integer     := 8;
+        FUNCT_WIDTH : integer       := 6;
+        DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
+        CLK_CNT_WIDTH : integer     := 16;
+        INST_CNT_WIDTH : integer    := 16;
+        DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex";
+        ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
     );
     PORT(
         rst_i               : in std_logic;
