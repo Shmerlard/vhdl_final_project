@@ -39,7 +39,7 @@ begin
 			rt_id_w when others;
 
 -- rx dff instantiations
-	RX_EX: nbit_dff
+    RX_EX: entity work.nbit_dff
 	generic map (
         n => 5
     )
@@ -51,7 +51,7 @@ begin
         q_out  => ex_rx_w
 	);
 
-	RX_MEM: nbit_dff
+    RX_MEM: entity work.nbit_dff
 	generic map (
         n => 5
     )
@@ -63,7 +63,7 @@ begin
         q_out  => mem_rx_w
 	);
 
-	RX_WB: nbit_dff
+	RX_WB: entity work.nbit_dff
 	generic map (
         n => 5
     )
@@ -77,7 +77,7 @@ begin
 
 -- instruction type dff instantiations
 
-	IT_EX: nbit_dff
+	IT_EX: entity work.nbit_dff
 	generic map (
         n => 3
     )
@@ -89,7 +89,7 @@ begin
         q_out  => ex_it_w
 	);
 
-	IT_MEM: nbit_dff
+	IT_MEM: entity work.nbit_dff
 	generic map (
         n => 3
     )
@@ -101,7 +101,7 @@ begin
         q_out  => mem_it_w
 	);
 
-	IT_WB: nbit_dff
+	IT_WB: entity work.nbit_dff
 	generic map (
         n => 3
     )

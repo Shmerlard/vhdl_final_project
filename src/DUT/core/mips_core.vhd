@@ -26,10 +26,10 @@ ENTITY mips_core IS
             clk_i               :IN     STD_LOGIC; 
             bpaddr_i            :IN     STD_LOGIC_VECTOR(7 downto 0);
             int_req_i           :in     std_logic;
-            interrupt_src_i     :in     std_logic_vector(8 downto 0);
+            -- interrupt_src_i     :in     std_logic_vector(8 downto 0);
 
             data_bus_o          :inout  STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            addr_bus_o          :out  STD_LOGIC_VECTOR((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
+            addr_bus_o          :out  STD_LOGIC_VECTOR((PC_WIDTH + 2)-1 DOWNTO 0);
             ctrl_bus_o          :out  STD_LOGIC_VECTOR(1 DOWNTO 0);
             -- Output important signals to pins for easy display in SignalTap
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
@@ -85,7 +85,7 @@ ARCHITECTURE structure OF mips_core IS
     signal gie_mask_s: std_logic;
 
 -- Buses
-    signal address_bus_s    : std_logic_vector((DTCM_ADDR_WIDTH + 2)-1 downto 0);
+    signal address_bus_s    : std_logic_vector((PC_WIDTH + 2)-1 downto 0);
     -- signal data_bus_s       : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
     signal control_bus_s    : std_logic_vector(1 downto 0); -- [mem_read, mem_write]
     
@@ -336,7 +336,7 @@ BEGIN
         ex_jr_ctl_i => jr_ctl_w,
         ex_branch_ctl_i => branch_ctl_w,
         epc_capture_i => epc_latch_ctrl_s,
-        ex_pc_plus4_i => ex_pc_plus4_wi,
+        ex_pc_plus4_i => mem_pc_plus4_wi,
         ret_pc_o => epc_latched_addr_s
     );
 -- MEM WB
@@ -435,7 +435,7 @@ BEGIN
     flush_ctl_w <= j_ctl_w or jr_ctl_w or (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w)) or (c1to3_cmp_s);
     branch_ctl_w <= (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w));
 
-    CTL:   control
+    CTL:   entity work.control
     PORT MAP (  
         -- op          => id_instruction_wi(DATA_BUS_WIDTH-1 DOWNTO 26), -- IF => CTL
         -- funct       => id_instruction_wi(5 downto 0), -- IF => CTL
@@ -467,7 +467,7 @@ BEGIN
     ex_rd1_final_w <= ex_rd1_wi when (lw_hazard_rd1_w = '0') else mem_dtcm_data_wo;
     ex_rd2_final_w <= ex_rd2_wi when (lw_hazard_rd2_w = '0') else mem_dtcm_data_wo;
 
-    EXE:  Execute
+    EXE:  entity work.Execute
     generic map(
         DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH,
         FUNCT_WIDTH         =>  FUNCT_WIDTH,
@@ -530,7 +530,7 @@ BEGIN
     end generate;
 
 -- WB
-    WB: WRITE_BACK
+    WB: entity work.WRITE_BACK
         port map(
             MemtoReg_ctl_i      => wb_memtoreg_wi,
             RegDst_ctl_i        => wb_regdst_wi,
@@ -547,7 +547,7 @@ BEGIN
 
 -- Connect other cpu inside units
 -- Hazard Unit
-    hazard_unit: hazardunit
+        hazard_unit: entity work.hazardunit
     port map(
         clk_i       => clk_i, 
         rst_i       => rst_i,
@@ -585,7 +585,7 @@ BEGIN
         mem_alures_si <= data_bus_o when (c3_cmp_s = '1') else mem_alures_wi;
 
     -- address bus written from alures
-        address_bus_s <= mem_alures_wi((DTCM_ADDR_WIDTH + 2)-1 downto 0);
+        address_bus_s <= mem_alures_wi((PC_WIDTH + 2)-1 downto 0);
 
     -- write to peripherals using tri-state 
         peripheral_write: entity work.nbit_bidir
@@ -615,7 +615,7 @@ BEGIN
 
     process (clk_i , rst_i)
     begin
-        if rst_i = '0' then
+        if rst_i = '1' then
             mclk_cnt_q  <=  (others => '0');
         elsif falling_edge(clk_i) then
             mclk_cnt_q  <=  mclk_cnt_q + '1';
@@ -624,7 +624,7 @@ BEGIN
 
     process (clk_i, rst_i)
     begin
-        if rst_i = '0' then
+        if rst_i = '1' then
             hf_cnt_s    <=  (others => '0');
         elsif rising_edge(clk_i) then
             if (not(rd1_sel_w = "0000") or not(rd2_sel_w = "0000")) then
@@ -635,7 +635,7 @@ BEGIN
 
     process (flush_ctl_w , rst_i)
     begin
-        if rst_i = '0' then
+        if rst_i = '1' then
             flush_cnt_s   <=    (others => '0');
         elsif falling_edge(flush_ctl_w) then
             flush_cnt_s   <=    flush_cnt_s + '1';

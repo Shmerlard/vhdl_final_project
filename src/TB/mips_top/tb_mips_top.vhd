@@ -14,7 +14,8 @@ USE work.aux_package.all;
 ENTITY tb_mips_top IS
     generic( 
         WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
-        MODELSIM : integer          := G_MODELSIM;
+        -- MODELSIM : integer          := G_MODELSIM;
+        MODELSIM : integer          := 1;
         DATA_BUS_WIDTH : integer    := 32;
         ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
         DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
@@ -31,21 +32,10 @@ ARCHITECTURE struct OF tb_mips_top IS
    -- Internal signal declarations
    SIGNAL rst_tb_i              : STD_LOGIC;
    SIGNAL clk_tb_i              : STD_LOGIC;
-   
-   SIGNAL alu_result_tb_o       : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL Branch_ctrl_tb_o      : STD_LOGIC;
-   SIGNAL instruction_top_tb_o  : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL MemWrite_ctrl_tb_o    : STD_LOGIC;
-   SIGNAL pc_tb_o               : STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0 );
-   SIGNAL RegWrite_ctrl_tb_o    : STD_LOGIC;
-   SIGNAL Zero_tb_o             : STD_LOGIC;
-   SIGNAL read_data1_tb_o       : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL read_data2_tb_o       : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL write_data_tb_o       : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0 );
-   SIGNAL mclk_cnt_tb_o         : STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
-   SIGNAL inst_cnt_tb_o         : STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
 
-    signal keys_s               : std_logic_vector(2 downto 0);
+   signal keys_s               : std_logic_vector(2 downto 0);
+   signal switches_s           : std_logic_vector(7 downto 0);
+   signal leds_s               : std_logic_vector(7 downto 0);
    
 BEGIN
     CORE : entity work.mips_top
@@ -60,29 +50,20 @@ BEGIN
         DATA_WORDS_NUM              => DATA_WORDS_NUM,
         CLK_CNT_WIDTH               => CLK_CNT_WIDTH,
         INST_CNT_WIDTH              => INST_CNT_WIDTH,
-        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/timer/DTCM.hex",
-        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/timer/ITCM.hex"
+        -- DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex",
+        -- ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
+        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/branches/ITCM.hex",
+        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex"
 
     )
     PORT MAP (
         rst_i               => rst_tb_i,
         clk_i               => clk_tb_i,
         bpaddr_i            => "00000000",
-        keys_i              => keys_s
-
-        -- pc_o                => pc_tb_o,
-        -- alu_result_o        => alu_result_tb_o,
-        -- read_data1_o        => read_data1_tb_o,
-        -- read_data2_o        => read_data2_tb_o,
-        -- write_data_o        => write_data_tb_o,
-        -- instruction_top_o   => instruction_top_tb_o,
-        -- Branch_ctrl_o       => Branch_ctrl_tb_o,
-        -- Zero_o              => Zero_tb_o,
-        -- MemWrite_ctrl_o     => MemWrite_ctrl_tb_o,
-        -- RegWrite_ctrl_o     => RegWrite_ctrl_tb_o,
-        -- mclk_cnt_o          => mclk_cnt_tb_o,
-        -- inst_cnt_o          => inst_cnt_tb_o
-    );  
+        keys_i              => keys_s,
+        switches_i          => switches_s,
+        leds_o              => leds_s
+    );
 --------------------------------------------------------------------    
     gen_clk : 
     process
@@ -96,15 +77,26 @@ BEGIN
     gen_rst : 
     process
         begin
-          rst_tb_i <='1','0' after 200 ns;
+          rst_tb_i <='1';
+          wait for 200 ns;
+          rst_tb_i <= '0';
+          wait for 2000 ns;
+          rst_tb_i <= '1';
+          wait for 200 ns;
+          rst_tb_i <= '0';
           wait;
     end process;
 
     int_proc: process
     begin
         keys_s <= "000";
-        wait for 2225 ns;
-        keys_s <= "010";
+        wait;
+    end process;
+
+    switches_proc : process
+    begin
+        switches_s <= (others => '0');
+        keys_s <= (others => '0');
         wait;
     end process;
 --------------------------------------------------------------------        

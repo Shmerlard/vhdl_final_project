@@ -68,9 +68,9 @@ BEGIN
     -- send address to inst. memory address register
     G1: 
     if (WORD_GRANULARITY = True) generate       -- i.e. each WORD has unike address
-        itcm_addr_w <= "00" & pc_final_s;
+        itcm_addr_w <= pc_final_s;
     elsif (WORD_GRANULARITY = False) generate   -- i.e. each BYTE has unike address
-        itcm_addr_w <= "00" & pc_final_s & "00";
+        itcm_addr_w <=  pc_final_s & "00";
     end generate;
 
 
@@ -136,7 +136,8 @@ BEGIN
         end process;
 
 -- copy output signals - allows read inside module
-    pc_o                <=  pc_final_s;
+    -- pc_o                <=  pc_final_s;
+    pc_o                <=  pc_din_s;
     inst_cnt_o          <=  inst_cnt_q;
     instruction_o       <=  instruction_w;
 END behavior;

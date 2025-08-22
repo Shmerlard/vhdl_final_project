@@ -38,10 +38,10 @@ package aux_package is
             clk_i               :IN     STD_LOGIC; 
             bpaddr_i            :IN     STD_LOGIC_VECTOR(7 downto 0);
             int_req_i           :in     std_logic;
-            interrupt_src_i     :in     std_logic_vector(8 downto 0);
+            -- interrupt_src_i     :in     std_logic_vector(8 downto 0);
 
             data_bus_o          :inout  STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            addr_bus_o          :out  STD_LOGIC_VECTOR((DTCM_ADDR_WIDTH + 2)-1 DOWNTO 0);
+            addr_bus_o          :out  STD_LOGIC_VECTOR((PC_WIDTH + 2)-1 DOWNTO 0);
             ctrl_bus_o          :out  STD_LOGIC_VECTOR(1 DOWNTO 0);
             -- Output important signals to pins for easy display in SignalTap
             pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
@@ -58,7 +58,7 @@ package aux_package is
             RegWrite_ctrl_o     :OUT    STD_LOGIC;
             mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
             inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
-            hex_o               :OUT    t_hex_array(0 to 7);
+            -- hex_o               :OUT    t_hex_array(0 to 7);
             flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             strigger_o          :OUT    std_logic
@@ -68,7 +68,9 @@ package aux_package is
     component mips_top is
     generic( 
             WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
-            MODELSIM : integer          := G_MODELSIM;
+            USE_ALT_CLK: boolean        := false;
+            -- MODELSIM : integer          := G_MODELSIM;
+            MODELSIM : integer          := 0;
             DATA_BUS_WIDTH : integer    := 32;
             ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
             DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
@@ -78,8 +80,8 @@ package aux_package is
             DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
             CLK_CNT_WIDTH : integer     := 16;
             INST_CNT_WIDTH : integer    := 16;
-            DTCM_PATH : string;
-            ITCM_PATH : string
+            DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/timer/DTCM.hex";
+            ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/timer/ITCM.hex"
     );
     PORT(
         rst_i               : in std_logic;
@@ -89,25 +91,25 @@ package aux_package is
         switches_i          : in std_logic_vector(7 downto 0);
 
         hex_arr_o           : out t_hex_array(0 to 5);
-        leds_o              : out std_logic_vector(7 downto 0)
+        leds_o              : out std_logic_vector(7 downto 0);
 
         -- Output important signals to pins for easy display in SignalTap
-        -- pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
-        -- alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- Branch_ctrl_o       :OUT    STD_LOGIC;
-        -- Zero_o              :OUT    STD_LOGIC;
-        -- MemWrite_ctrl_o     :OUT    STD_LOGIC;
-        -- RegWrite_ctrl_o     :OUT    STD_LOGIC;
-        -- mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
-        -- inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
+        pc_o                :OUT    STD_LOGIC_VECTOR(PC_WIDTH-1 DOWNTO 0);
+        alu_result_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        read_data1_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        read_data2_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        write_data_o        :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        Branch_ctrl_o       :OUT    STD_LOGIC;
+        Zero_o              :OUT    STD_LOGIC;
+        MemWrite_ctrl_o     :OUT    STD_LOGIC;
+        RegWrite_ctrl_o     :OUT    STD_LOGIC;
+        mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
+        inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
         -- hex_o               :OUT    t_hex_array(0 to 7)
-        -- flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-        -- hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-        -- strigger_o          :OUT    std_logic
+        flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+        hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
+        strigger_o          :OUT    std_logic
     );
     end component;
 ---------------------------------------------------------  
@@ -221,7 +223,6 @@ package aux_package is
         c3_cmp_i        : in    std_logic;
         isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
         pc_o            : out   std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
-        pc_plus4_o      : out   std_logic_vector(next_pc_width-1 downto 0);
         instruction_o   : out   std_logic_vector(data_bus_width-1 downto 0);
         inst_cnt_o      : out   std_logic_vector(inst_cnt_width-1 downto 0) 
     );
@@ -428,7 +429,7 @@ package aux_package is
             SW_ARR_CNT: natural := 1
         );
         port (
-        -- clk_i : in std_logic;
+            clk_i : in std_logic;
             rst_i : in std_logic;
             mem_wr_c_in : in std_logic;
             mem_rd_c_in : in std_logic;
@@ -451,6 +452,8 @@ package aux_package is
 ---------------------------------------------------------   
     component port_led_interface is
     port (
+        rst_i       : in STD_LOGIC;
+        clk_i       : in STD_LOGIC;
         data_i      : in STD_LOGIC_VECTOR(7 downto 0);
         cs_i        : in STD_LOGIC;
         led_o       : out STD_LOGIC_VECTOR(7 downto 0)
