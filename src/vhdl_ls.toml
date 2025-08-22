@@ -9,7 +9,9 @@ defaultLib.files = [
     'TB/**/*.vhd',
 ]
 altera_mf.files = [
-    '/opt/intelFPGA/20.1/modelsim_ase/altera/vhdl/src/altera_mf/*.vhd'
+    # '/opt/intelFPGA/20.1/modelsim_ase/altera/vhdl/src/altera_mf/*.vhd',
+    "C:/intelFPGA/20.1/modelsim_ase/altera/vhdl/src/altera_mf/altera_mf.vhd",
+    "C:/intelFPGA/20.1/modelsim_ase/altera/vhdl/src/altera_mf/altera_mf_components.vhd"
 ]
 
 altera_mf.is_third_party = true
