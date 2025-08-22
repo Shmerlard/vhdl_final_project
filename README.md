@@ -21,17 +21,23 @@
 - [X] create initial structure for directories
 - [ ] synchronous reset
 <!---->
+- [ ] cpu
+    - [ ] more testing for lw sw and hazards
+    - [ ] clean signals
+<!---->
 - [ ] interrupts
-    - [ ] make sure the program stops,
-    - [ ] emulated ins may be a problem
-    - [ ] save the state
-    - [ ] save temporary register?
+    - [ ] tests
+    - [X] make sure the program stops,
+    - [X] emulated ins may be a problem
+    - [X] save the state
+    - [X] save temporary register?
 <!---->
 - [ ] GPIO preipheral
     - [X] make the memory map
-    - [ ] hex driver
-    - [ ] led driver
-    - [ ] gpi driver
+    - [X] hex driver
+    - [X] led driver
+    - [X] gpi driver
+    - [ ] integration with main cpu
 <!---->
 - [ ] HW accel
     - [ ] more modules

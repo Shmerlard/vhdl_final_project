@@ -761,13 +761,6 @@ end component interrupt_controller_unit;
     );
     end component nbit_counter;
 ---------------------------------------------------------
-    component port_hex_interface is
-    port (
-        data_i      : in STD_LOGIC_VECTOR(3 downto 0);
-        cs_i        : in STD_LOGIC_Vector(1 downto 0);
-        hex_o       : out t_hex_array(0 to 1)
-    );
-    end component  port_hex_interface;
 ---------------------------------------------------------
 
 end aux_package;
