@@ -21,6 +21,8 @@ ENTITY mips_top IS
         DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
         CLK_CNT_WIDTH : integer     := 16;
         INST_CNT_WIDTH : integer    := 16;
+        -- DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/simple0/DTCM.hex";
+        -- ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/simple0/ITCM.hex"
         DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex";
         ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
     );
@@ -111,7 +113,24 @@ BEGIN
         int_ack_o => int_ack_s,
         gie_o   => gie_s,
 
-        strigger_o => strigger_o
+        strigger_o => strigger_o,
+
+        -- Quartus
+        pc_o => pc_o,
+        alu_result_o => alu_result_o,
+        read_data1_o => read_data1_o,
+        read_data2_o => read_data2_o,
+        write_data_o => write_data_o,
+        instruction_top_o => instruction_top_o,
+        Branch_ctrl_o => Branch_ctrl_o,
+        Zero_o => Zero_o,
+        MemWrite_ctrl_o => MemWrite_ctrl_o,
+        RegWrite_ctrl_o => RegWrite_ctrl_o,
+        mclk_cnt_o => mclk_cnt_o,
+        inst_cnt_o => inst_cnt_o,
+        flush_cnt => flush_cnt,
+        hf_cnt => hf_cnt
+
     );
 
     pll_gen:

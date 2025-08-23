@@ -79,6 +79,7 @@ BEGIN
         begin
           rst_tb_i <='1';
           wait for 200 ns;
+          rst_tb_i <= '0';
           wait;
     end process;
 
