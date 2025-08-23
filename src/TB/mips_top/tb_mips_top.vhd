@@ -53,8 +53,7 @@ BEGIN
         -- DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex",
         -- ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
         ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/ITCM.hex",
-        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
-        -- DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/DTCM.hex"
+        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/DTCM.hex"
 
     )
     PORT MAP (

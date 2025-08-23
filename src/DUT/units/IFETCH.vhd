@@ -93,7 +93,7 @@ BEGIN
         q_out   => pc_s
     );
 
-    pc_final_s <= pc_unstalled when stall_ctl_i = '0' else pc_prev_q;
+    pc_final_s <= pc_unstalled when stall_ctl_i = '0' else pc_prev_q(PC_WIDTH-1 downto 2);
     pc_din_s <= std_logic_vector(unsigned(pc_final_s) + 1);
 
     pc_final_sel_s <= branch_ctl_i or j_ctl_i or jr_ctl_i or c3_cmp_i;

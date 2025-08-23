@@ -20,10 +20,10 @@ ENTITY mips_top IS
         DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
         CLK_CNT_WIDTH : integer     := 16;
         INST_CNT_WIDTH : integer    := 16;
-        -- DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/simple0/DTCM.hex";
-        -- ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/simple0/ITCM.hex"
-        DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex";
-        ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
+        DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/DTCM.hex";
+        ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/ITCM.hex"
+        -- DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex";
+        -- ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
     );
     PORT(
         rst_i               : in std_logic;
