@@ -1,5 +1,4 @@
----------------------------------------------------------------------------------------------
--- Copyright 2025 Hananya Ribo 
+----------------------------------------------------------------------------------------------- Copyright 2025 Hananya Ribo 
 -- Advanced CPU architecture and Hardware Accelerators Lab 361-1-4693 BGU
 ---------------------------------------------------------------------------------------------
 --  Execute module (implements the data ALU and Branch Address Adder  
@@ -27,9 +26,9 @@ ENTITY Execute IS
         bne_ctl_i       : in    std_logic;
         beq_ctl_i       : in    std_logic;
         alufn_i         : in    STD_LOGIC_VECTOR(4 downto 0);
-        alu_res_o       : OUT   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        slt_res_o       : out   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        lui_res_o       : out   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        alu_res_o       : OUT   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 downto 0);
+        slt_res_o       : out   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 downto 0);
+        lui_res_o       : out   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 downto 0);
         zero_o          : out   std_logic;
         branch_ctl_o    : out   std_logic
     );
@@ -37,11 +36,13 @@ END Execute;
 
 
 ARCHITECTURE behavior OF Execute IS
-SIGNAL a_input_w, b_input_w     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-SIGNAL alu_out_mux_w            : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-SIGNAL branch_addr_r            : STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL alu_ctl_w                : STD_LOGIC_VECTOR(2 DOWNTO 0);
-signal zflag_w                  : std_logic;
+    SIGNAL a_input_w, b_input_w     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 downto 0);
+    SIGNAL alu_out_mux_w            : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 downto 0);
+    SIGNAL branch_addr_r            : STD_LOGIC_VECTOR(7 downto 0);
+    SIGNAL alu_ctl_w                : STD_LOGIC_VECTOR(2 downto 0);
+    signal zflag_w                  : std_logic;
+
+    signal written_buffer           : std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0);
 BEGIN
 
     a_input_w <=    read_data1_i when (shamt_ctl_i = '0') else (x"000000" & "000" & shamt_i);

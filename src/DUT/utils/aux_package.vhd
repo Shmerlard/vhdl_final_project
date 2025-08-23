@@ -170,12 +170,14 @@ package aux_package is
     component hazardunit is
     port( 
         clk_i, rst_i    : in std_logic;
+        jr_ctl_i        : in std_logic;
         inst_type_i     : in std_logic_vector(2 downto 0);
         rs_rt_rd_i      : in std_logic_vector(14 downto 0);
         rd1_sel_o       : out std_logic_vector(3 downto 0);
         rd2_sel_o       : out std_logic_vector(3 downto 0);
         lw_hazard_rd1_o : out std_logic;
-        lw_hazard_rd2_o : out std_logic
+        lw_hazard_rd2_o : out std_logic;
+        hazard_stall_ctl_o : out std_logic
     );
     end component;
 ---------------------------------------------------------       
@@ -220,6 +222,7 @@ package aux_package is
         clk_i, rst_i    : in    std_logic;
         bta_i, jta_i    : in    std_logic_vector(7 downto 0);
         branch_ctl_i    : in    std_logic;
+        stall_ctl_i     : in    std_logic;
         j_ctl_i         : in    std_logic;
         jr_ctl_i        : in    std_logic;
         read_data1_i    : in    std_logic_vector(NEXT_PC_WIDTH-1 downto 0);

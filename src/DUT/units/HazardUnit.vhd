@@ -6,12 +6,14 @@ use work.aux_package.all;
 entity hazardunit is
     port( 
         clk_i, rst_i    : in std_logic;
+        jr_ctl_i        : in std_logic;
         inst_type_i     : in std_logic_vector(2 downto 0);
         rs_rt_rd_i      : in std_logic_vector(14 downto 0);
         rd1_sel_o       : out std_logic_vector(3 downto 0);
         rd2_sel_o       : out std_logic_vector(3 downto 0);
         lw_hazard_rd1_o : out std_logic;
-        lw_hazard_rd2_o : out std_logic
+        lw_hazard_rd2_o : out std_logic;
+        hazard_stall_ctl_o : out std_logic
     );
 end hazardunit;
 
@@ -113,13 +115,13 @@ begin
     );
 
 -- comparators
-    rs_rx_ex_equal_w    <= '1' when ((rs_id_w = ex_rx_w) and not(ex_rx_w = "00000")) else '0';
+    rs_rx_ex_equal_w    <= '1' when ((rs_id_w = ex_rx_w)  and not(ex_rx_w = "00000")) else '0';
     rs_rx_mem_equal_w   <= '1' when ((rs_id_w = mem_rx_w) and not(mem_rx_w = "00000")) else '0';
-    rs_rx_wb_equal_w    <= '1' when ((rs_id_w = wb_rx_w) and not(wb_rx_w = "00000")) else '0';
+    rs_rx_wb_equal_w    <= '1' when ((rs_id_w = wb_rx_w)  and not(wb_rx_w = "00000")) else '0';
 
-    rt_rx_ex_equal_w    <= '1' when ((rt_id_w = ex_rx_w) and not(ex_rx_w = "00000")) else '0';
+    rt_rx_ex_equal_w    <= '1' when ((rt_id_w = ex_rx_w)  and not(ex_rx_w = "00000")) else '0';
     rt_rx_mem_equal_w   <= '1' when ((rt_id_w = mem_rx_w) and not(mem_rx_w = "00000")) else '0';
-    rt_rx_wb_equal_w    <= '1' when ((rt_id_w = wb_rx_w) and not(wb_rx_w = "00000")) else '0';
+    rt_rx_wb_equal_w    <= '1' when ((rt_id_w = wb_rx_w)  and not(wb_rx_w = "00000")) else '0';
 
     rx_equal_zero_w     <= '1' when (rx_id_w = "00000") else '0';
 
@@ -131,66 +133,62 @@ begin
         if rst_i = '1' then 
             rd1_sel_o <= "0000";
         else
-            -- if rising_edge(clk_i) then
-                -- if ((rs_rx_ex_equal_w = '1') and (rx_equal_zero_w = '0') and not (lw_hazard_w = '1')) then
-                if ((rs_rx_ex_equal_w = '1')) then
-                    -- if (lw_hazard_w = '1') then     -- BUG: check
-                    --     rd1_sel_o <= "0100";
-                    if (ex_it_w = "000") then
-                        rd1_sel_o <= "0001";        -- V
-                    elsif (ex_it_w = "001") then
-                        rd1_sel_o <= "0001";        -- V
-                    elsif (ex_it_w = "010") then
-                        rd1_sel_o <= "0010";        -- V
-                    elsif (ex_it_w = "011") then
-                        rd1_sel_o <= "0010";        -- V
-                    elsif (ex_it_w = "100") then
-                        rd1_sel_o <= "0011";        -- V
-                    elsif (ex_it_w = "101") then
-                        rd1_sel_o <= "0100"; -- ex_it_w = "101", lw!
-                    -- elsif (ex_it_w = "110") then
-                    --     -- rd1_sel_o <= "0100";
-                    else
-                        rd1_sel_o <= "0000";
-                    end if;
-                -- elsif ((rs_rx_ex_equal_w = '1') and (rx_equal_zero_w = '0') and (lw_hazard_w = '1')) then
-                --  rd1_sel_o <= "0100";
-                elsif ((rs_rx_mem_equal_w = '1')) then
-                    if (mem_it_w = "000") then
-                        rd1_sel_o <= "0101";
-                    elsif (mem_it_w = "001") then
-                        rd1_sel_o <= "0101";
-                    elsif (mem_it_w = "010") then
-                        rd1_sel_o <= "0110";
-                    elsif (mem_it_w = "011") then
-                        rd1_sel_o <= "0110";
-                    elsif (mem_it_w = "100") then
-                        rd1_sel_o <= "0111";
-                    elsif (mem_it_w = "101") then
-                        rd1_sel_o <= "1000"; -- mem_it_w = "101"
-                    else
-                        rd1_sel_o <= "0000";
-                    end if;
-                elsif ((rs_rx_wb_equal_w = '1')) then
-                    if (wb_it_w = "000") then
-                        rd1_sel_o <= "1001";
-                    elsif (wb_it_w = "001") then
-                        rd1_sel_o <= "1001";
-                    elsif (wb_it_w = "010") then
-                        rd1_sel_o <= "1010";
-                    elsif (wb_it_w = "011") then
-                        rd1_sel_o <= "1010";
-                    elsif (wb_it_w = "100") then
-                        rd1_sel_o <= "1011";
-                    elsif (wb_it_w = "101") then
-                        rd1_sel_o <= "1100"; -- wb_it_w = "101"
-                    else
-                        rd1_sel_o <= "0000";
-                    end if;
+            if ((rs_rx_ex_equal_w = '1')) then
+                if (ex_it_w = "000") then
+                    rd1_sel_o <= "0001";        -- V
+                elsif (ex_it_w = "001") then
+                    rd1_sel_o <= "0001";        -- V
+                elsif (ex_it_w = "010") then
+                    rd1_sel_o <= "0010";        -- V
+                elsif (ex_it_w = "011") then
+                    rd1_sel_o <= "0010";        -- V
+                elsif (ex_it_w = "100") then
+                    rd1_sel_o <= "0011";        -- V
+                elsif (ex_it_w = "101") then
+                    rd1_sel_o <= "0100"; -- ex_it_w = "101", lw!
+                -- elsif (ex_it_w = "110") then
+                --     -- rd1_sel_o <= "0100";
                 else
                     rd1_sel_o <= "0000";
                 end if;
-            -- end if;
+            -- elsif ((rs_rx_ex_equal_w = '1') and (rx_equal_zero_w = '0') and (lw_hazard_w = '1')) then
+            --  rd1_sel_o <= "0100";
+            elsif ((rs_rx_mem_equal_w = '1')) then
+                if (mem_it_w = "000") then
+                    rd1_sel_o <= "0101";
+                elsif (mem_it_w = "001") then
+                    rd1_sel_o <= "0101";
+                elsif (mem_it_w = "010") then
+                    rd1_sel_o <= "0110";
+                elsif (mem_it_w = "011") then
+                    rd1_sel_o <= "0110";
+                elsif (mem_it_w = "100") then
+                    rd1_sel_o <= "0111";
+                elsif (mem_it_w = "101") then
+                    rd1_sel_o <= "1000"; -- mem_it_w = "101"
+                else
+                    rd1_sel_o <= "0000";
+                end if;
+            elsif ((rs_rx_wb_equal_w = '1')) then
+                if (wb_it_w = "000") then
+                    rd1_sel_o <= "1001";
+                elsif (wb_it_w = "001") then
+                    rd1_sel_o <= "1001";
+                elsif (wb_it_w = "010") then
+                    rd1_sel_o <= "1010";
+                elsif (wb_it_w = "011") then
+                    rd1_sel_o <= "1010";
+                elsif (wb_it_w = "100") then
+                    rd1_sel_o <= "1011";
+                elsif (wb_it_w = "101") then
+                    rd1_sel_o <= "1100"; -- wb_it_w = "101"
+                else
+                    rd1_sel_o <= "0000";
+                end if;
+            else
+                rd1_sel_o <= "0000";
+            end if;
+        -- end if;
         end if;
     end process;
 
@@ -259,6 +257,8 @@ begin
 -- lw hazard handling
     lw_hazard_w <= '1' when ((ex_it_w = "101") and (rs_rx_ex_equal_w = '1')) else '0';
     lw_hazard2_w <= '1' when ((ex_it_w = "101") and (rt_rx_ex_equal_w = '1')) else '0';
+
+    hazard_stall_ctl_o <= lw_hazard_w or lw_hazard2_w;
 
     process(clk_i, rst_i)
     begin

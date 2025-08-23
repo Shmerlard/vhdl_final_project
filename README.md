@@ -19,7 +19,7 @@
 ## Todo
 <!---->
 - [X] create initial structure for directories
-- [ ] synchronous reset
+- [X] synchronous reset
 <!---->
 - [ ] cpu
     - [ ] more testing for lw sw and hazards
