@@ -1,7 +1,6 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-USE IEEE.STD_LOGIC_SIGNED.ALL;
+use ieee.numeric_std.all;
 
 ENTITY control IS
     generic(
@@ -194,7 +193,7 @@ begin
     end process;
 
     -- hazard unit types
-    process(R_type, addi, andi, ori, xori, addu, addiu, lw, lui, slt, slti, mult)
+    process(R_type, addi, andi, ori, xori, addu, addiu, lw, lui, slt, slti, mult, beq, bne)
     begin
         if (((R_type and not(slt)) = '1') or (mult = '1')) then
             hazard_unit_type_o <= "000";
@@ -210,7 +209,8 @@ begin
             hazard_unit_type_o <= "101";
         elsif ((beq = '1') or (bne = '1')) then
             hazard_unit_type_o <= "110";
-        else hazard_unit_type_o <= "111"; 
+        else 
+            hazard_unit_type_o <= "111"; 
         end if;
     end process;
 

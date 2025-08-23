@@ -1,7 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
--- use ieee.numeric_std_unsigned.all;
 use work.aux_package.all;
 use work.const_package.all;
 use work.memory_map.all;

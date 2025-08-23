@@ -1,12 +1,11 @@
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-use ieee.std_logic_unsigned.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 USE work.cond_comilation_package.all;
 USE work.aux_package.all;
 
 
-ENTITY mips_core IS
+entity mips_core is
     generic( 
             WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
             MODELSIM : integer          := G_MODELSIM;
@@ -22,8 +21,8 @@ ENTITY mips_core IS
             DTCM_PATH : string := G_DTCM_PATH;
             ITCM_PATH : string := G_ITCM_PATH
     );
-    PORT(   rst_i               :IN     STD_LOGIC;
-            clk_i               :IN     STD_LOGIC; 
+    port(   rst_i               :in     std_logic;
+            clk_i               :in     std_logic; 
             bpaddr_i            :IN     STD_LOGIC_VECTOR(7 downto 0);
             int_req_i           :in     std_logic;
             -- interrupt_src_i     :in     std_logic_vector(8 downto 0);
@@ -53,7 +52,7 @@ ENTITY mips_core IS
     );
 END mips_core;
 -------------------------------------------------------------------------------------
-ARCHITECTURE structure OF mips_core IS
+architecture structure of mips_core is
 -- declare signals used to connect VHDL components
     SIGNAL bta_w, jta_w     : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL zero_w           : STD_LOGIC;
@@ -171,7 +170,8 @@ BEGIN
     Branch_ctrl_o       <=  branch_ctl_w;
     Zero_o              <=  zero_w;
     RegWrite_ctrl_o     <=  wb_regwrite_wi;
-    MemWrite_ctrl_o     <=  mem_regwrite_wi;    
+    -- MemWrite_ctrl_o     <=  mem_regwrite_wi;    
+    MemWrite_ctrl_o     <=  mem_memwrite_wi;    
 
 -- connect the PLL component
     -- pll_gen:
@@ -463,7 +463,7 @@ BEGIN
         hazard_unit_type_o => hazard_unit_type_w
     );
 
-    k1_check_s <= '1' when (id_instruction_wi(25 downto 21) = 27) else '0';
+    k1_check_s <= '1' when (id_instruction_wi(25 downto 21) = "11011") else '0'; -- when eq to 27
     ctl_reti_s <= jr_ctl_w and k1_check_s;
     control_bus_s(0) <= mem_memwrite_wi;
     control_bus_s(1) <= mem_memread_wi;
@@ -608,7 +608,7 @@ BEGIN
         mem_dtcm_data_wo <= mem_dtcm_rd_s when ((mem_alures_wi(11) and mem_memread_wi) = '0') else data_bus_o; 
 
     -- write from dtcm input to data bus enable tri-state
-        data_input2databus_en_s <= mem_memwrite_wi and mem_alures_wi(11);
+        data_input2databus_en_s <= mem_memwrite_wi and mem_alures_wi(11);   -- TODO: fix
 
 -- Buses outputs assignments
     -- data_bus_o  <= data_bus_s;
@@ -625,7 +625,7 @@ BEGIN
         if rst_i = '1' then
             mclk_cnt_q  <=  (others => '0');
         elsif falling_edge(clk_i) then
-            mclk_cnt_q  <=  mclk_cnt_q + '1';
+            mclk_cnt_q  <=  std_logic_vector(unsigned(mclk_cnt_q) + 1);
         end if;
     end process;
 
@@ -635,7 +635,7 @@ BEGIN
             hf_cnt_s    <=  (others => '0');
         elsif rising_edge(clk_i) then
             if (not(rd1_sel_w = "0000") or not(rd2_sel_w = "0000")) then
-                hf_cnt_s    <=  hf_cnt_s + '1';
+                hf_cnt_s    <=  std_logic_vector(unsigned(hf_cnt_s) + 1);
             end if;
         end if;
     end process;
@@ -645,7 +645,7 @@ BEGIN
         if rst_i = '1' then
             flush_cnt_s   <=    (others => '0');
         elsif falling_edge(flush_ctl_w) then
-            flush_cnt_s   <=    flush_cnt_s + '1';
+            flush_cnt_s   <=    std_logic_vector(unsigned(flush_cnt_s) + 1);
         end if;
     end process;
 

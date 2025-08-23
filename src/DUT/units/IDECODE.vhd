@@ -1,7 +1,6 @@
 LIBRARY IEEE;       
 USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+use ieee.numeric_std.all;
 
 
 ENTITY Idecode IS
@@ -54,10 +53,10 @@ BEGIN
     imm_value_w             <= instruction_i(15 DOWNTO 0);
 
     -- Read Register 1 Operation
-    read_data1_o <= RF_q(CONV_INTEGER(rs_register_w));
+    read_data1_o <= RF_q(to_integer(unsigned(rs_register_w)));
 
     -- Read Register 2 Operation         
-    read_data2_o <= RF_q(CONV_INTEGER(rt_register_w));
+    read_data2_o <= RF_q(to_integer(unsigned(rt_register_w)));
 
     -- Sign Extend 16-bits to 32-bits
     sign_extend_w <=    (X"0000" & imm_value_w) WHEN (imm_value_w(15) = '0') ELSE
@@ -65,7 +64,7 @@ BEGIN
     sign_extend_o <= sign_extend_w;
 
     -- Branch target address
-    bta_o <= pc_plus4_i + imm_value_w(NEXT_PC_WIDTH-1 downto 0) - 1;
+    bta_o <= std_logic_vector(unsigned(pc_plus4_i) + unsigned(imm_value_w(NEXT_PC_WIDTH-1 downto 0)) -1 );
 
     -- Jump target address
     jta_o <= instruction_i(7 downto 0);
@@ -78,11 +77,11 @@ BEGIN
         if (rst_i='1') then
             FOR i IN 0 TO 31 LOOP
                 -- RF_q(i) <= CONV_STD_LOGIC_VECTOR(i,32);
-                RF_q(i) <= CONV_STD_LOGIC_VECTOR(0,32);
+                RF_q(i) <= x"00000000";
             END LOOP;
         elsif (clk_i'event and clk_i='1') then
-            if (RF_wren_s = '1' AND write_reg_addr_s /= 0) then
-                RF_q(CONV_INTEGER(write_reg_addr_s)) <= write_reg_data_s;
+            if (RF_wren_s = '1' AND unsigned(write_reg_addr_s) /= 0) then
+                RF_q(to_integer(unsigned(write_reg_addr_s))) <= write_reg_data_s;
                 -- index is integer type so we must use conv_integer for type casting
             end if;
         end if;

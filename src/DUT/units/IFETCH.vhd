@@ -1,7 +1,6 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+use ieee.numeric_std.all;
 LIBRARY altera_mf;
 USE altera_mf.altera_mf_components.all;
 
@@ -92,7 +91,7 @@ BEGIN
         q_out   => pc_s
     );
 
-    pc_din_s <= pc_final_s + 1;
+    pc_din_s <= std_logic_vector(unsigned(pc_final_s) + 1);
 
     pc_final_sel_s <= branch_ctl_i or j_ctl_i or jr_ctl_i or c3_cmp_i;
     pc_final_s      <= alt_pc_add_s when pc_final_sel_s = '1' else pc_s;
@@ -131,7 +130,7 @@ BEGIN
                 inst_cnt_q  <=  (others => '0');
             elsif rising_edge(clk_i) then
                 if pc_prev_q(pc_width-1 downto 2) = pc_s then
-                    inst_cnt_q  <=  inst_cnt_q + '1';
+                    inst_cnt_q  <=  std_logic_vector(unsigned(inst_cnt_q) + 1);
                 end if;
             end if;
         end process;

@@ -1,7 +1,6 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 USE work.cond_comilation_package.all;
 USE work.aux_package.all;
 use work.memory_map.all;
@@ -46,13 +45,16 @@ ENTITY mips_top IS
         Branch_ctrl_o       :OUT    STD_LOGIC;
         Zero_o              :OUT    STD_LOGIC;
         MemWrite_ctrl_o     :OUT    STD_LOGIC;
+        int_ack_o           : out   std_logic;
+        int_req_o           : out   std_logic;
         RegWrite_ctrl_o     :OUT    STD_LOGIC;
         mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
         inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
         -- hex_o               :OUT    t_hex_array(0 to 7)
         flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
         hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-        strigger_o          :OUT    std_logic
+        strigger_o          :OUT    std_logic;
+        data_bus_o          : out   std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0)
     );
 END mips_top;
 
@@ -138,8 +140,10 @@ BEGIN
         MCLK: entity work.PLL
         PORT MAP (
             inclk0  => clk_i,
-            c0      => mclk_s,
-            c1      => mclk2_s,
+            -- c0      => mclk_s,
+            -- c1      => mclk2_s,
+            c0      => mclk2_s,         -- TODO: change later
+            c1      => mclk_s,
             c2      => mclk4_s,
             c3      => mclk8_s);
     else generate
@@ -171,24 +175,24 @@ BEGIN
         int_req_o => int_req_s
     );
 
-    timer_unit_inst: entity work.timer_unit
-    port map(
-        mclk_i        => mclk_s,
-        mclk_i2_i     => mclk2_s,
-        mclk_i4_i     => mclk4_s,
-        mclk_i8_i     => mclk8_s,
-        rst_i         => rst_s,
-        mem_write_c_i => ctrl_bus_s(0),
-        mem_read_c_i  => ctrl_bus_s(1),
-        address_bus_i => addr_bus_s,
-        data_bus_io   => data_bus_s,
-        BTIFG         => btifg_out_s,
-        PWMOUT        => pwm_out_s
-        -- debug_btctl_o => debug_btctl_o,
-        -- debug_btcnt_o => debug_btcnt_o,
-        -- debug_btccr0_o => debug_btccr0_o,
-        -- debug_btccr1_o => debug_btccr1_o
-    );
+    -- timer_unit_inst: entity work.timer_unit
+    -- port map(
+    --     mclk_i        => mclk_s,
+    --     mclk_i2_i     => mclk2_s,
+    --     mclk_i4_i     => mclk4_s,
+    --     mclk_i8_i     => mclk8_s,
+    --     rst_i         => rst_s,
+    --     mem_write_c_i => ctrl_bus_s(0),
+    --     mem_read_c_i  => ctrl_bus_s(1),
+    --     address_bus_i => addr_bus_s,
+    --     data_bus_io   => data_bus_s,
+    --     BTIFG         => btifg_out_s,
+    --     PWMOUT        => pwm_out_s
+    --     -- debug_btctl_o => debug_btctl_o,
+    --     -- debug_btcnt_o => debug_btcnt_o,
+    --     -- debug_btccr0_o => debug_btccr0_o,
+    --     -- debug_btccr1_o => debug_btccr1_o
+    -- );
 
     gpio_unit_inst: entity work.gpio_unit
     port map(
@@ -204,5 +208,8 @@ BEGIN
     );
 
 
+    int_req_o   <= int_req_s;
+    int_ack_o   <= int_ack_s;
+    data_bus_o <= data_bus_s;
     int_src_s(6 downto 4) <= keys_i;
 END ARCHITECTURE rtl;

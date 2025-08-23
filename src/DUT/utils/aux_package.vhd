@@ -102,6 +102,8 @@ package aux_package is
         instruction_top_o   :OUT    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         Branch_ctrl_o       :OUT    STD_LOGIC;
         Zero_o              :OUT    STD_LOGIC;
+        int_ack_o           : out   std_logic;
+        int_req_o           : out   std_logic;
         MemWrite_ctrl_o     :OUT    STD_LOGIC;
         RegWrite_ctrl_o     :OUT    STD_LOGIC;
         mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
@@ -109,7 +111,8 @@ package aux_package is
         -- hex_o               :OUT    t_hex_array(0 to 7)
         flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
         hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
-        strigger_o          :OUT    std_logic
+        strigger_o          :OUT    std_logic;
+        data_bus_o          : out   std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0)
     );
     end component;
 ---------------------------------------------------------  

@@ -38,7 +38,7 @@ ARCHITECTURE struct OF tb_mips_top IS
    signal leds_s               : std_logic_vector(7 downto 0);
    
 BEGIN
-    CORE : entity work.mips_top
+    top_proc : entity work.mips_top
     generic map(
         WORD_GRANULARITY            => WORD_GRANULARITY,
         MODELSIM                    => MODELSIM,

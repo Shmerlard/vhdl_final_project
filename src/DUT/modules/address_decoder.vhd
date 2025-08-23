@@ -24,7 +24,7 @@ ARCHITECTURE rtl OF address_decoder IS
     signal cs_s :std_logic_vector(ADDRESS_ARRAY'length - 1 downto 0);
 BEGIN
     process (address_bus_i)
-        variable addr_int : natural;
+        variable addr_int : integer;
     begin
         addr_int := to_integer(unsigned(address_bus_i));
         for i in ADDRESS_ARRAY'range loop

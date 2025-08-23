@@ -1,7 +1,6 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 USE work.cond_comilation_package.all;
 USE work.aux_package.all;
 

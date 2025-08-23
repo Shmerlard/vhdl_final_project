@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
 entity nbit_counter is
     generic (
@@ -37,9 +37,9 @@ begin
                     if equy = '0' then
                         -- q_reg <= q_reg + 1 when cnt_dir = '1' else q_reg - 1;
                         if cnt_dir = '1' then
-                            q_reg <= q_reg + 1;
+                            q_reg <= std_logic_vector(unsigned(q_reg) + 1);
                         else
-                            q_reg <= q_reg - 1;
+                            q_reg <= std_logic_vector(unsigned(q_reg) - 1);
                         end if;
                     else
                         q_reg <= (others => '0');

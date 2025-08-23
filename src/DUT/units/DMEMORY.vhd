@@ -5,8 +5,7 @@
 --  Dmemory module (implements the data memory for the MIPS computer)
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-USE IEEE.STD_LOGIC_SIGNED.ALL;
+use ieee.numeric_std.all;
 
 LIBRARY altera_mf;
 USE altera_mf.altera_mf_components.all;
