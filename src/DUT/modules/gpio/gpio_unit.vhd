@@ -59,16 +59,22 @@ begin
 
     hex_inter_ins: entity work.port_hex_interface
     port map(
+        rst_i => rst_i,
+        clk_i => clk_i,
         data_i => data_bus_io(3 downto 0),
         cs_i => gpio_wr_cs_s(2 downto 1),
         hex_o => hex_out(0 to 1));
     hex_inter_ins2: entity work.port_hex_interface
     port map(
+        rst_i => rst_i,
+        clk_i => clk_i,
         data_i => data_bus_io(3 downto 0),
         cs_i => gpio_wr_cs_s(4 downto 3),
         hex_o => hex_out(2 to 3));
     hex_inter_ins3: entity work.port_hex_interface
     port map(
+        rst_i => rst_i,
+        clk_i => clk_i,
         data_i => data_bus_io(3 downto 0),
         cs_i => gpio_wr_cs_s(6 downto 5),
         hex_o => hex_out(4 to 5));

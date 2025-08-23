@@ -5,6 +5,8 @@ use work.aux_package.all;
 
 entity port_hex_interface is
     port (
+        rst_i       : in std_logic;
+        clk_i       : in std_logic;
         data_i      : in STD_LOGIC_VECTOR(3 downto 0);
         cs_i        : in STD_LOGIC_Vector(1 downto 0);
         hex_o       : out t_hex_array(0 to 1)
@@ -20,17 +22,23 @@ ARCHITECTURE rtl OF port_hex_interface IS
 -- BUG: check the adress space and if he meant that hex is one
     -- dispaly or 2
 BEGIN
-    lsb_hex_latch: entity work.nbit_latch
+    lsb_hex_reg: entity work.nbit_dff
     generic map( n => 4 )
     port map
-    (   en => lsb_hex_write_s,
+    (
+        rst => rst_i,
+        clk => clk_i,
+        en => lsb_hex_write_s,
         d_in => data_i(3 downto 0),
         q_out => lsb_hex_out_s);
 
-    msb_hex_latch: entity work.nbit_latch
+    msb_hex_reg: entity work.nbit_dff
     generic map( n => 4 )
     port map
-    (   en => msb_hex_write_s,
+    (   
+        rst => rst_i,
+        clk => clk_i,
+        en => msb_hex_write_s,
         d_in => data_i(3 downto 0),
         q_out => msb_hex_out_s);
 

@@ -134,9 +134,9 @@ begin
             -- if rising_edge(clk_i) then
                 -- if ((rs_rx_ex_equal_w = '1') and (rx_equal_zero_w = '0') and not (lw_hazard_w = '1')) then
                 if ((rs_rx_ex_equal_w = '1')) then
-                    if (lw_hazard_w = '1') then 
-                        rd1_sel_o <= "0100";
-                    elsif (ex_it_w = "000") then
+                    -- if (lw_hazard_w = '1') then     -- BUG: check
+                    --     rd1_sel_o <= "0100";
+                    if (ex_it_w = "000") then
                         rd1_sel_o <= "0001";        -- V
                     elsif (ex_it_w = "001") then
                         rd1_sel_o <= "0001";        -- V
@@ -187,7 +187,8 @@ begin
                     else
                         rd1_sel_o <= "0000";
                     end if;
-                else rd1_sel_o <= "0000";
+                else
+                    rd1_sel_o <= "0000";
                 end if;
             -- end if;
         end if;
@@ -211,11 +212,12 @@ begin
                     rd2_sel_o <= "0010";
                 elsif (ex_it_w = "100") then
                     rd2_sel_o <= "0011";
-                elsif (ex_it_w = "100") then
+                elsif (ex_it_w = "101") then
                     rd2_sel_o <= "0100"; -- ex_it_w = "101", lw!
                 else
                     rd2_sel_o <= "0000";
                 end if;
+            -- check memory
             elsif ((rt_rx_mem_equal_w = '1')) then
                 if (mem_it_w = "000") then
                     rd2_sel_o <= "0101";
@@ -227,7 +229,10 @@ begin
                     rd2_sel_o <= "0110";
                 elsif (mem_it_w = "100") then
                     rd2_sel_o <= "0111";
-                else rd2_sel_o <= "1000"; -- mem_it_w = "101"
+                elsif (mem_it_w = "101") then
+                    rd2_sel_o <= "1000"; -- mem_it_w = "101"
+                else 
+                    rd2_sel_o <= "0000"; -- mem_it_w = "101"
                 end if;
             elsif ((rt_rx_wb_equal_w = '1')) then
                 if (wb_it_w = "000") then
@@ -240,9 +245,13 @@ begin
                     rd2_sel_o <= "1010";
                 elsif (wb_it_w = "100") then
                     rd2_sel_o <= "1011";
-                else rd2_sel_o <= "1100"; -- wb_it_w = "101"
+                elsif (wb_it_w = "101") then
+                    rd2_sel_o <= "1100"; -- wb_it_w = "101"
+                else 
+                    rd2_sel_o <= "0000"; -- wb_it_w = "101"
                 end if;
-            else rd2_sel_o <= "0000";
+            else
+                rd2_sel_o <= "0000";
             end if;
         end if;
     end process;

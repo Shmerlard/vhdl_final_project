@@ -256,7 +256,7 @@ BEGIN
     with rd1_sel_w select
         id_rd1_mux_w <= 
             id_rd1_wo           when "0000",
-            
+
             ex_alures_wo        when "0001",
             ex_sltres_wo        when "0010",
             ex_luires_wo        when "0011",
@@ -435,8 +435,6 @@ BEGIN
         bta_o           => bta_w                -- ID   => IF
     );
 
-    -- id_sub_w    <= id_rd1_mux_w - id_rd2_mux_w;
-    -- id_zflag_w  <= '1' when (id_sub_w = x"00000000") else '0';
     id_zflag_w <= '1' when (id_rd1_mux_w = id_rd2_mux_w) else '0';
     flush_ctl_w <= j_ctl_w or jr_ctl_w or (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w)) or (c1to3_cmp_s);
     branch_ctl_w <= (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w));

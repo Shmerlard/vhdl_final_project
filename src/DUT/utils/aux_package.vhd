@@ -450,6 +450,8 @@ package aux_package is
 ---------------------------------------------------------   
     component port_hex_interface is
         port (
+            rst_i       : in std_logic;
+            clk_i       : in std_logic;
             data_i      : in STD_LOGIC_VECTOR(3 downto 0);
             cs_i        : in STD_LOGIC_Vector(1 downto 0);
             hex_o       : out t_hex_array(0 to 1)
