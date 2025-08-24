@@ -30,14 +30,6 @@ ARCHITECTURE rtl OF if_id_pipeline_reg IS
     signal delayed_w_en_s : std_logic;
 BEGIN
     delayed_w_en_s <= '1' when rst_i = '0' else '0';
-    -- process(clk_i, rst_i)
-    -- begin
-    --     if (rst_i = '1') then 
-    --         delayed_w_en_s <= '0';
-    --     elsif rising_edge(clk_i) then
-    --         delayed_w_en_s <= '1';
-    --     end if;
-    -- end process;
 
     IF_ID_PLR_instruction : entity work.nbit_dff
     generic map ( n => DATA_BUS_WIDTH )

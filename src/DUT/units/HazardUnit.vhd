@@ -13,7 +13,8 @@ entity hazardunit is
         rd2_sel_o       : out std_logic_vector(3 downto 0);
         lw_hazard_rd1_o : out std_logic;
         lw_hazard_rd2_o : out std_logic;
-        hazard_stall_ctl_o : out std_logic
+        hazard_stall_ctl_o : out std_logic;
+        id_ex_stall_o   : out std_logic
     );
 end hazardunit;
 
