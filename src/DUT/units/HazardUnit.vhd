@@ -115,13 +115,13 @@ begin
     );
 
 -- comparators
-    rs_rx_ex_equal_w    <= '1' when ((rs_id_w = ex_rx_w)  and not(ex_rx_w = "00000")) else '0';
-    rs_rx_mem_equal_w   <= '1' when ((rs_id_w = mem_rx_w) and not(mem_rx_w = "00000")) else '0';
-    rs_rx_wb_equal_w    <= '1' when ((rs_id_w = wb_rx_w)  and not(wb_rx_w = "00000")) else '0';
+    rs_rx_ex_equal_w    <= '1' when ((rs_id_w = ex_rx_w)  and not(ex_rx_w = "00000"  )) else '0';
+    rs_rx_mem_equal_w   <= '1' when ((rs_id_w = mem_rx_w) and not(mem_rx_w = "00000" )) else '0';
+    rs_rx_wb_equal_w    <= '1' when ((rs_id_w = wb_rx_w)  and not(wb_rx_w = "00000"  )) else '0';
 
-    rt_rx_ex_equal_w    <= '1' when ((rt_id_w = ex_rx_w)  and not(ex_rx_w = "00000")) else '0';
-    rt_rx_mem_equal_w   <= '1' when ((rt_id_w = mem_rx_w) and not(mem_rx_w = "00000")) else '0';
-    rt_rx_wb_equal_w    <= '1' when ((rt_id_w = wb_rx_w)  and not(wb_rx_w = "00000")) else '0';
+    rt_rx_ex_equal_w    <= '1' when ((rt_id_w = ex_rx_w)  and not(ex_rx_w = "00000"  )) else '0';
+    rt_rx_mem_equal_w   <= '1' when ((rt_id_w = mem_rx_w) and not(mem_rx_w = "00000" )) else '0';
+    rt_rx_wb_equal_w    <= '1' when ((rt_id_w = wb_rx_w)  and not(wb_rx_w = "00000"  )) else '0';
 
     rx_equal_zero_w     <= '1' when (rx_id_w = "00000") else '0';
 

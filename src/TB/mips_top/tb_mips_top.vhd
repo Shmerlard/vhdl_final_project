@@ -46,7 +46,7 @@ BEGIN
         ITCM_ADDR_WIDTH             => ITCM_ADDR_WIDTH,
         DTCM_ADDR_WIDTH             => DTCM_ADDR_WIDTH,
         PC_WIDTH                    => PC_WIDTH,
-        FUNCT_WIDTH                 => FUNCT_WIDTH,
+        -- FUNCT_WIDTH                 => FUNCT_WIDTH,
         DATA_WORDS_NUM              => DATA_WORDS_NUM,
         CLK_CNT_WIDTH               => CLK_CNT_WIDTH,
         INST_CNT_WIDTH              => INST_CNT_WIDTH,

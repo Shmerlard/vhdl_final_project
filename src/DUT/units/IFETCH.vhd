@@ -62,7 +62,7 @@ BEGIN
         intended_device_family => "Cyclone"
     )
     PORT MAP (
-        clock0     => clk_i,
+        clock0     => not(clk_i),
         address_a  => itcm_addr_w, 
         q_a        => instruction_w 
     );
@@ -76,12 +76,6 @@ BEGIN
     end generate;
 
 
-    -- process(clk_i)
-    -- begin
-    --     if rising_edge(clk_i) then
-    --         delayed_reset <= rst_i;
-    --     end if;
-    -- end process;
 -- PC Register
     PC_Reg : entity work.nbit_dff
     generic map(n => NEXT_PC_WIDTH)
@@ -119,8 +113,8 @@ BEGIN
         begin
             if rst_i = '1' then
                 pc_prev_q   <=  (others => '0');
-            elsif falling_edge(clk_i) then
-                pc_prev_q(pc_width-1 downto 2)   <=  pc_unstalled;
+            elsif rising_edge(clk_i) then
+                pc_prev_q(pc_width-1 downto 2)   <=  pc_final_s;
             end if;
         end process;
 

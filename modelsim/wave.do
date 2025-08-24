@@ -1,28 +1,28 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /timer_unit_tb/BTCCR0
-add wave -noupdate /timer_unit_tb/BTCCR1
-add wave -noupdate /timer_unit_tb/BTCLR
-add wave -noupdate /timer_unit_tb/BTHOLD
-add wave -noupdate /timer_unit_tb/BTIFG
-add wave -noupdate /timer_unit_tb/BTIP
-add wave -noupdate /timer_unit_tb/BTOUTEN
-add wave -noupdate /timer_unit_tb/BTOUTMD
-add wave -noupdate /timer_unit_tb/BTSSEL
-add wave -noupdate /timer_unit_tb/clk_period
-add wave -noupdate /timer_unit_tb/mclk_i
-add wave -noupdate /timer_unit_tb/mclk_i2
-add wave -noupdate /timer_unit_tb/mclk_i4
-add wave -noupdate /timer_unit_tb/mclk_i8
-add wave -noupdate /timer_unit_tb/n
-add wave -noupdate /timer_unit_tb/PWMOUT
+add wave -noupdate /tb_mips_top/top_proc/clk_i
+add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/rst_i
+add wave -noupdate -divider <NULL>
+add wave -noupdate /tb_mips_top/top_proc/pc_o
+add wave -noupdate /tb_mips_top/top_proc/instruction_top_o
+add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/hazard_unit/hazard_stall_ctl_o
+add wave -noupdate -divider <NULL>
+add wave -noupdate /tb_mips_top/top_proc/ctrl_bus_s
+add wave -noupdate /tb_mips_top/top_proc/addr_bus_s
+add wave -noupdate /tb_mips_top/top_proc/data_bus_o
+add wave -noupdate -divider <NULL>
+add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/ID/RF_q(8)
+add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/ID/RF_q(9)
+add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/ID/RF_q(10)
+add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/ID/RF_q(11)
+add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/ID/RF_q(12)
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {305 ps} 0}
+WaveRestoreCursors {{Cursor 1} {573611 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
-configure wave -signalnamewidth 0
+configure wave -signalnamewidth 1
 configure wave -snapdistance 10
 configure wave -datasetprefix 0
 configure wave -rowmargin 4
@@ -33,4 +33,5 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {2100 ps}
+WaveRestoreZoom {0 ps} {3150 ns}
+bookmark add wave bookmark0 {{746193 ps} {12451153 ps}} 11

@@ -17,19 +17,21 @@ ENTITY dmemory IS
         WORDS_NUM : integer := 256;
         DTCM_PATH : string
     );
-    PORT(   clk_i,rst_i         : IN    STD_LOGIC;
-            dtcm_addr_i         : IN    STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
-            dtcm_data_wr_i      : IN    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-            MemRead_ctrl_i      : IN    STD_LOGIC;
-            MemWrite_ctrl_i     : IN    STD_LOGIC;
-            dtcm_data_rd_o      : OUT   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0)
+    PORT(   
+        clk_i               : in    std_logic;
+        -- rst_i               : in    std_logic;
+        dtcm_addr_i         : in    std_logic_vector(DTCM_ADDR_WIDTH-1 DOWNTO 0);
+        dtcm_data_wr_i      : in    std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0);
+        MemRead_ctrl_i      : in    std_logic;
+        MemWrite_ctrl_i     : in    std_logic;
+        dtcm_data_rd_o      : out   std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0)
     );
 END dmemory;
 
 
-ARCHITECTURE behavior OF dmemory IS
-SIGNAL wrclk_w : STD_LOGIC;
-BEGIN
+architecture behavior of dmemory is
+    signal wrclk_w : std_logic;
+begin
     data_memory : altsyncram
     GENERIC MAP  (
         operation_mode => "SINGLE_PORT",
@@ -39,10 +41,7 @@ BEGIN
         lpm_hint => "ENABLE_RUNTIME_MOD = YES,INSTANCE_NAME = DTCM",
         lpm_type => "altsyncram",
         outdata_reg_a => "UNREGISTERED",
-        -- init_file => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\lab5\vhdl_lab5\src\SW\test3\bin\DTCM.hex",
-        -- init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test2/bin/DTCM.hex",
         init_file => DTCM_PATH,
-        -- init_file => "/home/elad/Desktop/vhdl_lab5/src/SW/test1/bin/DTCM.hex",
         intended_device_family => "Cyclone"
     )
     PORT MAP (

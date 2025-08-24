@@ -19,6 +19,7 @@
 	
 	lw $t5, A1
 	addi $t4, $t5, 2
+	addi $t4, $t5, 3
 	#move $t4, $t5
 	
 end:

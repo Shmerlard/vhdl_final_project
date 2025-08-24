@@ -14,7 +14,7 @@ entity mips_core is
             DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
             PC_WIDTH : integer          := 10;
             NEXT_PC_WIDTH : integer     := 8;
-            FUNCT_WIDTH : integer       := 6;
+            -- FUNCT_WIDTH : integer       := 6;
             DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
             CLK_CNT_WIDTH : integer     := 16;
             INST_CNT_WIDTH : integer    := 16;
@@ -159,8 +159,8 @@ architecture structure of mips_core is
     signal  branch_ctl_w    : std_logic;
 
     -- TODO: categorize them
-    signal id_ex_plr_ins_i_final_s: std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-    signal id_ex_plr_ctl_i_final_s: std_logic_vector(17 downto 0);
+    -- signal id_ex_plr_ins_i_final_s: std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+    -- signal id_ex_plr_ctl_i_final_s: std_logic_vector(17 downto 0);
     signal if_hazard_stall_s : std_logic;       -- flush the if insruction plr
 BEGIN
 -- copy important signals to output pins for easy display in Simulator
@@ -197,8 +197,8 @@ BEGIN
         pc_o => if_pc_s_wi
     );
 
-    -- id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0' and if_hazard_stall_s = '0') else (others => '0');
-    id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0') else (others => '0');
+    id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0' and if_hazard_stall_s = '0') else (others => '0');
+    -- id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0') else (others => '0');
     -- TODO: combine into onen name
 
 -- ID EX
@@ -214,8 +214,8 @@ BEGIN
     port map(
         clk_i => clk_i,
         rst_i => rst_i,
-        -- controls_i => ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo,
-        controls_i => id_ex_plr_ctl_i_final_s,
+        controls_i => ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo,
+        -- controls_i => id_ex_plr_ctl_i_final_s,
         controls_o => ctl_controls_qout_w,
         pc_i    => if_pc_s_wi,
         pc_o    => ex_pc_s_wi,
@@ -223,8 +223,8 @@ BEGIN
         pc_plus4_o => ex_pc_plus4_wi,
         shamt_i => id_instruction_wi(10 downto 6),  -- TODO: remove
         shamt_o => ex_shamt_wi,
-        -- instruction_i => id_instruction_wi,
-        instruction_i => id_ex_plr_ins_i_final_s,
+        instruction_i => id_instruction_wi,
+        -- instruction_i => id_ex_plr_ins_i_final_s,
         instruction_o => ex_instruction_wi,
         rd1_i => id_rd1_mux_w,
         rd1_o => ex_rd1_wi   ,
@@ -236,8 +236,8 @@ BEGIN
         sign_ext_o => ex_signext_wi
     );
 
-    id_ex_plr_ins_i_final_s <= id_instruction_wi when if_hazard_stall_s = '0' else (others => '0');
-    id_ex_plr_ctl_i_final_s <= ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo when if_hazard_stall_s = '0' else (others => '0');    -- TODO: CHECK!!!
+    -- id_ex_plr_ins_i_final_s <= id_instruction_wi when if_hazard_stall_s = '0' else (others => '0');
+    -- id_ex_plr_ctl_i_final_s <= ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo when if_hazard_stall_s = '0' else (others => '0');    -- TODO: CHECK!!!
 
 
     ex_memread_wi   <= ctl_controls_qout_w(17);
@@ -472,16 +472,16 @@ BEGIN
 
     ctl_memread_wo <= lw_ctl_w or load_from_type_s;
 -- EX
-    ex_rd1_final_w <= ex_rd1_wi when (lw_hazard_rd1_w = '0') else mem_dtcm_data_wo;
-    ex_rd2_final_w <= ex_rd2_wi when (lw_hazard_rd2_w = '0') else mem_dtcm_data_wo;
-    -- ex_rd1_final_w <= ex_rd1_wi;
-    -- ex_rd2_final_w <= ex_rd2_wi;
+    -- ex_rd1_final_w <= ex_rd1_wi when (lw_hazard_rd1_w = '0') else mem_dtcm_data_wo;
+    -- ex_rd2_final_w <= ex_rd2_wi when (lw_hazard_rd2_w = '0') else mem_dtcm_data_wo;
+    ex_rd1_final_w <= ex_rd1_wi;
+    ex_rd2_final_w <= ex_rd2_wi;
 
     EXE:  entity work.Execute
     generic map(
-        DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH,
-        FUNCT_WIDTH         =>  FUNCT_WIDTH,
-        PC_WIDTH            =>  PC_WIDTH
+        DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH
+        -- FUNCT_WIDTH         =>  FUNCT_WIDTH,
+        -- PC_WIDTH            =>  PC_WIDTH
     )
     PORT MAP (  
         read_data1_i    => ex_rd1_final_w,      -- ID   => EX
@@ -513,7 +513,6 @@ BEGIN
             )
             PORT MAP ( 
                 clk_i               => clk_i,
-                rst_i               => rst_i,
                 dtcm_addr_i         => mem_alures_si((DTCM_ADDR_WIDTH+2)-1 DOWNTO 2), -- increment memory address by 4; ID => MEM
                 dtcm_data_wr_i      => mem_rd2_wi,          -- ID => MEM
                 MemRead_ctrl_i      => mem_memread_wi,      -- no use inside entity
@@ -524,14 +523,13 @@ BEGIN
     elsif (WORD_GRANULARITY = False) generate -- i.e. each BYTE has a unike address 
         MEM:  entity work.dmemory
             generic map(
-                DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH, 
+                DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH,
                 DTCM_ADDR_WIDTH     =>  DTCM_ADDR_WIDTH,
                 WORDS_NUM           =>  DATA_WORDS_NUM,
                 DTCM_PATH           =>  DTCM_PATH
             )
-            PORT MAP (  
-                clk_i               => clk_i,  
-                rst_i               => rst_i,
+            PORT MAP (
+                clk_i               => clk_i,
                 dtcm_addr_i         => mem_alures_si(DTCM_ADDR_WIDTH-1 DOWNTO 2)&"00",  -- ID => MEM
                 dtcm_data_wr_i      => mem_rd2_wi,          -- ID => MEM
                 MemRead_ctrl_i      => mem_memread_wi,      -- no use inside entity
@@ -545,7 +543,7 @@ BEGIN
         port map(
             MemtoReg_ctl_i      => wb_memtoreg_wi,
             RegDst_ctl_i        => wb_regdst_wi,
-            RegWrite_ctl_i      => wb_regwrite_wi,
+            -- RegWrite_ctl_i      => wb_regwrite_wi,
             WDSel_ctl_i         => wb_wdsel_wi,
             ALU_Result_i        => wb_alures_wi,
             dtcm_data_i         => wb_dtcm_data_wi,
@@ -564,7 +562,7 @@ BEGIN
         rst_i       => rst_i,
         inst_type_i => hazard_unit_type_w,
         jr_ctl_i    => jr_ctl_w,
-        rs_rt_rd_i  => id_instruction_wi(25 downto 11),
+        rs_rt_rd_i  => id_instruction_si(25 downto 11),
         rd1_sel_o   => rd1_sel_w,
         rd2_sel_o   => rd2_sel_w,
         lw_hazard_rd1_o => lw_hazard_rd1_w,

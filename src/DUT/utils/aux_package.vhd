@@ -1,5 +1,4 @@
----------------------------------------------------------------------------------------------
--- Copyright 2025 Hananya Ribo 
+----------------------------------------------------------------------------------------------- Copyright 2025 Hananya Ribo 
 -- Advanced CPU architecture and Hardware Accelerators Lab 361-1-4693 BGU
 ---------------------------------------------------------------------------------------------
 library IEEE;
@@ -22,17 +21,17 @@ package aux_package is
     generic( 
             WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
             -- MODELSIM : integer          := G_MODELSIM;
-            DATA_BUS_WIDTH : integer    := 32;
+            DATA_BUS_WIDTH  : integer   := 32;
             ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
             DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
-            PC_WIDTH : integer          := 10;
-            NEXT_PC_WIDTH : integer     := 8;
-            FUNCT_WIDTH : integer       := 6;
-            DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
-            CLK_CNT_WIDTH : integer     := 16;
-            INST_CNT_WIDTH : integer    := 16;
-            DTCM_PATH : string := G_DTCM_PATH;
-            ITCM_PATH : string := G_ITCM_PATH
+            PC_WIDTH        : integer   := 10;
+            NEXT_PC_WIDTH   : integer   := 8;
+            -- FUNCT_WIDTH  : integer   := 6;
+            DATA_WORDS_NUM  : integer   := G_DATA_WORDS_NUM;
+            CLK_CNT_WIDTH   : integer   := 16;
+            INST_CNT_WIDTH  : integer   := 16;
+            DTCM_PATH       : string    := G_DTCM_PATH;
+            ITCM_PATH       : string    := G_ITCM_PATH
     );
     PORT(   rst_i               :IN     STD_LOGIC;
             clk_i               :IN     STD_LOGIC; 
@@ -76,7 +75,7 @@ package aux_package is
             DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
             PC_WIDTH : integer          := 10;
             NEXT_PC_WIDTH : integer     := 8;
-            FUNCT_WIDTH : integer       := 6;
+            -- FUNCT_WIDTH : integer       := 6;
             DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
             CLK_CNT_WIDTH : integer     := 16;
             INST_CNT_WIDTH : integer    := 16;
@@ -146,9 +145,9 @@ package aux_package is
 ---------------------------------------------------------   
     component Execute is
     generic(
-        DATA_BUS_WIDTH : integer := 32;
-        FUNCT_WIDTH : integer := 6;
-        PC_WIDTH : integer := 10
+        DATA_BUS_WIDTH : integer := 32
+        -- FUNCT_WIDTH : integer := 6;
+        -- PC_WIDTH : integer := 10
     );
     PORT(   
         read_data1_i    : IN    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -238,16 +237,17 @@ package aux_package is
     END component;
 ---------------------------------------------------------       
     component WRITE_BACK IS
-        PORT
-        ( 
-            MemtoReg_ctl_i, RegDst_ctl_i: in  std_logic_vector(1 DOWNTO 0);
-            RegWrite_ctl_i, WDSel_ctl_i : in  std_logic;
-            ALU_Result_i, dtcm_data_i   : in  std_logic_vector(31 DOWNTO 0);
-            imm_i                       : in  std_logic_vector(15 DOWNTO 0);
-            PC_plus_4_i                 : in  std_logic_vector(7 DOWNTO 0);
-            rt_rd_i                     : in  std_logic_vector(9 DOWNTO 0);
-            write_data_o                : out std_logic_vector(31 DOWNTO 0);
-            write_reg_addr_o            : out std_logic_vector(4 DOWNTO 0)
+    PORT( 
+        MemtoReg_ctl_i              : in  std_logic_vector(1 DOWNTO 0);
+        RegDst_ctl_i                : in  std_logic_vector(1 DOWNTO 0);
+        -- RegWrite_ctl_i              : in  std_logic;
+        WDSel_ctl_i                 : in  std_logic;
+        ALU_Result_i, dtcm_data_i   : in  std_logic_vector(31 DOWNTO 0);
+        imm_i                       : in  std_logic_vector(15 DOWNTO 0);
+        PC_plus_4_i                 : in  std_logic_vector(7 DOWNTO 0);
+        rt_rd_i                     : in  std_logic_vector(9 DOWNTO 0);
+        write_data_o                : out std_logic_vector(31 DOWNTO 0);
+        write_reg_addr_o            : out std_logic_vector(4 DOWNTO 0)
         );
     END component;
 ---------------------------------------------------------       
@@ -279,7 +279,7 @@ package aux_package is
                WORDS_NUM : integer := 256;
                DTCM_PATH : string
     );
-    PORT(   clk_i,rst_i         : IN    STD_LOGIC;
+    PORT(   clk_i               : IN    STD_LOGIC;
             dtcm_addr_i         : IN    STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
             dtcm_data_wr_i      : IN    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             MemRead_ctrl_i      : IN    STD_LOGIC;
@@ -482,9 +482,6 @@ package aux_package is
             data_o      : out STD_LOGIC_VECTOR(n-1 downto 0)
         );
     end component port_sw_interface;
-
-
----------------------------------------------------------   
 ---------------------------------------------------------   
     component hex_driver is
     port(
@@ -493,6 +490,77 @@ package aux_package is
         num_out:OUT std_logic_vector(6 downto 0)
         );
     end component;
+---------------------------------------------------------   
+
+    -- TIMER
+    component timer_core is
+    generic ( n: integer := 32);
+    port (
+        mclk_i : in std_logic;
+        mclk_i2 : in std_logic;
+        mclk_i4 : in std_logic;
+        mclk_i8 : in std_logic;
+        rst_i   : in std_logic;
+        BTCLR: in std_logic;
+        BTHOLD: in std_logic;
+        BTSSEL: in std_logic_vector(1 downto 0);
+        BTOUTMD: in std_logic;
+        BTOUTEN: in std_logic;
+        BTCCR0: in std_logic_vector(n-1 downto 0);
+        BTCCR1: in std_logic_vector(n-1 downto 0);
+        BTIP: in std_logic_vector(1 downto 0);
+        BTIFG: out std_logic;
+        PWMOUT: out std_logic;
+
+        d_bus_i: in std_logic_vector(n-1 downto 0);
+        btcnt_wr_en: in std_logic;
+        d_bus_o: out std_logic_vector(n-1 downto 0)
+
+    );
+    end component timer_core;
+---------------------------------------------------------   
+    component  timer_output_unit is
+    generic( n : integer := 8);
+    port (
+        -- inputs
+        btccr0_i, btccr1_i      : in std_logic_vector(n-1 downto 0);
+        btcnt_i                 : in std_logic_vector(n-1 downto 0);
+
+        clk_i                   : in STD_LOGIC;
+        en_i                    : in STD_LOGIC;
+        mode_i                  : in STD_LOGIC;
+
+        -- outpus
+        pwm_out_o               : out std_logic;
+        heu0_o                  : out STD_LOGIC
+    );
+    end component  timer_output_unit;
+---------------------------------------------------------   
+    component timer_unit is
+        generic
+        (
+            REG_SIZE: integer := 32;
+            TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;
+            ADDRESS_BUS_WIDTH: INTEGER := 12;
+            DATA_BUS_WIDTH: INTEGER := 32
+        );
+        port (
+            mclk_i          : in std_logic;
+            mclk_i2_i       : in std_logic;
+            mclk_i4_i       : in std_logic;
+            mclk_i8_i       : in std_logic;
+            rst_i           : in std_logic;
+            mem_write_c_i   : in std_logic;
+            mem_read_c_i    : in std_logic;
+
+            address_bus_i   : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+            data_bus_io     : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+
+            BTIFG           : out std_logic;
+            PWMOUT          : out std_logic
+        );
+    end component timer_unit;
+---------------------------------------------------------   
 ---------------------------------------------------------       
 
 ---------------------------------------------------------       
@@ -551,31 +619,6 @@ package aux_package is
     end component nbit_dff_ext;
 ---------------------------------------------------------
 ---------------------------------------------------------
-    -- component timer_core is
-    -- generic ( n: integer := 32);
-    -- port (
-    --     mclk_i : in std_logic;
-    --     mclk_i2 : in std_logic;
-    --     mclk_i4 : in std_logic;
-    --     mclk_i8 : in std_logic;
-    --     rst_i   : in std_logic;
-    --     BTCLR: in std_logic;
-    --     BTHOLD: in std_logic;
-    --     BTSSEL: in std_logic_vector(1 downto 0);
-    --     BTOUTMD: in std_logic;
-    --     BTOUTEN: in std_logic;
-    --     BTCCR0: in std_logic_vector(n-1 downto 0);
-    --     BTCCR1: in std_logic_vector(n-1 downto 0);
-    --     BTIP: in std_logic_vector(1 downto 0);
-    --     BTIFG: out std_logic;
-    --     PWMOUT: out std_logic;
-    --
-    --     d_bus_i: in std_logic_vector(n-1 downto 0);
-    --     btcnt_wr_en: in std_logic;
-    --     d_bus_o: out std_logic_vector(n-1 downto 0)
-    --
-    -- );
-    -- end component timer_core;
 ---------------------------------------------------------
     -- component fir_base_unit is
     -- generic(
@@ -707,22 +750,6 @@ end component interrupt_controller_unit;
         );
     end component nbit_timer;
 ---------------------------------------------------------
-    -- component  timer_output_unit is
-    -- generic( n : integer := 8);
-    -- port (
-    --     -- inputs
-    --     btccr0_i, btccr1_i      : in std_logic_vector(n-1 downto 0);
-    --     btcnt_i                 : in std_logic_vector(n-1 downto 0);
-    --
-    --     clk_i                   : in STD_LOGIC;
-    --     en_i                    : in STD_LOGIC;
-    --     mode_i                  : in STD_LOGIC;
-    --
-    --     -- outpus
-    --     pwm_out_o               : out std_logic;
-    --     heu0_o                  : out STD_LOGIC
-    -- );
-    -- end component  timer_output_unit;
 ---------------------------------------------------------
     -- component timer_unit is
     --     generic

@@ -16,7 +16,7 @@ ENTITY mips_top IS
         DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
         PC_WIDTH : integer          := 10;
         NEXT_PC_WIDTH : integer     := 8;
-        FUNCT_WIDTH : integer       := 6;
+        -- FUNCT_WIDTH : integer       := 6;
         DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
         CLK_CNT_WIDTH : integer     := 16;
         INST_CNT_WIDTH : integer    := 16;
@@ -103,7 +103,7 @@ BEGIN
         DTCM_ADDR_WIDTH => DTCM_ADDR_WIDTH,
         PC_WIDTH => PC_WIDTH,
         NEXT_PC_WIDTH => NEXT_PC_WIDTH,
-        FUNCT_WIDTH => FUNCT_WIDTH,
+        -- FUNCT_WIDTH => FUNCT_WIDTH,
         DATA_WORDS_NUM => DATA_WORDS_NUM,
         CLK_CNT_WIDTH => CLK_CNT_WIDTH,
         INST_CNT_WIDTH => INST_CNT_WIDTH,

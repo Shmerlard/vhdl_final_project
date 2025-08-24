@@ -5,14 +5,16 @@ USE work.aux_package.ALL;
 
 ENTITY WRITE_BACK IS
     PORT( 
-        MemtoReg_ctl_i, RegDst_ctl_i: IN  STD_LOGIC_VECTOR(1 DOWNTO 0);
-        RegWrite_ctl_i, WDSel_ctl_i : IN  STD_LOGIC;
-        ALU_Result_i, dtcm_data_i   : IN  STD_LOGIC_VECTOR(31 DOWNTO 0);
-        imm_i                       : IN  STD_LOGIC_VECTOR(15 DOWNTO 0);
-        PC_plus_4_i                 : IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
-        rt_rd_i                     : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
-        write_data_o                : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        write_reg_addr_o            : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
+        MemtoReg_ctl_i              : in  std_logic_vector(1 DOWNTO 0);
+        RegDst_ctl_i                : in  std_logic_vector(1 DOWNTO 0);
+        -- RegWrite_ctl_i              : in  std_logic;
+        WDSel_ctl_i                 : in  std_logic;
+        ALU_Result_i, dtcm_data_i   : in  std_logic_vector(31 DOWNTO 0);
+        imm_i                       : in  std_logic_vector(15 DOWNTO 0);
+        PC_plus_4_i                 : in  std_logic_vector(7 DOWNTO 0);
+        rt_rd_i                     : in  std_logic_vector(9 DOWNTO 0);
+        write_data_o                : out std_logic_vector(31 DOWNTO 0);
+        write_reg_addr_o            : out std_logic_vector(4 DOWNTO 0)
         );
 END WRITE_BACK;
 
