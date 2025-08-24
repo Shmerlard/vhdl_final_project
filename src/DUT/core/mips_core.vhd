@@ -8,7 +8,7 @@ USE work.aux_package.all;
 entity mips_core is
     generic( 
             WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
-            MODELSIM : integer          := G_MODELSIM;
+            -- MODELSIM : integer          := G_MODELSIM;
             DATA_BUS_WIDTH : integer    := 32;
             ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
             DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
@@ -56,7 +56,7 @@ architecture structure of mips_core is
 -- declare signals used to connect VHDL components
     SIGNAL bta_w, jta_w     : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL zero_w           : STD_LOGIC;
-    SIGNAL mem_read_w       : STD_LOGIC;
+    -- SIGNAL mem_read_w       : STD_LOGIC;
     SIGNAL instruction_w    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     -- SIGNAL clk_i           : STD_LOGIC;
     SIGNAL mclk_cnt_q       : STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);    
@@ -73,7 +73,7 @@ architecture structure of mips_core is
     signal load_from_type_s : std_logic;
     signal reg_type_addr_sel_s : std_logic;
     signal reg_type_addr_s  : std_logic_vector(11 downto 0);
-    signal delayd_wen       : std_logic;
+    -- signal delayd_wen       : std_logic;
 -- interrupts
     -- signal inta_s, intr_s   : std_logic;
     -- signal interrupt_done_s : std_logic_vector(7 downto 0);
@@ -94,7 +94,7 @@ architecture structure of mips_core is
         signal if_pc_plus4_wo   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
 
     -- CTL
-        signal ctl_memwrite_wo, ctl_beq_wo, ctl_bne_wo, ctl_shamtctl_wo, ctl_regwrite_wo, ctl_wdsel_wo, ctl_regwrite_fwo, ctl_memread_wo : std_logic;
+        signal ctl_memwrite_wo, ctl_beq_wo, ctl_bne_wo, ctl_shamtctl_wo, ctl_regwrite_wo, ctl_wdsel_wo,  ctl_memread_wo : std_logic;
         signal ctl_memtoreg_wo, ctl_alusrc_wo, ctl_regdst_wo    : STD_LOGIC_VECTOR(1 DOWNTO 0);
         signal k1_check_s, ctl_reti_s : std_logic;
         signal ctl_alufn_wo     : STD_LOGIC_VECTOR(4 DOWNTO 0);
@@ -102,10 +102,10 @@ architecture structure of mips_core is
     -- ID
         signal id_instruction_wi, id_instruction_si: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal id_pc_plus4_wi, if_pc_s_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
-        signal id_pc_s_wi : std_logic_vector(NEXT_PC_WIDTH-1 DOWNTO 0);
+        -- signal id_pc_s_wi : std_logic_vector(NEXT_PC_WIDTH-1 DOWNTO 0);
         signal id_rd1_wo, id_rd2_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal id_zeroext_wo, id_signext_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        signal id_sub_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- signal id_sub_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal id_zflag_w, flush_ctl_w : std_logic;
     -- EX
         signal ex_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -142,19 +142,19 @@ architecture structure of mips_core is
         signal wb_luires_wi     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     
 -- Controls
-    SIGNAL  MemtoReg_w      : STD_LOGIC_VECTOR(1 downto 0);
-    SIGNAL  mem_write_w     : STD_LOGIC;
+    -- SIGNAL  MemtoReg_w      : STD_LOGIC_VECTOR(1 downto 0);
+    -- SIGNAL  mem_write_w     : STD_LOGIC;
     signal  j_ctl_w         : std_logic;
-    signal  beq_ctl_w       : std_logic;
-    signal  bne_ctl_w       : std_logic;
-    signal  alufn_w         : std_logic_vector(4 downto 0);
-    SIGNAL  alu_src_w       : STD_LOGIC_VECTOR(1 downto 0);
-    SIGNAL  reg_dst_w       : STD_LOGIC_VECTOR(1 downto 0);
-    SIGNAL  reg_write_w     : STD_LOGIC;
-    signal  WDsel_w         : STD_LOGIC;
+    -- signal  beq_ctl_w       : std_logic;
+    -- signal  bne_ctl_w       : std_logic;
+    -- signal  alufn_w         : std_logic_vector(4 downto 0);
+    -- SIGNAL  alu_src_w       : STD_LOGIC_VECTOR(1 downto 0);
+    -- SIGNAL  reg_dst_w       : STD_LOGIC_VECTOR(1 downto 0);
+    -- SIGNAL  reg_write_w     : STD_LOGIC;
+    -- signal  WDsel_w         : STD_LOGIC;
     signal  lw_ctl_w        : std_logic;
     signal  sw_ctl_w        : std_logic;
-    signal  shamt_ctl_w     : std_logic;
+    -- signal  shamt_ctl_w     : std_logic;
     signal  jr_ctl_w        : std_logic;
     signal  branch_ctl_w    : std_logic;
 
@@ -176,17 +176,6 @@ BEGIN
     -- MemWrite_ctrl_o     <=  mem_regwrite_wi;    
     MemWrite_ctrl_o     <=  mem_memwrite_wi;    
 
--- connect the PLL component
-    -- pll_gen:
-    -- if (MODELSIM = 0) generate
-    --   MCLK: PLL
-    --     PORT MAP (
-    --         inclk0  => clk_i,
-    --         c0      => clk_i
-    --     );
-    -- else generate
-    --     clk_i <= clk_i;
-    -- end generate;
 
 
 --------------------------------------------------------------------
@@ -318,12 +307,10 @@ BEGIN
         clk_i => clk_i,
         rst_i => rst_i,
         controls_i => ex_memread_wi & ex_memtoreg_wi & ex_memwrite_wi & ex_regdst_wi & ex_regwrite_wi & ex_wdsel_wi,
-        -- controls_i => ex_mem_plr_ctl_i_final_s,
         controls_o => ex_controls_qout_w,
         pc_plus4_i => ex_pc_plus4_wi,
         pc_plus4_o => mem_pc_plus4_wi,
         instruction_i => ex_instruction_wi,
-        -- instruction_i => ex_mem_plr_ins_i_final_s,
         instruction_o => mem_instruction_wi,
         rd1_i => ex_rd1_final_w,
         rd1_o => mem_rd1_wi    ,
@@ -342,8 +329,7 @@ BEGIN
     mem_regdst_wi   <= ex_controls_qout_w(3 downto 2);
     mem_regwrite_wi <= ex_controls_qout_w(1);
     mem_wdsel_wi    <= ex_controls_qout_w(0);
-    -- ex_mem_plr_ins_i_final_s <= ex_instruction_wi when if_hazard_stall_s = '0' else (others => '0'); -- TODO: delete
-    -- ex_mem_plr_ctl_i_final_s <= ex_memread_wi & ex_memtoreg_wi & ex_memwrite_wi & ex_regdst_wi & ex_regwrite_wi & ex_wdsel_wi when if_hazard_stall_s = '0' else (others => '0');
+
     EPC_UNIT_inst: entity work.epc
     generic map( next_pc_width => next_pc_width)
     port map(

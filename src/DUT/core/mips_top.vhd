@@ -97,7 +97,7 @@ BEGIN
     mips_core_inst: entity work.mips_core
     generic map(
         WORD_GRANULARITY => WORD_GRANULARITY,
-        MODELSIM => MODELSIM,
+        -- MODELSIM => MODELSIM,
         DATA_BUS_WIDTH => DATA_BUS_WIDTH,
         ITCM_ADDR_WIDTH => ITCM_ADDR_WIDTH,
         DTCM_ADDR_WIDTH => DTCM_ADDR_WIDTH,
@@ -183,24 +183,24 @@ BEGIN
         int_req_o => int_req_s
     );
 
-    -- timer_unit_inst: entity work.timer_unit
-    -- port map(
-    --     mclk_i        => mclk_s,
-    --     mclk_i2_i     => mclk2_s,
-    --     mclk_i4_i     => mclk4_s,
-    --     mclk_i8_i     => mclk8_s,
-    --     rst_i         => rst_s,
-    --     mem_write_c_i => ctrl_bus_s(0),
-    --     mem_read_c_i  => ctrl_bus_s(1),
-    --     address_bus_i => addr_bus_s,
-    --     data_bus_io   => data_bus_s,
-    --     BTIFG         => btifg_out_s,
-    --     PWMOUT        => pwm_out_s
-    --     -- debug_btctl_o => debug_btctl_o,
-    --     -- debug_btcnt_o => debug_btcnt_o,
-    --     -- debug_btccr0_o => debug_btccr0_o,
-    --     -- debug_btccr1_o => debug_btccr1_o
-    -- );
+    timer_unit_inst: entity work.timer_unit
+    port map(
+        mclk_i        => mclk_s,
+        mclk_i2_i     => mclk2_s,
+        mclk_i4_i     => mclk4_s,
+        mclk_i8_i     => mclk8_s,
+        rst_i         => rst_s,
+        mem_write_c_i => ctrl_bus_s(0),
+        mem_read_c_i  => ctrl_bus_s(1),
+        address_bus_i => addr_bus_s,
+        data_bus_io   => data_bus_s,
+        BTIFG         => btifg_out_s,
+        PWMOUT        => pwm_out_s
+        -- debug_btctl_o => debug_btctl_o,
+        -- debug_btcnt_o => debug_btcnt_o,
+        -- debug_btccr0_o => debug_btccr0_o,
+        -- debug_btccr1_o => debug_btccr1_o
+    );
 
     gpio_unit_inst: entity work.gpio_unit
     port map(

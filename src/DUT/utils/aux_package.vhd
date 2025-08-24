@@ -21,7 +21,7 @@ package aux_package is
     component mips_core is
     generic( 
             WORD_GRANULARITY : boolean  := G_WORD_GRANULARITY;
-            MODELSIM : integer          := G_MODELSIM;
+            -- MODELSIM : integer          := G_MODELSIM;
             DATA_BUS_WIDTH : integer    := 32;
             ITCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
             DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
@@ -116,6 +116,8 @@ package aux_package is
     );
     end component;
 ---------------------------------------------------------  
+
+    -- UNITS
     component control is
     generic(
         DATA_BUS_WIDTH : natural   := 32
@@ -271,19 +273,19 @@ package aux_package is
     end component;
 ---------------------------------------------------------   
     component dmemory is
-        generic(
-                   DATA_BUS_WIDTH : integer := 32;
-                   DTCM_ADDR_WIDTH : integer := 12;
-                   WORDS_NUM : integer := 256;
-                   DTCM_PATH : string
-               );
-        PORT(   clk_i,rst_i         : IN    STD_LOGIC;
-                dtcm_addr_i         : IN    STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
-                dtcm_data_wr_i      : IN    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-                MemRead_ctrl_i      : IN    STD_LOGIC;
-                MemWrite_ctrl_i     : IN    STD_LOGIC;
-                dtcm_data_rd_o      : OUT   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0)
-            );
+    generic(
+               DATA_BUS_WIDTH : integer := 32;
+               DTCM_ADDR_WIDTH : integer := 12;
+               WORDS_NUM : integer := 256;
+               DTCM_PATH : string
+    );
+    PORT(   clk_i,rst_i         : IN    STD_LOGIC;
+            dtcm_addr_i         : IN    STD_LOGIC_VECTOR(DTCM_ADDR_WIDTH-1 DOWNTO 0);
+            dtcm_data_wr_i      : IN    STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+            MemRead_ctrl_i      : IN    STD_LOGIC;
+            MemWrite_ctrl_i     : IN    STD_LOGIC;
+            dtcm_data_rd_o      : OUT   STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0)
+    );
     end component;
 ---------------------------------------------------------   
 
@@ -426,6 +428,7 @@ package aux_package is
         );
     end component mem_wb_pipeline_reg;
 ---------------------------------------------------------  
+
     -- GPIO
     component gpio_unit is
         generic(
@@ -491,7 +494,7 @@ package aux_package is
         );
     end component;
 ---------------------------------------------------------       
-    
+
 ---------------------------------------------------------       
 ---------------------------------------------------------       
 ---------------------------------------------------------
@@ -520,9 +523,7 @@ package aux_package is
     END component PLL;
 ---------------------------------------------------------   
     component nbit_dff is
-    generic (
-        n : integer := 8  -- default size = 8 bits
-    );
+    generic ( n : integer := 8);
     port(
         clk    : in  std_logic;
         rst    : in  std_logic;  -- asynchronous reset
