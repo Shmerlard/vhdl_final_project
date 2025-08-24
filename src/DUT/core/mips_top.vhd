@@ -20,10 +20,10 @@ ENTITY mips_top IS
         DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
         CLK_CNT_WIDTH : integer     := 16;
         INST_CNT_WIDTH : integer    := 16;
-        -- DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/simple0/DTCM.hex";
-        -- ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/simple0/ITCM.hex"
-        DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex";
-        ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
+        DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/DTCM.hex";
+        ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/ITCM.hex"
+        -- DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex";
+        -- ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
     );
     PORT(
         rst_i               : in std_logic;
@@ -65,6 +65,7 @@ ARCHITECTURE rtl OF mips_top IS
     signal gie_s        : std_logic;
 
     signal rst_s        : std_logic;
+    signal rst_asy      : std_logic;
 
     signal data_bus_s   : std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0);
     signal addr_bus_s   : std_logic_vector((PC_WIDTH + 2)-1 DOWNTO 0);
@@ -80,10 +81,17 @@ ARCHITECTURE rtl OF mips_top IS
 BEGIN
     rst_gen:
         if (MODELSIM = 0) generate
-            rst_s <= not rst_i;
+            rst_asy <= not rst_i;
         else generate
-            rst_s <= rst_i;
+            rst_asy <= rst_i;
         end generate;
+
+    synchronized_rst: process(mclk_s)
+    begin
+        if rising_edge(mclk_s) then
+            rst_s <= rst_asy;
+        end if;
+    end process;
 
 
     mips_core_inst: entity work.mips_core

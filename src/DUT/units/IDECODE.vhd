@@ -79,7 +79,7 @@ BEGIN
                 -- RF_q(i) <= CONV_STD_LOGIC_VECTOR(i,32);
                 RF_q(i) <= x"00000000";
             END LOOP;
-        elsif (clk_i'event and clk_i='1') then
+        elsif (clk_i'event and clk_i='0') then
             if (RF_wren_s = '1' AND unsigned(write_reg_addr_s) /= 0) then
                 RF_q(to_integer(unsigned(write_reg_addr_s))) <= write_reg_data_s;
                 -- index is integer type so we must use conv_integer for type casting

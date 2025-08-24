@@ -158,7 +158,10 @@ architecture structure of mips_core is
     signal  jr_ctl_w        : std_logic;
     signal  branch_ctl_w    : std_logic;
 
-    
+    -- TODO: categorize them
+    signal id_ex_plr_ins_i_final_s: std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+    signal id_ex_plr_ctl_i_final_s: std_logic_vector(17 downto 0);
+    signal if_hazard_stall_s : std_logic;       -- flush the if insruction plr
 BEGIN
 -- copy important signals to output pins for easy display in Simulator
     instruction_top_o   <=  if_final_inst_w;
@@ -205,14 +208,16 @@ BEGIN
         pc_o => if_pc_s_wi
     );
 
+    -- id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0' and if_hazard_stall_s = '0') else (others => '0');
     id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0') else (others => '0');
-
+    -- TODO: combine into onen name
 
 -- ID EX
 
     ID_EX_PLR_inst: entity work.id_ex_pipeline_reg
     generic map(
-        controls_count_JJJJ => 18,
+        controls_count_JJJJ => 18,          -- TODO: clean name
+                                            -- TODO: clean todo
         DATA_BUS_WIDTH => DATA_BUS_WIDTH,
         NEXT_PC_WIDTH => NEXT_PC_WIDTH,
         shamt_count => 5
@@ -220,15 +225,17 @@ BEGIN
     port map(
         clk_i => clk_i,
         rst_i => rst_i,
-        controls_i => ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo,
+        -- controls_i => ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo,
+        controls_i => id_ex_plr_ctl_i_final_s,
         controls_o => ctl_controls_qout_w,
         pc_i    => if_pc_s_wi,
         pc_o    => ex_pc_s_wi,
         pc_plus4_i => id_pc_plus4_wi,
         pc_plus4_o => ex_pc_plus4_wi,
-        shamt_i => id_instruction_wi(10 downto 6),
-        shamt_o => ex_shamt_wi                   ,
-        instruction_i => id_instruction_wi,
+        shamt_i => id_instruction_wi(10 downto 6),  -- TODO: remove
+        shamt_o => ex_shamt_wi,
+        -- instruction_i => id_instruction_wi,
+        instruction_i => id_ex_plr_ins_i_final_s,
         instruction_o => ex_instruction_wi,
         rd1_i => id_rd1_mux_w,
         rd1_o => ex_rd1_wi   ,
@@ -239,6 +246,9 @@ BEGIN
         sign_ext_i => id_signext_wo,
         sign_ext_o => ex_signext_wi
     );
+
+    id_ex_plr_ins_i_final_s <= id_instruction_wi when if_hazard_stall_s = '0' else (others => '0');
+    id_ex_plr_ctl_i_final_s <= ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo when if_hazard_stall_s = '0' else (others => '0');    -- TODO: CHECK!!!
 
 
     ex_memread_wi   <= ctl_controls_qout_w(17);
@@ -308,10 +318,12 @@ BEGIN
         clk_i => clk_i,
         rst_i => rst_i,
         controls_i => ex_memread_wi & ex_memtoreg_wi & ex_memwrite_wi & ex_regdst_wi & ex_regwrite_wi & ex_wdsel_wi,
+        -- controls_i => ex_mem_plr_ctl_i_final_s,
         controls_o => ex_controls_qout_w,
         pc_plus4_i => ex_pc_plus4_wi,
         pc_plus4_o => mem_pc_plus4_wi,
         instruction_i => ex_instruction_wi,
+        -- instruction_i => ex_mem_plr_ins_i_final_s,
         instruction_o => mem_instruction_wi,
         rd1_i => ex_rd1_final_w,
         rd1_o => mem_rd1_wi    ,
@@ -330,7 +342,8 @@ BEGIN
     mem_regdst_wi   <= ex_controls_qout_w(3 downto 2);
     mem_regwrite_wi <= ex_controls_qout_w(1);
     mem_wdsel_wi    <= ex_controls_qout_w(0);
-
+    -- ex_mem_plr_ins_i_final_s <= ex_instruction_wi when if_hazard_stall_s = '0' else (others => '0'); -- TODO: delete
+    -- ex_mem_plr_ctl_i_final_s <= ex_memread_wi & ex_memtoreg_wi & ex_memwrite_wi & ex_regdst_wi & ex_regwrite_wi & ex_wdsel_wi when if_hazard_stall_s = '0' else (others => '0');
     EPC_UNIT_inst: entity work.epc
     generic map( next_pc_width => next_pc_width)
     port map(
@@ -389,9 +402,10 @@ BEGIN
         ITCM_PATH           =>  ITCM_PATH
     )
     PORT MAP (  
-        clk_i           => clk_i,  
-        rst_i           => rst_i, 
+        clk_i           => clk_i,
+        rst_i           => rst_i,
         bta_i           => bta_w,               -- ID   => IF
+        stall_ctl_i     => if_hazard_stall_s,
         jta_i           => jta_w,
         Branch_ctl_i    => branch_ctl_w,        -- EX   => IF
         j_ctl_i         => j_ctl_w,             -- CTL  => IF
@@ -410,11 +424,9 @@ BEGIN
 
 -- ID & CTL
     ID : entity work.Idecode
-    generic map(
-        DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH
-    )
-    PORT MAP (  
-        clk_i           => clk_i,          
+    generic map( DATA_BUS_WIDTH      =>  DATA_BUS_WIDTH)
+    PORT MAP (
+        clk_i           => clk_i,
         rst_i           => rst_i,
         instruction_i   => id_instruction_wi,   -- IF   => ID, CTL
         RegWrite_ctrl_i => wb_regwrite_wi,      -- CTL  => ID, MIPS
@@ -436,7 +448,13 @@ BEGIN
     );
 
     id_zflag_w <= '1' when (id_rd1_mux_w = id_rd2_mux_w) else '0';
-    flush_ctl_w <= j_ctl_w or jr_ctl_w or (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w)) or (c1to3_cmp_s);
+
+    flush_ctl_w <= j_ctl_w or jr_ctl_w or               -- unconditiantal jumps
+                   (ctl_beq_wo and id_zflag_w) or       -- taken beq jump
+                   (ctl_bne_wo and not(id_zflag_w)) or  -- taken bne jumps
+                   (c1to3_cmp_s);                        -- interrupt
+                   -- if_hazard_stall_s;                   -- stall
+
     branch_ctl_w <= (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w));
 
     CTL:   entity work.control
@@ -470,6 +488,8 @@ BEGIN
 -- EX
     ex_rd1_final_w <= ex_rd1_wi when (lw_hazard_rd1_w = '0') else mem_dtcm_data_wo;
     ex_rd2_final_w <= ex_rd2_wi when (lw_hazard_rd2_w = '0') else mem_dtcm_data_wo;
+    -- ex_rd1_final_w <= ex_rd1_wi;
+    -- ex_rd2_final_w <= ex_rd2_wi;
 
     EXE:  entity work.Execute
     generic map(
@@ -557,11 +577,14 @@ BEGIN
         clk_i       => clk_i, 
         rst_i       => rst_i,
         inst_type_i => hazard_unit_type_w,
+        jr_ctl_i    => jr_ctl_w,
         rs_rt_rd_i  => id_instruction_wi(25 downto 11),
         rd1_sel_o   => rd1_sel_w,
         rd2_sel_o   => rd2_sel_w,
         lw_hazard_rd1_o => lw_hazard_rd1_w,
-        lw_hazard_rd2_o => lw_hazard_rd2_w
+        lw_hazard_rd2_o => lw_hazard_rd2_w,
+        hazard_stall_ctl_o => if_hazard_stall_s
+
     );
 
 -- Interrupts

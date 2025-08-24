@@ -20,10 +20,11 @@ ENTITY Ifetch IS
         clk_i, rst_i    : in    std_logic;
         bta_i, jta_i    : in    std_logic_vector(7 downto 0);
         branch_ctl_i    : in    std_logic;
+        stall_ctl_i     : in    std_logic;
         j_ctl_i         : in    std_logic;
         jr_ctl_i        : in    std_logic;
         read_data1_i    : in    std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
-        c3_cmp_i        : in    std_logic;
+        c3_cmp_i        : in    std_logic;      -- TODO: change name
         isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
         pc_o            : out   std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
         instruction_o   : out   std_logic_vector(data_bus_width-1 downto 0);
@@ -40,10 +41,11 @@ ARCHITECTURE behavior OF Ifetch IS
     signal pc_prev_q            : std_logic_vector(pc_width-1 downto 0); 
     signal instruction_w        : std_logic_vector(data_bus_width-1 downto 0);
     signal pc_s                 : std_logic_vector(next_pc_width-1 downto 0);
-    signal pc_final_s           : std_logic_vector(next_pc_width-1 downto 0);
+    signal pc_unstalled         : std_logic_vector(next_pc_width-1 downto 0);
+    signal pc_final_s           : std_logic_vector(next_pc_width-1 downto 0); 
     signal pc_final_sel_s       : std_logic;
     signal alt_pc_add_s         : std_logic_vector(next_pc_width-1 downto 0);
-    signal delayed_reset        : std_logic;
+    -- signal delayed_reset        : std_logic;
 BEGIN
 
 --ROM for Instruction Memory
@@ -74,27 +76,28 @@ BEGIN
     end generate;
 
 
-    process(clk_i)
-    begin
-        if rising_edge(clk_i) then
-            delayed_reset <= rst_i;
-        end if;
-    end process;
+    -- process(clk_i)
+    -- begin
+    --     if rising_edge(clk_i) then
+    --         delayed_reset <= rst_i;
+    --     end if;
+    -- end process;
 -- PC Register
     PC_Reg : entity work.nbit_dff
     generic map(n => NEXT_PC_WIDTH)
     port map(
         clk     => clk_i,
-        rst     => delayed_reset,
+        rst     => rst_i,
         en      => '1',
         d_in    => pc_din_s,
         q_out   => pc_s
     );
 
+    pc_final_s <= pc_unstalled when stall_ctl_i = '0' else pc_prev_q(PC_WIDTH-1 downto 2);
     pc_din_s <= std_logic_vector(unsigned(pc_final_s) + 1);
 
     pc_final_sel_s <= branch_ctl_i or j_ctl_i or jr_ctl_i or c3_cmp_i;
-    pc_final_s      <= alt_pc_add_s when pc_final_sel_s = '1' else pc_s;
+    pc_unstalled      <= alt_pc_add_s when pc_final_sel_s = '1' else pc_s;
 
     process(branch_ctl_i, j_ctl_i, jr_ctl_i, c3_cmp_i,
             bta_i, jta_i, read_data1_i, isr_i)
@@ -117,7 +120,7 @@ BEGIN
             if rst_i = '1' then
                 pc_prev_q   <=  (others => '0');
             elsif falling_edge(clk_i) then
-                pc_prev_q(pc_width-1 downto 2)   <=  pc_final_s;
+                pc_prev_q(pc_width-1 downto 2)   <=  pc_unstalled;
             end if;
         end process;
 
@@ -136,7 +139,7 @@ BEGIN
         end process;
 
 -- copy output signals - allows read inside module
-    pc_o                <=  pc_final_s;
+    pc_o                <=  pc_unstalled;
     pc_plus4_o          <=  pc_din_s;
     inst_cnt_o          <=  inst_cnt_q;
     instruction_o       <=  instruction_w;
