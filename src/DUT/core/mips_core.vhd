@@ -25,7 +25,6 @@ entity mips_core is
             clk_i               :in     std_logic; 
             bpaddr_i            :IN     STD_LOGIC_VECTOR(7 downto 0);
             int_req_i           :in     std_logic;
-            -- interrupt_src_i     :in     std_logic_vector(8 downto 0);
 
             data_bus_o          :inout  STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
             addr_bus_o          :out  STD_LOGIC_VECTOR((PC_WIDTH + 2)-1 DOWNTO 0);
@@ -90,23 +89,30 @@ architecture structure of mips_core is
     
 -- Pipeline
     -- IF
-        signal if_instruction_wo, if_final_inst_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- signal if_instruction_wo, if_final_inst_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal if_instruction_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- signal if_final_inst_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal if_pc_plus4_wo   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
 
     -- CTL
-        signal ctl_memwrite_wo, ctl_beq_wo, ctl_bne_wo, ctl_shamtctl_wo, ctl_regwrite_wo, ctl_wdsel_wo,  ctl_memread_wo : std_logic;
+        signal ctl_memwrite_wo : std_logic;
+        signal ctl_beq_wo      : std_logic;
+        signal ctl_bne_wo      : std_logic;
+        signal ctl_shamtctl_wo : std_logic;
+        signal ctl_regwrite_wo : std_logic;
+        signal ctl_wdsel_wo    : std_logic;
+        signal ctl_memread_wo  : std_logic;
         signal ctl_memtoreg_wo, ctl_alusrc_wo, ctl_regdst_wo    : STD_LOGIC_VECTOR(1 DOWNTO 0);
         signal k1_check_s, ctl_reti_s : std_logic;
         signal ctl_alufn_wo     : STD_LOGIC_VECTOR(4 DOWNTO 0);
         signal ctl_controls_qout_w : STD_LOGIC_VECTOR(17 DOWNTO 0);
     -- ID
-        signal id_instruction_wi, id_instruction_si: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        signal id_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0); 
+        signal id_instruction_si: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal id_pc_plus4_wi, if_pc_s_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
-        -- signal id_pc_s_wi : std_logic_vector(NEXT_PC_WIDTH-1 DOWNTO 0);
         signal id_rd1_wo, id_rd2_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal id_zeroext_wo, id_signext_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        -- signal id_sub_w: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
-        signal id_zflag_w, flush_ctl_w : std_logic;
+        signal id_zflag_w, if_id_plr_ins_i_flsh_ctl : std_logic;
     -- EX
         signal ex_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal ex_pc_plus4_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
@@ -161,10 +167,22 @@ architecture structure of mips_core is
     -- TODO: categorize them
     -- signal id_ex_plr_ins_i_final_s: std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
     -- signal id_ex_plr_ctl_i_final_s: std_logic_vector(17 downto 0);
-    signal if_hazard_stall_s : std_logic;       -- flush the if insruction plr
+    signal hazard_if_stall_req_s: std_logic;
+    signal hazard_id_stall_req_s: std_logic;
+    signal if_stall_ctl_s : std_logic;
+    signal  if_id_plr_flsh_ctl_s: std_logic;
+    signal  id_ex_plr_flsh_ctl_s: std_logic;
+    signal bne_taken_ctl_s: std_logic;
+    signal beq_taken_ctl_s: std_logic;
+
+    signal bta_s: std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
+    signal jta_s: std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
+    signal jrta_s: std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
+    signal jrta_sel_s: std_logic;
+
 BEGIN
 -- copy important signals to output pins for easy display in Simulator
-    instruction_top_o   <=  if_final_inst_w;
+    instruction_top_o   <=  if_instruction_wo;
     alu_result_o        <=  ex_alures_wo;
     read_data1_o        <=  id_rd1_mux_w;
     read_data2_o        <=  id_rd2_mux_w;
@@ -189,17 +207,19 @@ BEGIN
     port map(
         clk_i => clk_i,
         rst_i => rst_i,
-        instruction_i => if_final_inst_w,
-        instruction_o => id_instruction_si,
+        flush_i => if_id_plr_flsh_ctl_s,
+        instruction_i => if_instruction_wo,
+        instruction_o => id_instruction_wi,
         pc_plus4_i => if_pc_plus4_wo,
         pc_plus4_o => id_pc_plus4_wi,
         pc_i => pc_s,
         pc_o => if_pc_s_wi
     );
 
-    id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0' and if_hazard_stall_s = '0') else (others => '0');
+    -- id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0' and if_hazard_stall_s = '0') else (others => '0');
     -- id_instruction_wi <= id_instruction_si when (c1_cmp_s = '0') else (others => '0');
     -- TODO: combine into onen name
+    -- BUG: remove if_hazard_s
 
 -- ID EX
 
@@ -214,6 +234,7 @@ BEGIN
     port map(
         clk_i => clk_i,
         rst_i => rst_i,
+        flush_i => id_ex_plr_flsh_ctl_s,
         controls_i => ctl_memread_wo & ctl_memtoreg_wo & ctl_memwrite_wo & ctl_beq_wo & ctl_bne_wo & ctl_alufn_wo & ctl_alusrc_wo & ctl_regdst_wo & ctl_regwrite_wo & ctl_wdsel_wo & ctl_shamtctl_wo,
         -- controls_i => id_ex_plr_ctl_i_final_s,
         controls_o => ctl_controls_qout_w,
@@ -390,23 +411,34 @@ BEGIN
     PORT MAP (  
         clk_i           => clk_i,
         rst_i           => rst_i,
-        bta_i           => bta_w,               -- ID   => IF
-        stall_ctl_i     => if_hazard_stall_s,
-        jta_i           => jta_w,
+        -- bta_i           => bta_w,               -- ID   => IF
+        bta_i           => bta_s,
+        -- jrta_i          => id_rd1_wo(PC_WIDTH-1 downto 2), -- ID   => IF
+        jrta_i          => jrta_s,
+        -- jta_i           => jta_w,
+        jta_i           => jta_s,
+        stall_ctl_i     => if_stall_ctl_s,
         Branch_ctl_i    => branch_ctl_w,        -- EX   => IF
         j_ctl_i         => j_ctl_w,             -- CTL  => IF
         jr_ctl_i        => jr_ctl_w,            -- CTL  => IF
-        read_data1_i    => id_rd1_wo(PC_WIDTH-1 downto 2), -- ID   => IF
         c3_cmp_i        => c3_cmp_s,            -- IH   => IF
-        isr_i           => mem_dtcm_data_wo(PC_WIDTH-1 downto 2),    -- MEM  => IF
+        -- isr_i           => mem_dtcm_data_wo(PC_WIDTH-1 downto 2),    -- MEM  => IF
+        isr_i           => mem_dtcm_rd_s(PC_WIDTH-1 downto 2),    -- MEM  => IF
         pc_o            => pc_s,                -- IF   => MIPS
         instruction_o   => if_instruction_wo,   -- IF   => ID, CTL
         inst_cnt_o      => inst_cnt_w,          -- IF   => MIPS
         pc_plus4_o      => if_pc_plus4_wo
     );
 
-    if_final_inst_w <= if_instruction_wo when (flush_ctl_w = '0') else (others => '0');
-    
+
+    -- Target adresses selections
+    jta_s <= jta_w;
+    bta_s <= bta_w;
+    jrta_s <= id_rd1_wo(PC_WIDTH-1 downto 2) when jrta_sel_s = '0' else     --from decode
+              mem_dtcm_rd_s(PC_WIDTH-1 downto 2);                           -- from memory
+
+
+
 
 -- ID & CTL
     ID : entity work.Idecode
@@ -435,11 +467,14 @@ BEGIN
 
     id_zflag_w <= '1' when (id_rd1_mux_w = id_rd2_mux_w) else '0';
 
-    flush_ctl_w <= j_ctl_w or jr_ctl_w or               -- unconditiantal jumps
-                   (ctl_beq_wo and id_zflag_w) or       -- taken beq jump
-                   (ctl_bne_wo and not(id_zflag_w)) or  -- taken bne jumps
-                   (c1to3_cmp_s);                        -- interrupt
+    if_id_plr_ins_i_flsh_ctl <= j_ctl_w or jr_ctl_w or               -- unconditiantal jumps
+                               beq_taken_ctl_s or       -- taken beq jump
+                               bne_taken_ctl_s or  -- taken bne jumps
+                               (c1to3_cmp_s);                        -- interrupt
                    -- if_hazard_stall_s;                   -- stall
+
+    bne_taken_ctl_s <= (ctl_bne_wo and not(id_zflag_w));
+    beq_taken_ctl_s <= (ctl_beq_wo and id_zflag_w);
 
     branch_ctl_w <= (ctl_beq_wo and id_zflag_w) or (ctl_bne_wo and not(id_zflag_w));
 
@@ -562,13 +597,32 @@ BEGIN
         rst_i       => rst_i,
         inst_type_i => hazard_unit_type_w,
         jr_ctl_i    => jr_ctl_w,
-        rs_rt_rd_i  => id_instruction_si(25 downto 11),
+        bne_taken_ctl_i => bne_taken_ctl_s,
+        beq_taken_ctl_i => beq_taken_ctl_s,
+        -- rs_rt_rd_i  => id_instruction_si(25 downto 11),
+        rs_rt_rd_i  => id_instruction_wi(25 downto 11),
         rd1_sel_o   => rd1_sel_w,
         rd2_sel_o   => rd2_sel_w,
         lw_hazard_rd1_o => lw_hazard_rd1_w,
         lw_hazard_rd2_o => lw_hazard_rd2_w,
-        hazard_stall_ctl_o => if_hazard_stall_s
+        hazard_if_stall_req => hazard_if_stall_req_s,
+        hazard_id_stall_req => hazard_id_stall_req_s,
 
+        jrta_sel_o => jrta_sel_s
+
+    );
+    
+    stall_ctrl_inst: entity work.stall_controller
+    port map(
+        clk_i => clk_i,
+        rst_i => rst_i,
+        hazard_if_stall_req => hazard_if_stall_req_s,
+        hazard_id_stall_req => hazard_id_stall_req_s,
+        interrupt_if_stall_req => '0',
+        interrupt_id_stall_req => '0',  -- BUG: clear
+        if_stall_ctl_o => if_stall_ctl_s,
+        if_id_plr_flsh_ctl_o => if_id_plr_flsh_ctl_s,
+        id_ex_plr_flsh_ctl_o => id_ex_plr_flsh_ctl_s
     );
 
 -- Interrupts
@@ -645,11 +699,11 @@ BEGIN
         end if;
     end process;
 
-    process (flush_ctl_w , rst_i)
+    process (if_id_plr_ins_i_flsh_ctl , rst_i)
     begin
         if rst_i = '1' then
             flush_cnt_s   <=    (others => '0');
-        elsif falling_edge(flush_ctl_w) then
+        elsif falling_edge(if_id_plr_ins_i_flsh_ctl) then
             flush_cnt_s   <=    std_logic_vector(unsigned(flush_cnt_s) + 1);
         end if;
     end process;

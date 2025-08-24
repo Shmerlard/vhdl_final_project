@@ -23,7 +23,7 @@ ENTITY Ifetch IS
         stall_ctl_i     : in    std_logic;
         j_ctl_i         : in    std_logic;
         jr_ctl_i        : in    std_logic;
-        read_data1_i    : in    std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
+        jrta_i    : in    std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
         c3_cmp_i        : in    std_logic;      -- TODO: change name
         isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
         pc_o            : out   std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
@@ -35,6 +35,9 @@ END Ifetch;
 
 
 ARCHITECTURE behavior OF Ifetch IS
+    signal pc_qout_s            : std_logic_vector(next_pc_width-1 downto 0);
+    signal pc_plus4_s           : std_logic_vector(next_pc_width-1 downto 0);
+
     signal  pc_din_s            : std_logic_vector(next_pc_width-1 downto 0);
     signal itcm_addr_w          : std_logic_vector(itcm_addr_width-1 downto 0);
     signal inst_cnt_q           : std_logic_vector(inst_cnt_width-1 downto 0);
@@ -43,8 +46,8 @@ ARCHITECTURE behavior OF Ifetch IS
     signal pc_s                 : std_logic_vector(next_pc_width-1 downto 0);
     signal pc_unstalled         : std_logic_vector(next_pc_width-1 downto 0);
     signal pc_final_s           : std_logic_vector(next_pc_width-1 downto 0); 
-    signal pc_final_sel_s       : std_logic;
-    signal alt_pc_add_s         : std_logic_vector(next_pc_width-1 downto 0);
+    signal pc_din_sel_s       : std_logic;
+    signal alt_pc_s         : std_logic_vector(next_pc_width-1 downto 0);
     -- signal delayed_reset        : std_logic;
 BEGIN
 
@@ -70,9 +73,9 @@ BEGIN
     -- send address to inst. memory address register
     G1: 
     if (WORD_GRANULARITY = True) generate       -- i.e. each WORD has unike address
-        itcm_addr_w <= pc_final_s;
+        itcm_addr_w <= pc_qout_s;
     elsif (WORD_GRANULARITY = False) generate   -- i.e. each BYTE has unike address
-        itcm_addr_w <=  pc_final_s & "00";
+        itcm_addr_w <=  pc_qout_s & "00";
     end generate;
 
 
@@ -82,28 +85,32 @@ BEGIN
     port map(
         clk     => clk_i,
         rst     => rst_i,
-        en      => '1',
+        en      => not(stall_ctl_i),
         d_in    => pc_din_s,
-        q_out   => pc_s
+        q_out   => pc_qout_s
     );
 
-    pc_final_s <= pc_unstalled when stall_ctl_i = '0' else pc_prev_q(PC_WIDTH-1 downto 2);
-    pc_din_s <= std_logic_vector(unsigned(pc_final_s) + 1);
+    pc_plus4_s <= std_logic_vector(unsigned(pc_qout_s) + 1);
 
-    pc_final_sel_s <= branch_ctl_i or j_ctl_i or jr_ctl_i or c3_cmp_i;
-    pc_unstalled      <= alt_pc_add_s when pc_final_sel_s = '1' else pc_s;
+    pc_din_s <= alt_pc_s when pc_din_sel_s = '1' else
+                pc_plus4_s;
+
+    -- pc_final_s <= pc_unstalled when stall_ctl_i = '0' else pc_prev_q(PC_WIDTH-1 downto 2);
+
+    pc_din_sel_s <= branch_ctl_i or j_ctl_i or jr_ctl_i or c3_cmp_i;
+    -- pc_unstalled      <= alt_pc_s when pc_din_sel_s = '1' else pc_s;
 
     process(branch_ctl_i, j_ctl_i, jr_ctl_i, c3_cmp_i,
-            bta_i, jta_i, read_data1_i, isr_i)
+            bta_i, jta_i, jrta_i, isr_i)
     begin
         if branch_ctl_i = '1' then
-            alt_pc_add_s <= bta_i;
+            alt_pc_s <= bta_i;
         elsif j_ctl_i = '1' then
-            alt_pc_add_s <= jta_i;
+            alt_pc_s <= jta_i;
         elsif jr_ctl_i = '1' then
-            alt_pc_add_s <= read_data1_i;
+            alt_pc_s <= jrta_i;
         else
-            alt_pc_add_s <= isr_i;
+            alt_pc_s <= isr_i;
         end if;
     end process;
 
@@ -114,7 +121,7 @@ BEGIN
             if rst_i = '1' then
                 pc_prev_q   <=  (others => '0');
             elsif rising_edge(clk_i) then
-                pc_prev_q(pc_width-1 downto 2)   <=  pc_final_s;
+                pc_prev_q(pc_width-1 downto 2)   <=  pc_qout_s;
             end if;
         end process;
 
@@ -126,15 +133,15 @@ BEGIN
             if rst_i = '1' then
                 inst_cnt_q  <=  (others => '0');
             elsif rising_edge(clk_i) then
-                if pc_prev_q(pc_width-1 downto 2) = pc_s then
+                if pc_prev_q(pc_width-1 downto 2) = pc_qout_s then
                     inst_cnt_q  <=  std_logic_vector(unsigned(inst_cnt_q) + 1);
                 end if;
             end if;
         end process;
 
 -- copy output signals - allows read inside module
-    pc_o                <=  pc_unstalled;
-    pc_plus4_o          <=  pc_din_s;
+    pc_o                <=  pc_qout_s;
+    pc_plus4_o          <=  pc_plus4_s;
     inst_cnt_o          <=  inst_cnt_q;
     instruction_o       <=  instruction_w;
 END behavior;
