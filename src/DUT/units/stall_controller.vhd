@@ -14,6 +14,8 @@ entity stall_controller is
         interrupt_if_stall_req : in std_logic;
         interrupt_id_stall_req : in std_logic;
 
+        control_if_flush_req: in std_logic;
+
         if_stall_ctl_o : out std_logic;
         if_id_plr_flsh_ctl_o : out std_logic;
         id_ex_plr_flsh_ctl_o : out std_logic
@@ -22,22 +24,28 @@ entity stall_controller is
 end stall_controller;
 
 architecture structure of stall_controller is
+    signal unified_s: std_logic_vector(2 downto 0);
 begin 
 
-    out_proc : process(hazard_if_stall_req, hazard_id_stall_req)
+    out_proc : process(hazard_if_stall_req, hazard_id_stall_req,
+                        control_if_flush_req)
     begin
         if hazard_if_stall_req = '1' then
-            if_stall_ctl_o <= '1';
-            if_id_plr_flsh_ctl_o <= '1';
-            id_ex_plr_flsh_ctl_o <= '0';
+            unified_s <= "110";
         elsif hazard_id_stall_req = '1' then
-            if_stall_ctl_o <= '1';
-            if_id_plr_flsh_ctl_o <= '0';
-            id_ex_plr_flsh_ctl_o <= '1';
+            -- if contol_if_flush_req = '1' then
+                unified_s <= "101";
+            -- else
+            --     unified_s <= "101";
+            -- end if;
+        elsif control_if_flush_req = '1' then
+            unified_s <= "010";
         else
-            if_stall_ctl_o <= '0';
-            if_id_plr_flsh_ctl_o <= '0';
-            id_ex_plr_flsh_ctl_o <= '0';
+            unified_s <= "000";
         end if;
     end process;
+
+    if_stall_ctl_o <= unified_s(2);
+    if_id_plr_flsh_ctl_o <= unified_s(1); 
+    id_ex_plr_flsh_ctl_o <= unified_s(0); 
 end structure;

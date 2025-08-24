@@ -1,0 +1,28 @@
+Sun Aug 24 22:47:37 IDT 2025
+Trace back: Dataset not found: Region
+    while executing
+"DatasetInfo $option $ds"
+    (procedure "::dataset::_info" line 6)
+    invoked from within
+"dataset info name $namespace"
+    (procedure "namespaceOf" line 9)
+    invoked from within
+"namespaceOf $sig"
+    (procedure "_showDFReadersDrivers" line 18)
+    invoked from within
+"_showDFReadersDrivers drivers .main_pane.wave.interior.cs.body.pw.wf 1"
+    ("eval" body line 1)
+    invoked from within
+"eval _showDFReadersDrivers "drivers" $winname $classic $args"
+    (procedure "Wave::ShowDFDrivers" line 2)
+    invoked from within
+"Wave::ShowDFDrivers $top 1"
+    (procedure "Wave::1Up" line 27)
+    invoked from within
+"Wave::1Up $widget $x $y"
+    (procedure "Wave::SelectUp" line 4)
+    invoked from within
+"Wave::SelectUp	 .main_pane.wave.interior.cs.body.pw.wf.grid.row0,wave.data 243 119 2441 661 "
+    (command bound to event)
+  <2:/opt/intelFPGA/20.1/modelsim_ase/linuxaloem/tk8.6/bgerror.tcl:106: ::tkerror {Dataset not found: Region}
+  <1:eval:1: ::tk::dialog::error::bgerror {Dataset not found: Region}

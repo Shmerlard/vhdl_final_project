@@ -180,6 +180,10 @@ architecture structure of mips_core is
     signal jrta_s: std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
     signal jrta_sel_s: std_logic;
 
+    signal control_if_flush_req_s : std_logic;
+    signal ex_jmp_ctl_s : std_logic;
+    signal ex_branch_ctl_s : std_logic;
+
 BEGIN
 -- copy important signals to output pins for easy display in Simulator
     instruction_top_o   <=  if_instruction_wo;
@@ -255,7 +259,10 @@ BEGIN
         zero_ext_i => id_zeroext_wo,
         zero_ext_o => ex_zeroext_wi,
         sign_ext_i => id_signext_wo,
-        sign_ext_o => ex_signext_wi
+        sign_ext_o => ex_signext_wi,
+
+        jump_controls_i => jr_ctl_w or j_ctl_w,
+        jump_controls_o => ex_jmp_ctl_s
     );
 
     -- id_ex_plr_ins_i_final_s <= id_instruction_wi when if_hazard_stall_s = '0' else (others => '0');
@@ -357,11 +364,12 @@ BEGIN
     port map(
         clk_i => clk_i,
         rst_i => rst_i,
-        ex_j_ctl_i => j_ctl_w,
-        ex_jr_ctl_i => jr_ctl_w,
-        ex_branch_ctl_i => branch_ctl_w,
+        -- ex_j_ctl_i => j_ctl_w,
+        ex_jump_ctl_i => ex_jmp_ctl_s,
+        -- ex_branch_ctl_i => branch_ctl_w,
+        ex_branch_ctl_i =>  ex_branch_ctl_s,
         epc_capture_i => epc_latch_ctrl_s,
-        ex_pc_plus4_i => ex_pc_s_wi,
+        id_pc_i => if_pc_s_wi,
         ret_pc_o => epc_latched_addr_s
     );
 -- MEM WB
@@ -506,6 +514,9 @@ BEGIN
     control_bus_s(0) <= mem_memwrite_wi;
     control_bus_s(1) <= mem_memread_wi;
 
+    control_if_flush_req_s <= bne_taken_ctl_s or
+                              beq_taken_ctl_s or j_ctl_w or jr_ctl_w;
+
     ctl_memread_wo <= lw_ctl_w or load_from_type_s;
 -- EX
     -- ex_rd1_final_w <= ex_rd1_wi when (lw_hazard_rd1_w = '0') else mem_dtcm_data_wo;
@@ -534,7 +545,7 @@ BEGIN
         slt_res_o       => ex_sltres_wo,
         lui_res_o       => ex_luires_wo,
         zero_o          => zero_w,          -- EX   => MIPS
-        branch_ctl_o    => open     -- EX   => IF
+        branch_ctl_o    => ex_branch_ctl_s     -- EX   => IF
         );
 
 -- MEM
@@ -622,6 +633,7 @@ BEGIN
         hazard_id_stall_req => hazard_id_stall_req_s,
         interrupt_if_stall_req => '0',
         interrupt_id_stall_req => '0',  -- BUG: clear
+        control_if_flush_req => control_if_flush_req_s,
         if_stall_ctl_o => if_stall_ctl_s,
         if_id_plr_flsh_ctl_o => if_id_plr_flsh_ctl_s,
         id_ex_plr_flsh_ctl_o => id_ex_plr_flsh_ctl_s

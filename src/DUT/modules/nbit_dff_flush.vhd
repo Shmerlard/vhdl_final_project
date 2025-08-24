@@ -15,7 +15,7 @@ entity nbit_dff_flush is
     );
 end entity nbit_dff_flush;
 
-architecture behavioral of nbit_dff is
+architecture behavioral of nbit_dff_flush is
     signal q_reg : std_logic_vector(n-1 downto 0) := (others => '0');
 begin
 

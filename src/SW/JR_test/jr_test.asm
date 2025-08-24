@@ -20,9 +20,18 @@
 		
 	lw	$t0, A1
 	addi $t1, $t0, 1
+	lw $t3, l2
+	jr $t3
+	
+	
 
 label1:
+	addi $t2, $0, 0x9
+	j end
+	
 label2:
+	addi $t2, $0, 0x8
+	j end
 
 end:
 	j end

@@ -306,6 +306,8 @@ package aux_package is
             interrupt_if_stall_req : in std_logic;
             interrupt_id_stall_req : in std_logic;
 
+            control_if_flush_req: in std_logic;
+
             if_stall_ctl_o : out std_logic;
             if_id_plr_flsh_ctl_o : out std_logic;
             id_ex_plr_flsh_ctl_o : out std_logic
@@ -391,7 +393,10 @@ package aux_package is
             zero_ext_o : out std_logic_vector;
 
             sign_ext_i : in std_logic_vector;
-            sign_ext_o : out std_logic_vector
+            sign_ext_o : out std_logic_vector;
+
+            jump_controls_i : in std_logic;
+            jump_controls_o : out std_logic
         );
     end component id_ex_pipeline_reg;
 ---------------------------------------------------------  
@@ -591,6 +596,21 @@ package aux_package is
 ---------------------------------------------------------   
 ---------------------------------------------------------       
 
+    -- Modules
+
+    component nbit_dff_flush is
+        generic (
+            n : integer := 8  -- default size = 8 bits
+        );
+        port(
+            clk    : in  std_logic;
+            rst    : in  std_logic;  -- asynchronous reset
+            en     : in  std_logic;
+            flush  : in  std_logic;
+            d_in   : in  std_logic_vector(n-1 downto 0);
+            q_out  : out std_logic_vector(n-1 downto 0)
+        );
+    end component nbit_dff_flush;
 ---------------------------------------------------------       
 ---------------------------------------------------------       
 ---------------------------------------------------------
@@ -646,6 +666,18 @@ package aux_package is
         );
     end component nbit_dff_ext;
 ---------------------------------------------------------
+    component epc is
+    generic( next_pc_width : natural := 8 );
+    port (
+        clk_i           : in    std_logic;
+        rst_i           : in    std_logic;
+        ex_jump_ctl_i   : in    std_logic;
+        ex_branch_ctl_i : in    std_logic;
+        epc_capture_i   : in    std_logic;
+        id_pc_i   : in    std_logic_vector(next_pc_width-1 downto 0);
+        ret_pc_o        : out   std_logic_vector(next_pc_width-1 downto 0)
+    );
+    end component epc;
 ---------------------------------------------------------
 ---------------------------------------------------------
     -- component fir_base_unit is
