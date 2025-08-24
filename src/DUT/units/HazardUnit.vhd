@@ -7,14 +7,23 @@ entity hazardunit is
     port( 
         clk_i, rst_i    : in std_logic;
         jr_ctl_i        : in std_logic;
+        beq_taken_ctl_i : in std_logic;
+        bne_taken_ctl_i : in std_logic;
+
+        id_ex_flush_ctl_i: in std_logic;
+
         inst_type_i     : in std_logic_vector(2 downto 0);
         rs_rt_rd_i      : in std_logic_vector(14 downto 0);
         rd1_sel_o       : out std_logic_vector(3 downto 0);
         rd2_sel_o       : out std_logic_vector(3 downto 0);
         lw_hazard_rd1_o : out std_logic;
         lw_hazard_rd2_o : out std_logic;
-        hazard_stall_ctl_o : out std_logic;
-        id_ex_stall_o   : out std_logic
+        -- hazard_stall_ctl_o : out std_logic;
+
+        hazard_if_stall_req : out std_logic;
+        hazard_id_stall_req: out std_logic;
+
+        jrta_sel_o   : out std_logic
     );
 end hazardunit;
 
@@ -26,8 +35,15 @@ architecture structure of hazardunit is
     signal rs_rx_ex_equal_w, rs_rx_mem_equal_w, rs_rx_wb_equal_w    : std_logic;
     signal rt_rx_ex_equal_w, rt_rx_mem_equal_w, rt_rx_wb_equal_w    : std_logic;
     signal lw_hazard_phase_w: integer;
-    signal rx_equal_zero_w, lw_hazard_w, lw_hazard2_w   : std_logic;
+    signal rx_equal_zero_w, lw_hazard1_w, lw_hazard2_w   : std_logic;
 
+    signal lw_hazard_ex: std_logic;        -- we have lw in mem and its hazard
+    signal lw_hazard1_mem: std_logic;        -- we have lw in mem and its hazard
+    signal lw_hazard2_mem: std_logic;        -- we have lw in mem and its hazard
+    signal lw_hazard_mem: std_logic;        -- we have lw in mem and its hazard
+    signal read_in_decode: std_logic;
+
+    signal sync_id_ex_flush_ctl_i: std_logic;
 begin 
 -- signals assignments
     rs_id_w <= rs_rt_rd_i(14 downto 10);
@@ -40,6 +56,14 @@ begin
             rd_id_w when "000" | "010",
             rt_id_w when others;
 
+
+    synchronised_flsuh:   process(clk_i)
+    begin
+        -- if rising_edge(clk_i) then
+        if rising_edge(clk_i) then
+            sync_id_ex_flush_ctl_i <= id_ex_flush_ctl_i;
+        end if;
+    end process;
 -- rx dff instantiations
     RX_EX: entity work.nbit_dff
     generic map (
@@ -47,7 +71,7 @@ begin
     )
     port map (
         clk    => clk_i,
-        rst    => rst_i,
+        rst    => rst_i or sync_id_ex_flush_ctl_i,
         en     => '1',
         d_in   => rx_id_w,
         q_out  => ex_rx_w
@@ -85,7 +109,7 @@ begin
     )
     port map (
         clk    => clk_i,
-        rst    => rst_i,
+        rst    => rst_i and sync_id_ex_flush_ctl_i,
         en     => '1',
         d_in   => inst_type_i,
         q_out  => ex_it_w
@@ -128,7 +152,7 @@ begin
 
 -- RD1 selector
     process(rs_rx_ex_equal_w, rs_rx_mem_equal_w, rs_rx_wb_equal_w, inst_type_i, rst_i,
-            lw_hazard_w, ex_it_w, mem_it_w, wb_it_w)
+            lw_hazard1_w, ex_it_w, mem_it_w, wb_it_w)
     -- process(clk_i, rst_i)
     begin
         if rst_i = '1' then 
@@ -256,10 +280,26 @@ begin
     end process;
 
 -- lw hazard handling
-    lw_hazard_w <= '1' when ((ex_it_w = "101") and (rs_rx_ex_equal_w = '1')) else '0';
+    lw_hazard1_w <= '1' when ((ex_it_w = "101") and (rs_rx_ex_equal_w = '1')) else '0';
     lw_hazard2_w <= '1' when ((ex_it_w = "101") and (rt_rx_ex_equal_w = '1')) else '0';
+    lw_hazard_ex <= lw_hazard1_w or lw_hazard2_w;
 
-    hazard_stall_ctl_o <= lw_hazard_w or lw_hazard2_w;
+    read_in_decode <= '1' when (jr_ctl_i or beq_taken_ctl_i or bne_taken_ctl_i) else '0';
+
+    -- hazard_stall_ctl_o <= lw_hazard1_w or lw_hazard2_w;
+
+    lw_hazard1_mem <= '1' when (mem_it_w = "101" and rs_rx_mem_equal_w = '1' ) else '0';
+    lw_hazard2_mem <= '1' when (mem_it_w = "101" and rt_rx_mem_equal_w = '1' ) else '0';
+    lw_hazard_mem <= lw_hazard1_mem or lw_hazard2_mem;
+
+
+    hazard_id_stall_req <= lw_hazard_ex;
+    -- hazard_if_stall_req <= '1' when lw_hazard_mem or (lw_hazard_ex and not read_in_decode) else '0';
+    hazard_if_stall_req <= '1' when (lw_hazard_mem and read_in_decode) else '0';
+
+    jrta_sel_o <= lw_hazard1_mem and jr_ctl_i;
+
+
 
     process(clk_i, rst_i)
     begin
@@ -267,7 +307,7 @@ begin
             lw_hazard_rd1_o <= '0';
             lw_hazard_rd2_o <= '0';
         elsif rising_edge(clk_i) then
-            lw_hazard_rd1_o <= lw_hazard_w;
+            lw_hazard_rd1_o <= lw_hazard1_w;
             lw_hazard_rd2_o <= lw_hazard2_w;
         end if;
     end process;

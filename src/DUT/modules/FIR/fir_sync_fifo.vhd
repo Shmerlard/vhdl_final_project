@@ -79,10 +79,8 @@ BEGIN
     );
 
     latched_rd_ptr: entity work.nbit_dff
-     generic map(
-        n => k_log
-    )
-     port map(
+    generic map( n => k_log )
+    port map(
         clk => FIFOCLK,
         rst => FIFORST,
         en => FIFOREN,

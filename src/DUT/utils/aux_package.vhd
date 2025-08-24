@@ -172,13 +172,20 @@ package aux_package is
     port( 
         clk_i, rst_i    : in std_logic;
         jr_ctl_i        : in std_logic;
+        beq_taken_ctl_i : in std_logic;
+        bne_taken_ctl_i : in std_logic;
+        id_ex_flush_ctl_i: in std_logic;
         inst_type_i     : in std_logic_vector(2 downto 0);
         rs_rt_rd_i      : in std_logic_vector(14 downto 0);
         rd1_sel_o       : out std_logic_vector(3 downto 0);
         rd2_sel_o       : out std_logic_vector(3 downto 0);
         lw_hazard_rd1_o : out std_logic;
         lw_hazard_rd2_o : out std_logic;
-        hazard_stall_ctl_o : out std_logic
+        hazard_stall_ctl_o : out std_logic;
+        hazard_if_stall_req : out std_logic;
+        hazard_id_stall_req: out std_logic;
+
+        jrta_sel_o   : out std_logic
     );
     end component;
 ---------------------------------------------------------       
@@ -219,14 +226,14 @@ package aux_package is
         INST_CNT_WIDTH : integer    := 16;
         ITCM_PATH : string
     );
-    PORT(   
+    PORT(
         clk_i, rst_i    : in    std_logic;
         bta_i, jta_i    : in    std_logic_vector(7 downto 0);
         branch_ctl_i    : in    std_logic;
         stall_ctl_i     : in    std_logic;
         j_ctl_i         : in    std_logic;
         jr_ctl_i        : in    std_logic;
-        read_data1_i    : in    std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
+        jrta_i          : in    std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
         c3_cmp_i        : in    std_logic;
         isr_i           : in    std_logic_vector(next_pc_width-1 downto 0);
         pc_o            : out   std_logic_vector(NEXT_PC_WIDTH-1 downto 0);
@@ -288,7 +295,25 @@ package aux_package is
     );
     end component;
 ---------------------------------------------------------   
+    component stall_controller is
+        port( 
+            clk_i       : in std_logic;
+            rst_i       : in std_logic;
 
+            hazard_if_stall_req : in std_logic;
+            hazard_id_stall_req : in std_logic;
+
+            interrupt_if_stall_req : in std_logic;
+            interrupt_id_stall_req : in std_logic;
+
+            if_stall_ctl_o : out std_logic;
+            if_id_plr_flsh_ctl_o : out std_logic;
+            id_ex_plr_flsh_ctl_o : out std_logic
+
+        );
+    end component stall_controller;
+
+---------------------------------------------------------   
     -- mem registers
     component ex_mem_pipeline_reg is
         generic(
@@ -339,6 +364,7 @@ package aux_package is
         port (
             clk_i : in std_logic;
             rst_i : in std_logic;
+            flush_i : in std_logic;
 
             controls_i : in std_logic_vector;
             controls_o : out std_logic_vector;
@@ -378,6 +404,8 @@ package aux_package is
         port (
             clk_i : in std_logic;
             rst_i : in std_logic;
+            flush_i : in std_logic;
+            stall_i : in std_logic;
 
             instruction_i : in std_logic_vector;
             instruction_o : out std_logic_vector;
