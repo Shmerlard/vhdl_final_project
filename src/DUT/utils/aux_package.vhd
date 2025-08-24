@@ -174,6 +174,7 @@ package aux_package is
         jr_ctl_i        : in std_logic;
         beq_taken_ctl_i : in std_logic;
         bne_taken_ctl_i : in std_logic;
+        id_ex_flush_ctl_i: in std_logic;
         inst_type_i     : in std_logic_vector(2 downto 0);
         rs_rt_rd_i      : in std_logic_vector(14 downto 0);
         rd1_sel_o       : out std_logic_vector(3 downto 0);
@@ -404,6 +405,7 @@ package aux_package is
             clk_i : in std_logic;
             rst_i : in std_logic;
             flush_i : in std_logic;
+            stall_i : in std_logic;
 
             instruction_i : in std_logic_vector;
             instruction_o : out std_logic_vector;

@@ -32,7 +32,7 @@ begin
             id_ex_plr_flsh_ctl_o <= '0';
         elsif hazard_id_stall_req = '1' then
             if_stall_ctl_o <= '1';
-            if_id_plr_flsh_ctl_o <= '1';
+            if_id_plr_flsh_ctl_o <= '0';
             id_ex_plr_flsh_ctl_o <= '1';
         else
             if_stall_ctl_o <= '0';

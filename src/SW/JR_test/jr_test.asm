@@ -10,46 +10,19 @@
 	l2: .word label2
 	
 .text
+
+
 	addi $t1, $0, 1
 	addi $t2, $0, 2
 	addi $t3, $0, 3
 	addi $t4, $0, 4
-	addi $t5, $t1, 0xA 
-	sw $t5, PORT_HEX0
-	sw $t5, PORT_HEX1
-	sw $t5, PORT_HEX2
-	sw $t5, PORT_HEX3
-	
-	lw $t5, A1
-	addi $t2, $t5, 2
-	addi $t4, $t5, 4
-	addi $t3, $t5, 3
-	sw $t2, PORT_HEX1
-	sw $t3, PORT_HEX1
-	sw $t4, PORT_HEX2
-	#move $t4, $t5
-	
-	
-	lw $t6, l1
-	lw $t6, l2
-	jr $t6
-	
-	
-label1:
-	addi $t1, $0, 0x3
-	sw $t1, PORT_HEX4
-	j end
+	addi $t5, $0, 5
+		
+	lw	$t0, A1
+	addi $t1, $t0, 1
 
+label1:
 label2:
-	nop
-	nop
-	addi $t1, $0, 0x3
-	sw $t1, PORT_HEX5
-	j end
-	
 
 end:
-	sw $t1, PORT_HEX1
 	j end
-	
-	
