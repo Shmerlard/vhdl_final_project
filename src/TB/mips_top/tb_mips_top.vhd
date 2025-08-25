@@ -52,8 +52,8 @@ BEGIN
         INST_CNT_WIDTH              => INST_CNT_WIDTH,
         -- DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex",
         -- ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
-        ITCM_PATH                   => "/home/nitzan/CPU_Arch/vhdl_final_project/src/SW/sw_interrupt_test/ITCM.hex",
-        DTCM_PATH                   => "/home/nitzan/CPU_Arch/vhdl_final_project/src/SW/sw_interrupt_test/DTCM.hex"
+        ITCM_PATH                   => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\vhdl_final_project\src\SW\sw_interrupt_test\ITCM.hex",
+        DTCM_PATH                   => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\vhdl_final_project\src\SW\sw_interrupt_test\DTCM.hex"
 
     )
     PORT MAP (
@@ -92,9 +92,9 @@ BEGIN
     switches_proc : process
     begin
         switches_s <= (others => '0');
-        wait for 525 ns;
+        wait for 825 ns;
         switches_s <= x"01";
-        wait for 100 ns;
+        wait for 200 ns;
         switches_s <= (others => '0');
         wait;
     end process;
