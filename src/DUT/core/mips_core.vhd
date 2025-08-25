@@ -184,6 +184,10 @@ architecture structure of mips_core is
     signal ex_jmp_ctl_s : std_logic;
     signal ex_branch_ctl_s : std_logic;
 
+    signal int_if_id_flush_req_o : std_logic;
+    signal int_id_ex_flush_req_o : std_logic;
+
+
 BEGIN
 -- copy important signals to output pins for easy display in Simulator
     instruction_top_o   <=  if_instruction_wo;
@@ -233,8 +237,7 @@ BEGIN
         controls_count_JJJJ => 18,          -- TODO: clean name
                                             -- TODO: clean todo
         DATA_BUS_WIDTH => DATA_BUS_WIDTH,
-        NEXT_PC_WIDTH => NEXT_PC_WIDTH,
-        shamt_count => 5
+        NEXT_PC_WIDTH => NEXT_PC_WIDTH
     )
     port map(
         clk_i => clk_i,
@@ -247,8 +250,8 @@ BEGIN
         pc_o    => ex_pc_s_wi,
         pc_plus4_i => id_pc_plus4_wi,
         pc_plus4_o => ex_pc_plus4_wi,
-        shamt_i => id_instruction_wi(10 downto 6),  -- TODO: remove
-        shamt_o => ex_shamt_wi,
+        -- shamt_i => id_instruction_wi(10 downto 6),  -- TODO: remove
+        -- shamt_o => ex_shamt_wi,                     -- TODO: remove
         instruction_i => id_instruction_wi,
         -- instruction_i => id_ex_plr_ins_i_final_s,
         instruction_o => ex_instruction_wi,
@@ -352,7 +355,7 @@ BEGIN
         lui_res_i => ex_luires_wo,
         lui_res_o => mem_luires_wi
     );
-    mem_memread_wi  <= ex_controls_qout_w(7);
+    mem_memread_wi  <= ex_controls_qout_w(7) or reg_type_addr_sel_s;               -- @@ for interrupt
     mem_memtoreg_wi <= ex_controls_qout_w(6 downto 5);
     mem_memwrite_wi <= ex_controls_qout_w(4);
     mem_regdst_wi   <= ex_controls_qout_w(3 downto 2);
@@ -481,6 +484,7 @@ BEGIN
                                bne_taken_ctl_s or  -- taken bne jumps
                                (c1to3_cmp_s);                        -- interrupt
                    -- if_hazard_stall_s;                   -- stall
+                    -- BUG: fix counters logic with flushes
 
     bne_taken_ctl_s <= (ctl_bne_wo and not(id_zflag_w));
     beq_taken_ctl_s <= (ctl_beq_wo and id_zflag_w);
@@ -535,7 +539,8 @@ BEGIN
         read_data2_i    => ex_rd2_final_w,      -- ID   => EX
         sign_extend_i   => ex_signext_wi,   -- ID   => EX
         zero_extend_i   => ex_zeroext_wi,   -- ID   => EX
-        shamt_i         => instruction_w(10 downto 6), -- IF    => EX
+        -- shamt_i         => instruction_w(10 downto 6), -- IF    => EX
+        shamt_i         => ex_instruction_wi(10 downto 6), -- IF    => EX
         shamt_ctl_i     => ex_shamtctl_wi,  -- CTL  => EX
         ALUSrc_ctrl_i   => ex_alusrc_wi,    -- CTL  => EX
         bne_ctl_i       => ex_bne_wi,       -- CTL  => EX
@@ -631,8 +636,8 @@ BEGIN
         rst_i => rst_i,
         hazard_if_stall_req => hazard_if_stall_req_s,
         hazard_id_stall_req => hazard_id_stall_req_s,
-        interrupt_if_stall_req => '0',
-        interrupt_id_stall_req => '0',  -- BUG: clear
+        interrupt_if_id_flush_req => int_if_id_flush_req_o,
+        interrupt_id_ex_flush_req => int_id_ex_flush_req_o,  -- BUG: clear
         control_if_flush_req => control_if_flush_req_s,
         if_stall_ctl_o => if_stall_ctl_s,
         if_id_plr_flsh_ctl_o => if_id_plr_flsh_ctl_s,
@@ -650,15 +655,19 @@ BEGIN
             reti_ctl_i          => ctl_reti_s,
             instruction_id_i    => id_instruction_wi,
             int_ack_o           => int_ack_o,
-            c1_cmp_o            => c1_cmp_s,
+            c1_cmp_o            => c1_cmp_s,    -- TODO: clear
             c3_cmp_o            => c3_cmp_s,
             gie_mask_o          => gie_mask_s,
             load_from_type_o    => load_from_type_s,
-            c1to3_cmp_o         => c1to3_cmp_s,
-            c2to5_cmp_o         => c2to5_cmp_s,
+            c1to3_cmp_o         => c1to3_cmp_s, -- TODO: clear
+            c2to5_cmp_o         => c2to5_cmp_s, -- TODO: clear
             reg_type_addr_sel   => reg_type_addr_sel_s,
             reg_type_addr_o     => reg_type_addr_s,
-            latch_epc_load_o    => epc_latch_ctrl_s
+            latch_epc_load_o    => epc_latch_ctrl_s,
+
+
+            int_if_id_flush_req_o => int_if_id_flush_req_o,
+            int_id_ex_flush_req_o => int_id_ex_flush_req_o
         );
 
     -- mem addr mux for interrupts

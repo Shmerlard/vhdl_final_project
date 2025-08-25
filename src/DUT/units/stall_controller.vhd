@@ -11,8 +11,8 @@ entity stall_controller is
         hazard_if_stall_req : in std_logic;
         hazard_id_stall_req : in std_logic;
 
-        interrupt_if_stall_req : in std_logic;
-        interrupt_id_stall_req : in std_logic;
+        interrupt_if_id_flush_req : in std_logic;
+        interrupt_id_ex_flush_req : in std_logic;
 
         control_if_flush_req: in std_logic;
 
@@ -28,16 +28,17 @@ architecture structure of stall_controller is
 begin 
 
     out_proc : process(hazard_if_stall_req, hazard_id_stall_req,
-                        control_if_flush_req)
+                        control_if_flush_req,
+                        interrupt_if_id_flush_req, interrupt_id_ex_flush_req)
     begin
-        if hazard_if_stall_req = '1' then
+        if interrupt_id_ex_flush_req = '1' and interrupt_if_id_flush_req = '1' then
+            unified_s <= "011";
+        elsif interrupt_if_id_flush_req = '1' then
+            unified_s <= "010";
+        elsif hazard_if_stall_req = '1' then
             unified_s <= "110";
         elsif hazard_id_stall_req = '1' then
-            -- if contol_if_flush_req = '1' then
                 unified_s <= "101";
-            -- else
-            --     unified_s <= "101";
-            -- end if;
         elsif control_if_flush_req = '1' then
             unified_s <= "010";
         else

@@ -8,8 +8,7 @@ entity id_ex_pipeline_reg is
     generic(
         controls_count_JJJJ : natural := 18;
             DATA_BUS_WIDTH : integer    := 32;
-            NEXT_PC_WIDTH : integer     := 8;
-            shamt_count : integer := 5
+            NEXT_PC_WIDTH : integer     := 8
 
     );
     port (
@@ -26,8 +25,8 @@ entity id_ex_pipeline_reg is
         pc_plus4_i : in std_logic_vector;
         pc_plus4_o : out std_logic_vector;
 
-        shamt_i : in std_logic_vector;
-        shamt_o : out std_logic_vector;
+        -- shamt_i : in std_logic_vector;
+        -- shamt_o : out std_logic_vector;
 
         instruction_i : in std_logic_vector;
         instruction_o : out std_logic_vector;
@@ -85,16 +84,16 @@ BEGIN
         q_out  => pc_plus4_o
     );
 
-    ID_EX_PLR_shamt : entity work.nbit_dff_flush
-    generic map ( n => shamt_count)
-    port map (
-        clk    => clk_i,
-        rst    => rst_i,
-        flush => flush_i,
-        en     => '1',
-        d_in   => shamt_i,
-        q_out  => shamt_o
-    );
+    -- ID_EX_PLR_shamt : entity work.nbit_dff_flush
+    -- generic map ( n => shamt_count)
+    -- port map (
+    --     clk    => clk_i,
+    --     rst    => rst_i,
+    --     flush => flush_i,
+    --     en     => '1',
+    --     d_in   => shamt_i,
+    --     q_out  => shamt_o
+    -- );
 
     ID_EX_PLR_instruction : entity work.nbit_dff_flush
     generic map ( n => DATA_BUS_WIDTH)

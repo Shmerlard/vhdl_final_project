@@ -39,6 +39,8 @@ architecture rtl of interrupt_controller_unit is
     --
     signal ifg_in_s : std_logic_vector(INT_IFG_COUNT-1 downto 0);
     signal ifg_o_s  : std_logic_vector(6 downto 0);
+    signal ifg_in_from_bus : std_logic_vector(INT_IFG_COUNT-1 downto 0);
+    signal ifg_in_from_core : std_logic_vector(INT_IFG_COUNT-1 downto 0);
     --
     signal int_en_dff_d_out_s   : std_logic_vector(7 downto 0);
     signal int_en_dff_d_in_s    : std_logic_vector(7 downto 0);

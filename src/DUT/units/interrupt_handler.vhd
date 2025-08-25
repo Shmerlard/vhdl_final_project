@@ -19,7 +19,10 @@ entity interrupt_handler is
         c2to5_cmp_o         : out   std_logic;
         reg_type_addr_o     : out   std_logic_vector(11 downto 0);
         reg_type_addr_sel   : out   std_logic;
-        latch_epc_load_o    : out   std_logic
+        latch_epc_load_o    : out   std_logic;
+
+        int_if_id_flush_req_o : out std_logic;
+        int_id_ex_flush_req_o : out std_logic
     );
 end interrupt_handler;
 
@@ -87,6 +90,8 @@ begin
     c4_cmp_s    <= '1' when (icc_s = "100") else '0';
     c5_cmp_s    <= '1' when (icc_s = "101") else '0';
 
+    int_if_id_flush_req_o <= c1_cmp_s or c2_cmp_s or c3_cmp_s;
+    int_id_ex_flush_req_o <= c1_cmp_s;
     -- latch_epc_load_o <= c1_cmp_s;
     latch_epc_load_o <= intr_i;
     load_from_type_o <= c1_cmp_s;

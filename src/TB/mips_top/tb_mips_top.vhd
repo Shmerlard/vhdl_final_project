@@ -50,10 +50,11 @@ BEGIN
         DATA_WORDS_NUM              => DATA_WORDS_NUM,
         CLK_CNT_WIDTH               => CLK_CNT_WIDTH,
         INST_CNT_WIDTH              => INST_CNT_WIDTH,
-        -- DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex",
-        -- ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
-        ITCM_PATH                   => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\vhdl_final_project\src\SW\sw_interrupt_test\ITCM.hex",
-        DTCM_PATH                   => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\vhdl_final_project\src\SW\sw_interrupt_test\DTCM.hex"
+        
+        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test1/bin/M9K/DTCM.hex",
+        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test1/bin/M9K/ITCM.hex"
+        -- ITCM_PATH                   => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\vhdl_final_project\src\SW\sw_interrupt_test\ITCM.hex",
+        -- DTCM_PATH                   => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\vhdl_final_project\src\SW\sw_interrupt_test\DTCM.hex"
 
     )
     PORT MAP (
@@ -86,17 +87,27 @@ BEGIN
     int_proc: process
     begin
         keys_s <= "000";
+        wait for 2325 ns;
+        keys_s <= "010";
+        wait for 300 ns;
+        keys_s <= "000";
         wait;
     end process;
 
     switches_proc : process
     begin
-        switches_s <= (others => '0');
-        wait for 825 ns;
-        switches_s <= x"01";
-        wait for 200 ns;
-        switches_s <= (others => '0');
+        -- switches_s <= (others => '1');
+        -- wait for 825 ns;
+        -- switches_s <= x"AA";
+        -- wait for 825 ns;
+        -- switches_s <= x"55";
+        -- wait for 825 ns;
+        -- switches_s <= x"2C";
+        -- wait for 825 ns;
+        switches_s <= x"A1";
         wait;
+        -- switches_s <= (others => '0');
+        -- wait;
     end process;
 --------------------------------------------------------------------        
 END struct;

@@ -275,7 +275,10 @@ package aux_package is
         c2to5_cmp_o         : out   std_logic;
         reg_type_addr_o     : out   std_logic_vector(11 downto 0);
         reg_type_addr_sel   : out   std_logic;
-        latch_epc_load_o    : out   std_logic
+        latch_epc_load_o    : out   std_logic;
+
+        int_if_id_flush_req_o : out std_logic;
+        int_id_ex_flush_req_o : out std_logic
     );
     end component;
 ---------------------------------------------------------   
@@ -303,8 +306,8 @@ package aux_package is
             hazard_if_stall_req : in std_logic;
             hazard_id_stall_req : in std_logic;
 
-            interrupt_if_stall_req : in std_logic;
-            interrupt_id_stall_req : in std_logic;
+            interrupt_if_id_flush_req : in std_logic;
+            interrupt_id_ex_flush_req : in std_logic;
 
             control_if_flush_req: in std_logic;
 
@@ -359,8 +362,8 @@ package aux_package is
         generic(
             controls_count_JJJJ : natural := 18;
                 DATA_BUS_WIDTH : integer    := 32;
-                NEXT_PC_WIDTH : integer     := 8;
-                shamt_count : integer := 5
+                NEXT_PC_WIDTH : integer     := 8
+                -- shamt_count : integer := 5
 
         );
         port (
@@ -377,8 +380,8 @@ package aux_package is
             pc_plus4_i : in std_logic_vector;
             pc_plus4_o : out std_logic_vector;
 
-            shamt_i : in std_logic_vector;
-            shamt_o : out std_logic_vector;
+            -- shamt_i : in std_logic_vector;
+            -- shamt_o : out std_logic_vector;
 
             instruction_i : in std_logic_vector;
             instruction_o : out std_logic_vector;

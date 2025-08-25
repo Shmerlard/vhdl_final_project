@@ -53,6 +53,7 @@ begin
     with inst_type_i select 
         rx_id_w <= 
             rd_id_w when "000" | "010",
+            "00000" when "110" | "111",
             rt_id_w when others;
 
 
