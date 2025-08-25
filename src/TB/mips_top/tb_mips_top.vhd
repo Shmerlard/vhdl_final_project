@@ -50,10 +50,10 @@ BEGIN
         DATA_WORDS_NUM              => DATA_WORDS_NUM,
         CLK_CNT_WIDTH               => CLK_CNT_WIDTH,
         INST_CNT_WIDTH              => INST_CNT_WIDTH,
-        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex",
-        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
-        -- ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/ITCM.hex",
-        -- DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/DTCM.hex"
+        -- DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex",
+        -- ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
+        ITCM_PATH                   => "/home/nitzan/CPU_Arch/vhdl_final_project/src/SW/sw_interrupt_test/ITCM.hex",
+        DTCM_PATH                   => "/home/nitzan/CPU_Arch/vhdl_final_project/src/SW/sw_interrupt_test/DTCM.hex"
 
     )
     PORT MAP (
@@ -92,7 +92,10 @@ BEGIN
     switches_proc : process
     begin
         switches_s <= (others => '0');
-        keys_s <= (others => '0');
+        wait for 525 ns;
+        switches_s <= x"01";
+        wait for 100 ns;
+        switches_s <= (others => '0');
         wait;
     end process;
 --------------------------------------------------------------------        

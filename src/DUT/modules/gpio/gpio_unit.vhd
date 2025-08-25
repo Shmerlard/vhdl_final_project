@@ -20,7 +20,7 @@ entity gpio_unit is
         mem_wr_c_in : in std_logic;
         mem_rd_c_in : in std_logic;
         address_bus_i : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
-        switches_in : in std_logic_vector;
+        switches_in : in std_logic_vector(7 downto 0);
 
         data_bus_io : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
         hex_out: out t_hex_array;
@@ -33,6 +33,7 @@ end entity gpio_unit;
 architecture rtl of gpio_unit is
     signal gpio_wr_cs_s : std_logic_vector(ADDRESS_ARRAY'length-1 downto 0);
     signal gpio_rd_cs_s : std_logic_vector(ADDRESS_ARRAY'length-1 downto 0);
+    signal zero_ext_sw_in_s: std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
 
     constant first_hex_idx: natural := LED_ARR_CNT;
     constant first_sw_idx: natural := first_hex_idx + HEX_ARR_CNT*2;
@@ -80,11 +81,14 @@ begin
         hex_o => hex_out(4 to 5));
 
     sw_inter_ins: entity work.port_sw_interface
-    generic map( n => 8 )
+    generic map( n => DATA_BUS_WIDTH )
     port map(
-        sw_i => switches_in(7 downto 0),
+        sw_i => zero_ext_sw_in_s,
         cs_i => gpio_rd_cs_s(7),
-        data_o => data_bus_io(7 downto 0));
+        data_o => data_bus_io);
+     
+    zero_ext_sw_in_s(7 downto 0) <= switches_in(7 downto 0);
+    zero_ext_sw_in_s(DATA_BUS_WIDTH-1 downto 8) <= (others => '0');
 
     -- gen_leds: if LED_ARR_CNT > 0 generate
     --     gen_leds_loop: for i in 0 to LED_ARR_CNT-1 generate
