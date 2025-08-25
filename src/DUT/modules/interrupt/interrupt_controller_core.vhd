@@ -19,8 +19,8 @@ entity interrupt_controller_core is
         eint_i              : in std_logic_vector(7 downto 0);
         gie_i               : in std_logic;
 
-        ifg_write_en        : in std_logic;
-        ifg_d_in_i          : in std_logic_vector(INT_SRC_COUNT-1 downto 0);
+        -- ifg_write_en        : in std_logic;
+        -- ifg_d_in_i          : in std_logic_vector(INT_SRC_COUNT-1 downto 0);
         ifg_o               : out std_logic_vector(6 downto 0);
         type_reg_d_in_o     : out std_logic_vector(7 downto 0);
         int_req_o              : out std_logic
@@ -58,31 +58,31 @@ begin
     end generate;
 
 
-    irq_proc_gen : for i in 0 to INT_SRC_COUNT-1 generate
-    begin
-        irq_proc : process (rst_i, interrupt_src_i(i), clk_i)
-        begin
-            if rst_i = '1' then
-                ireq_q_out(i) <= '0';
-            elsif rising_edge(clk_i) then
-                    if ifg_write_en = '1' then
-                        ireq_q_out(i) <= ifg_d_in_i(i);
-                    end if;
-            elsif rising_edge(interrupt_src_i(i)) then
-                ireq_q_out(i) <= '1';
-            end if;
-        end process;
-    end generate;
-    -- process(rst_i, clk_i)
+    -- irq_proc_gen : for i in 0 to INT_SRC_COUNT-1 generate
     -- begin
-    --     if rst_i = '1' then
-    --         clr_irq_s <= (others => '0');
-    --     elsif rising_edge(clk_i) then
-    --         -- if to_integer(selected_sync_int) /= 0 then                  -- TODO: CHECK
-    --         --     clr_irq_s(to_integer(selected_sync_int) - 1) <= not(inta_i_b);
-    --         -- end if;
-    --     end if;
-    -- end process;
+    --     irq_proc : process (rst_i, interrupt_src_i(i), clk_i)
+    --     begin
+    --         if rst_i = '1' then
+    --             ireq_q_out(i) <= '0';
+    --         elsif rising_edge(clk_i) then
+    --                 if ifg_write_en = '1' then
+    --                     ireq_q_out(i) <= ifg_d_in_i(i);
+    --                 end if;
+    --         elsif rising_edge(interrupt_src_i(i)) then
+    --             ireq_q_out(i) <= '1';
+    --         end if;
+    --     end process;
+    -- end generate;
+    process(rst_i, clk_i)
+    begin
+        if rst_i = '1' then
+            clr_irq_s <= (others => '0');
+        elsif rising_edge(clk_i) then
+            -- if to_integer(selected_sync_int) /= 0 then                  -- TODO: CHECK
+            --     clr_irq_s(to_integer(selected_sync_int) - 1) <= not(inta_i_b);
+            -- end if;
+        end if;
+    end process;
 
     clr_irq_s(0) <= not(inta_i_b) when (selected_sync_int = x"1") else '0';
     clr_irq_s(1) <= not(inta_i_b) when (selected_sync_int = x"2") else '0';
