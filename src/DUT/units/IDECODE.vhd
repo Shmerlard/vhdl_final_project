@@ -64,7 +64,8 @@ BEGIN
     sign_extend_o <= sign_extend_w;
 
     -- Branch target address
-    bta_o <= std_logic_vector(unsigned(pc_plus4_i) + unsigned(imm_value_w(NEXT_PC_WIDTH-1 downto 0)) -1 );
+    -- bta_o <= std_logic_vector(unsigned(pc_plus4_i) + unsigned(imm_value_w(NEXT_PC_WIDTH-1 downto 0)) -1 );
+    bta_o <= std_logic_vector(unsigned(pc_plus4_i) + unsigned(imm_value_w(NEXT_PC_WIDTH-1 downto 0)));
 
     -- Jump target address
     jta_o <= instruction_i(7 downto 0);
