@@ -579,6 +579,35 @@ package aux_package is
     -- );
     -- end component;
 ---------------------------------------------------------
+    component fir_core is
+        generic(
+            w: integer := 24;
+            m: integer := 8;
+            q: integer := 8;
+            k: integer := 32;
+            k_log: integer := 3                -- TODO: check this number
+        );
+        port (
+            FIFOCLK : in STD_LOGIC;
+            FIFORST : in STD_LOGIC;
+            FIFOWEN : in STD_LOGIC;
+            -- FIFOREN : in STD_LOGIC;
+
+            FIRCLK : in STD_LOGIC;
+            FIRRST : in STD_LOGIC;
+            FIRENA : in STD_LOGIC;
+
+            FIRIN : in STD_LOGIC_VECTOR(w+q-1 downto 0);
+            COEF_I : in t_vec_array(0 to M-1)(q-1 downto 0);
+
+            FIFOFULL : out STD_LOGIC;
+            FIFOEMPTY : out STD_LOGIC;
+            FIRIFG : out STD_LOGIC;
+
+            FIROUT     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+        );
+    end component fir_core;
+---------------------------------------------------------
     component fir_reg_arr is
         generic(
             w: integer := 24;
@@ -677,6 +706,17 @@ end component interrupt_controller_unit;
             FIFOEMPTY : out STD_LOGIC;
 
             DATAOUT     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+        );
+    end component;
+---------------------------------------------------------
+    component fir_pulse_sync is
+        port (
+            FIRRST      : in    std_logic;
+            FIRENA      : in    std_logic;
+            FIRCLK      : in    std_logic;
+            FIFOCLK     : in    std_logic;
+
+            FIFOREN     : out   std_logic
         );
     end component;
 ---------------------------------------------------------

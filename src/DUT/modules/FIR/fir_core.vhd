@@ -15,7 +15,7 @@ entity fir_core is
         FIFOCLK : in STD_LOGIC;
         FIFORST : in STD_LOGIC;
         FIFOWEN : in STD_LOGIC;
-        FIFOREN : in STD_LOGIC;
+        -- FIFOREN : in STD_LOGIC;
 
         FIRCLK : in STD_LOGIC;
         FIRRST : in STD_LOGIC;
@@ -34,6 +34,9 @@ end entity fir_core;
 
 ARCHITECTURE rtl OF fir_core IS
     signal syn_fifo_d_s : STD_LOGIC_VECTOR(w+q-1 downto 0);
+    signal FIFOREN_s    : STD_LOGIC;
+    signal FIFOWEN_mask_s : STD_LOGIC;
+    
 BEGIN
     fir_reg_arr_inst: entity work.fir_reg_arr
     generic map
@@ -50,18 +53,27 @@ BEGIN
 
     fir_sync_fifo_inst: entity work.fir_sync_fifo
     generic map
-    ( w => w, k => k, k_log => k_log)
+    (w => w, k => k, k_log => k_log)
     port map
     (
         FIFOCLK => FIFOCLK,
         FIFORST => FIFORST,
         FIFOWEN => FIFOWEN,
-        FIFOREN => FIFOREN,
+        FIFOREN => FIFOREN_s,
         FIFOIN => FIRIN,
         FIFOFULL => FIFOFULL,
         FIFOEMPTY => FIFOEMPTY,
         DATAOUT => syn_fifo_d_s
     );
 
+    -- Pulse Synchronizer
+        pulse_sync: entity work.fir_pulse_sync
+            port map (
+                FIRRST      => FIRRST,
+                FIRENA      => FIRENA,
+                FIRCLK      => FIRCLK,
+                FIFOCLK     => FIFOCLK,
+                FIFOREN     => FIFOREN_s 
+            );
 
 END ARCHITECTURE rtl;
