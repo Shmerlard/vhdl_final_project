@@ -85,7 +85,8 @@ BEGIN
         clk_i => clk,
         rst_i => rst,
         inta_i_b => inta_i_b,
-        interrupt_src_i => interrupt_src_i,
+        -- interrupt_src_i => interrupt_src_i,
+
         eint_i => eint_i,
         gie_i => gie_i,
         ifg_o => ifg_o,
