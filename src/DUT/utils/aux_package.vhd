@@ -729,6 +729,17 @@ package aux_package is
         );
     end component fir_reg_arr;
 ---------------------------------------------------------
+    component fir_pulse_sync is
+        port (
+                 FIRRST      : in    std_logic;
+                 FIRENA      : in    std_logic;
+                 FIRCLK      : in    std_logic;
+                 FIFOCLK     : in    std_logic;
+
+                 FIFOREN     : out   std_logic
+             );
+    end component fir_pulse_sync;
+---------------------------------------------------------
     component interrupt_controller_core is
     generic (
         INT_SRC_COUNT: NATURAL := 9;
