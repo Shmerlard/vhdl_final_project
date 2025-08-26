@@ -8,13 +8,9 @@ USE work.cond_comilation_package.all;
 
 package aux_package is
     type t_hex_array is array (natural range <>) of std_logic_vector(6 downto 0);
-    -- type t_fir_reg_arr is array (natural range <>) of std_logic_vector;
     type t_vec_array is array (natural range <>) of std_logic_vector;
     type t_addr_array is array (natural range <>) of natural;
     type t_bits_array is array (natural range <>) of natural;
-    -- constant EMP_BITS_ARR : t_bits_array(0 to -1) := (others => 0);
-    -- constant EMP_BITS_ARR : t_bits_array(0 to 0) := (0 => -1);
-    -- type t_reset_types is (ASYNCHRONOUS, SYNCHRONOUS);
 
 ---------------------------------------------------------  
     component mips_core is
@@ -465,6 +461,111 @@ package aux_package is
     end component mem_wb_pipeline_reg;
 ---------------------------------------------------------  
 
+    -- FIR
+    component fir_unit is
+        generic (
+            ADDRESS_BUS_WIDTH: INTEGER := 12;
+            DATA_BUS_WIDTH: INTEGER := 32;
+            INT_UNIT_ADDRESS_ARRAY : t_addr_array
+        );
+        port 
+        (
+            clk_i               : in std_logic;
+            rst_i               : in std_logic;
+
+            mem_write_c_i       : in std_logic;             -- '1' when we want to write to the registers
+            mem_read_c_i        : in std_logic;             -- '1' when we want to read from the registers
+
+            address_bus_i       : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+            data_bus_io         : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+            
+            fifo_clk_i          : in std_logic;
+            fir_clk_i           : in std_logic
+        );
+    end component fir_unit;
+    ---------------------------------------------------------
+    component fir_sync_fifo is
+    generic(
+        w: integer := 24;
+        -- q: integer := 8;
+        k: integer := 8;
+        k_log: integer := 3
+    );
+    port (
+        FIFOCLK : in STD_LOGIC;
+        FIFORST : in STD_LOGIC;
+        FIFOWEN : in STD_LOGIC;
+        FIFOREN : in STD_LOGIC;
+
+        FIFOIN : in STD_LOGIC_VECTOR(w-1 downto 0);
+
+        FIFOFULL : out STD_LOGIC;
+        FIFOEMPTY : out STD_LOGIC;
+
+        DATAOUT     : out STD_LOGIC_VECTOR(w-1 downto 0)
+    );
+    end component fir_sync_fifo;
+    ---------------------------------------------------------
+    component fir_reg_arr is
+    generic(
+        w: integer := 24;
+        m: integer := 8;
+        q: integer := 8
+    );
+    port (
+        clk_i     : in std_logic;
+        rst_i     : in std_logic;
+        fir_en_i  : in std_logic;           -- TODO: check
+        x_i       : in std_logic_vector(w-1 downto 0);
+        coeff_i   : in t_vec_array(0 to M-1)(q-1 downto 0);
+
+        fir_ifg_o : out std_logic;          -- TODO: implement
+        y_o       : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+
+    );
+    end component fir_reg_arr;
+    ---------------------------------------------------------
+    component fir_pulse_sync is
+    port (
+        rst_i       : in    std_logic;
+        FIRENA      : in    std_logic;
+        FIRCLK      : in    std_logic;
+        FIFOCLK     : in    std_logic;
+
+        FIFOREN     : out   std_logic
+    );
+    end component fir_pulse_sync;
+    ---------------------------------------------------------
+    component fir_core is
+    generic(
+        w: integer := 24;
+        m: integer := 8;
+        q: integer := 8;
+        k: integer := 32;
+        k_log: integer := 3                -- TODO: check this number
+    );
+    port (
+        FIFOCLK : in STD_LOGIC;
+        FIFORST : in STD_LOGIC;
+        FIFOWEN : in STD_LOGIC;
+        FIFOREN : in STD_LOGIC;
+
+        FIRCLK : in STD_LOGIC;
+        FIRRST : in STD_LOGIC;
+        FIRENA : in STD_LOGIC;
+
+        FIRIN : in STD_LOGIC_VECTOR(w+q-1 downto 0);
+        COEF_I : in t_vec_array(0 to M-1)(q-1 downto 0);
+
+        FIFOFULL : out STD_LOGIC;
+        FIFOEMPTY : out STD_LOGIC;
+        FIRIFG : out STD_LOGIC;
+
+        FIROUT     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
+    );
+    end component fir_core;
+
+
     -- GPIO
     component gpio_unit is
         generic(
@@ -527,6 +628,59 @@ package aux_package is
         );
     end component;
 ---------------------------------------------------------   
+
+    -- Interrupt controller
+---------------------------------------------------------
+    component interrupt_controller_core is
+    generic (
+        INT_SRC_COUNT: NATURAL := 9;
+        INT_IFG_COUNT: NATURAL := 7
+            );
+    port 
+    (   
+        clk_i               : in std_logic;
+        rst_i               : in std_logic;
+        inta_i_b            : in std_logic;
+        int_src_from_periph_i : in std_logic_vector(8 downto 0);
+        data_bus_i            : in std_logic_vector(6 downto 0);
+        eint_i              : in std_logic_vector(6 downto 0);
+        gie_i               : in std_logic;
+        ifg_cs_write_ctl_i  : in std_logic;
+
+        -- ifg_write_en        : in std_logic;
+        -- ifg_d_in_i          : in std_logic_vector(INT_SRC_COUNT-1 downto 0);
+        ifg_o               : out std_logic_vector(6 downto 0);
+        type_reg_d_in_o     : out std_logic_vector(7 downto 0);
+        int_req_o              : out std_logic
+    );
+    end component interrupt_controller_core;
+---------------------------------------------------------
+    component interrupt_controller_unit is
+    generic (
+        ADDRESS_BUS_WIDTH: INTEGER := 12;                                       -- the width of the address bus
+        DATA_BUS_WIDTH: INTEGER := 32;                                          -- width of the data bus
+        INT_UNIT_ADDRESS_ARRAY : t_addr_array;
+        INT_SRC_COUNT: NATURAL := 9;
+        INT_IFG_COUNT: NATURAL := 7
+    );
+    port 
+    (
+        clk_i               : in std_logic;
+        rst_i               : in std_logic;
+        inta_i              : in std_logic;
+        interrupt_src_i     : in std_logic_vector(8 downto 0);
+        -- reti_i              : in std_logic;
+        gie_i               : in std_logic;
+
+        mem_write_c_i       : in std_logic;             -- '1' when we want to write to the registers
+        mem_read_c_i        : in std_logic;             -- '1' when we want to read from the registers
+
+        address_bus_i       : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+        data_bus_io         : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
+
+        int_req_o           : out std_logic
+    );
+end component interrupt_controller_unit;
 
     -- TIMER
     component timer_core is
@@ -597,10 +751,10 @@ package aux_package is
         );
     end component timer_unit;
 ---------------------------------------------------------   
----------------------------------------------------------       
+
+
 
     -- Modules
-
     component nbit_dff_flush is
         generic (
             n : integer := 8  -- default size = 8 bits
@@ -615,7 +769,21 @@ package aux_package is
         );
     end component nbit_dff_flush;
 ---------------------------------------------------------       
----------------------------------------------------------       
+    component address_decoder is
+        generic
+        (
+            ADDRESS_BUS_WIDTH: INTEGER := 12;
+            ADDRESS_ARRAY : t_addr_array
+        );
+        port (
+             mem_write_c_in : in std_logic;
+             mem_read_c_in : in std_logic;
+             address_bus_i : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
+
+             cs_mem_write_o : out std_logic_vector(ADDRESS_ARRAY'length - 1 downto 0);
+             cs_mem_read_o  : out std_logic_vector(ADDRESS_ARRAY'length - 1 downto 0)
+        );
+    end component address_decoder;
 ---------------------------------------------------------
     component ALU is
         generic(n : integer := 32);
@@ -626,7 +794,6 @@ package aux_package is
             zflag       : out   std_logic
         );
     end component;
----------------------------------------------------------
 ---------------------------------------------------------
     component PLL IS
         PORT
@@ -640,7 +807,7 @@ package aux_package is
             locked      : OUT STD_LOGIC 
         );
     END component PLL;
-
+---------------------------------------------------------
     component pll_50 IS
         PORT
         (
@@ -696,140 +863,6 @@ package aux_package is
     );
     end component epc;
 ---------------------------------------------------------
----------------------------------------------------------
-    -- component fir_base_unit is
-    -- generic(
-    --     w: integer := 24;
-    --     q: integer := 8
-    -- );
-    -- port (
-    --     clk_i   : in STD_LOGIC;
-    --     rst_i   : in STD_LOGIC;
-    --     x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
-    --     sum_i   : in STD_LOGIC_VECTOR(w+q-1 downto 0);
-    --     coef_i  : in STD_LOGIC_VECTOR(q-1 downto 0);
-    --
-    --     x_o     : out STD_LOGIC_VECTOR(w-1 downto 0);
-    --     sum_o   : out STD_LOGIC_VECTOR(w+q-1 downto 0)
-    -- );
-    -- end component;
----------------------------------------------------------
-    component fir_reg_arr is
-        generic(
-            w: integer := 24;
-            m: integer := 8;
-            q: integer := 8
-        );
-        port (
-            clk_i   : in STD_LOGIC;
-            rst_i   : in STD_LOGIC;
-            x_i     : in STD_LOGIC_VECTOR(w-1 downto 0);
-            coeff_i : in t_vec_array(0 to M-2)(q-1 downto 0);
-            y_o     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
-        );
-    end component fir_reg_arr;
----------------------------------------------------------
-    component fir_pulse_sync is
-        port (
-                 FIRRST      : in    std_logic;
-                 FIRENA      : in    std_logic;
-                 FIRCLK      : in    std_logic;
-                 FIFOCLK     : in    std_logic;
-
-                 FIFOREN     : out   std_logic
-             );
-    end component fir_pulse_sync;
----------------------------------------------------------
-    component interrupt_controller_core is
-    generic (
-        INT_SRC_COUNT: NATURAL := 9;
-        INT_IFG_COUNT: NATURAL := 7
-            );
-    port 
-    (   
-        clk_i               : in std_logic;
-        rst_i               : in std_logic;
-        inta_i_b            : in std_logic;
-        int_src_from_periph_i : in std_logic_vector(8 downto 0);
-        data_bus_i            : in std_logic_vector(6 downto 0);
-        eint_i              : in std_logic_vector(6 downto 0);
-        gie_i               : in std_logic;
-        ifg_cs_write_ctl_i  : in std_logic;
-
-        -- ifg_write_en        : in std_logic;
-        -- ifg_d_in_i          : in std_logic_vector(INT_SRC_COUNT-1 downto 0);
-        ifg_o               : out std_logic_vector(6 downto 0);
-        type_reg_d_in_o     : out std_logic_vector(7 downto 0);
-        int_req_o              : out std_logic
-    );
-    end component interrupt_controller_core;
----------------------------------------------------------
-    component interrupt_controller_unit is
-    generic (
-        ADDRESS_BUS_WIDTH: INTEGER := 12;                                       -- the width of the address bus
-        DATA_BUS_WIDTH: INTEGER := 32;                                          -- width of the data bus
-        INT_UNIT_ADDRESS_ARRAY : t_addr_array;
-        INT_SRC_COUNT: NATURAL := 9;
-        INT_IFG_COUNT: NATURAL := 7
-    );
-    port 
-    (
-        clk_i               : in std_logic;
-        rst_i               : in std_logic;
-        inta_i              : in std_logic;
-        interrupt_src_i     : in std_logic_vector(8 downto 0);
-        -- reti_i              : in std_logic;
-        gie_i               : in std_logic;
-
-        mem_write_c_i       : in std_logic;             -- '1' when we want to write to the registers
-        mem_read_c_i        : in std_logic;             -- '1' when we want to read from the registers
-
-        address_bus_i       : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
-        data_bus_io         : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-
-        int_req_o           : out std_logic
-    );
-end component interrupt_controller_unit;
----------------------------------------------------------
-    component nbit_sr is
-        generic
-        (
-            n: integer := 1;            -- size of data
-            k: integer := 8             -- number of dff
-        );
-        port
-        (
-            clk_i : in std_logic;
-            rst_i : in std_logic;
-
-            d_in : in std_logic_vector(n-1 downto 0);
-            q_out: out std_logic_vector(n-1 downto 0)
-        );
-    end component;
----------------------------------------------------------
-    component fir_sync_fifo is
-        generic
-        (
-            w: integer := 24;
-            q: integer := 8;
-            k: integer := 8
-        );
-        port
-        (
-            FIFOCLK : in STD_LOGIC;
-            FIFORST : in STD_LOGIC;
-            FIFOWEN : in STD_LOGIC;
-            FIFOREN : in STD_LOGIC;
-
-            FIFOIN : in STD_LOGIC_VECTOR(w+q-1 downto 0);
-
-            FIFOFULL : out STD_LOGIC;
-            FIFOEMPTY : out STD_LOGIC;
-
-            DATAOUT     : out STD_LOGIC_VECTOR(w+q-1 downto 0)
-        );
-    end component;
----------------------------------------------------------
     component nbit_timer is
         generic ( n : integer := 8 );
         port
@@ -841,41 +874,6 @@ end component interrupt_controller_unit;
             q_out  : out std_logic_vector(n-1 downto 0)
         );
     end component nbit_timer;
----------------------------------------------------------
----------------------------------------------------------
-    -- component timer_unit is
-    --     generic
-    --     (
-    --         REG_SIZE: integer := 32;
-    --         TIMER_UNIT_ADDRESS_ARRAY: t_addr_array;
-    --         ADDRESS_BUS_WIDTH: INTEGER := 12;
-    --         DATA_BUS_WIDTH: INTEGER := 32
-    --     );
-    --     port (
-    --         mclk_i          : in std_logic;
-    --         mclk_i2_i       : in std_logic;
-    --         mclk_i4_i       : in std_logic;
-    --         mclk_i8_i       : in std_logic;
-    --         rst_i           : in std_logic;
-    --         mem_write_c_i   : in std_logic;
-    --         mem_read_c_i    : in std_logic;
-    --
-    --         address_bus_i   : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
-    --         data_bus_io     : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-    --
-    --         BTIFG           : out std_logic;
-    --         PWMOUT          : out std_logic
-    --     );
-    -- end component timer_unit;
----------------------------------------------------------
-    component nbit_latch is
-        generic ( n : integer := 8 ); -- bus width
-        port (
-                 en   :      in  std_logic;
-                 d_in :      in  std_logic_vector(n-1 downto 0);       -- Data input
-                 q_out:      out std_logic_vector(n-1 downto 0)
-             );
-    end component nbit_latch;
 ---------------------------------------------------------
     component nbit_counter is
     generic (
@@ -894,7 +892,6 @@ end component interrupt_controller_unit;
         q_out   : out std_logic_vector(n-1 downto 0)
     );
     end component nbit_counter;
----------------------------------------------------------
 ---------------------------------------------------------
 
 end aux_package;

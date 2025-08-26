@@ -59,7 +59,7 @@ BEGIN
 
     -- read and write pointers as counters
     wr_ptr: entity work.nbit_counter                
-    generic map( n => k_log, CNT_ON_RIS_EDG => false)
+    generic map( n => k_log, CNT_ON_RIS_EDG => true)
     port map
     (
         clk_i => FIFOCLK,
@@ -71,7 +71,7 @@ BEGIN
         d_in => (others => '0')
     );
     rd_ptr: entity work.nbit_counter
-    generic map( n => k_log, CNT_ON_RIS_EDG => false)
+    generic map( n => k_log, CNT_ON_RIS_EDG => true)
     port map
     (
         clk_i => FIFOCLK,
@@ -140,7 +140,7 @@ BEGIN
                 end if;
 
             end if;
-        reg_data_i_arr_s <= reg_data_o_arr_s;
+        reg_data_i_arr_s <= tmp_arr;
     end process;
     
     zeros_s <= (others => '0');
