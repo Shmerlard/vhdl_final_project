@@ -148,10 +148,10 @@ BEGIN
         MCLK: entity work.PLL
         PORT MAP (
             inclk0  => clk_i,
-            -- c0      => mclk_s,
-            -- c1      => mclk2_s,
-            c0      => mclk2_s,         -- TODO: change later
-            c1      => mclk_s,
+            c0      => mclk_s,
+            c1      => mclk2_s,
+            -- c0      => mclk2_s,         -- TODO: change later
+            -- c1      => mclk_s,
             c2      => mclk4_s,
             c3      => mclk8_s);
     else generate
@@ -166,9 +166,6 @@ BEGIN
     generic map(
         ADDRESS_BUS_WIDTH => PC_WIDTH+2,
         DATA_BUS_WIDTH => DATA_BUS_WIDTH
-        -- INT_UNIT_ADDRESS_ARRAY => INT_UNIT_ADDRESS_ARRAY,
-        -- INT_SRC_COUNT => INT_SRC_COUNT,
-        -- INT_IFG_COUNT => INT_IFG_COUNT
     )
     port map(
         clk_i => mclk_s,
@@ -196,10 +193,6 @@ BEGIN
         data_bus_io   => data_bus_s,
         BTIFG         => btifg_out_s,
         PWMOUT        => pwm_out_s
-        -- debug_btctl_o => debug_btctl_o,
-        -- debug_btcnt_o => debug_btcnt_o,
-        -- debug_btccr0_o => debug_btccr0_o,
-        -- debug_btccr1_o => debug_btccr1_o
     );
 
     gpio_unit_inst: entity work.gpio_unit

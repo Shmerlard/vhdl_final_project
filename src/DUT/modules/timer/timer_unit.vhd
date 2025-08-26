@@ -53,25 +53,12 @@ ARCHITECTURE rtl OF timer_unit IS
     signal btccr0_o_s: std_logic_vector(REG_SIZE-1 downto 0);   -- the state of BTCCR0 reg
     signal btccr1_o_s: std_logic_vector(REG_SIZE-1 downto 0);   -- the state of BTCCR1 reg
 
-    signal btctl_d_in_s: std_logic_vector(7 downto 0);              -- the data input to btctl
+    signal btctl_d_in_s: std_logic_vector(DATA_BUS_WIDTH-1 downto 0);              -- the data input to btctl
     signal btcnt_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);     -- the data input to btcnt
     signal btccr0_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);    -- the data input to btccr0
     signal btccr1_d_in_s: std_logic_vector(REG_SIZE-1 downto 0);    -- the data input to btccr1
 
 BEGIN
-    -- Clock handling
-    -- BUG: divide by 8 is not working
-    -- acting like divide by 7,
-    -- div4 and div 2 are maybe mixed
-    -- process(mclk_i)
-    -- begin
-    --     if rising_edge(mclk_i) then
-    --         clk_div_counter <= std_logic_vector(unsigned(clk_div_counter) + 1);
-    --         mclk_i2_s <= clk_div_counter(0);
-    --         mclk_i4_s <= clk_div_counter(1);
-    --         mclk_i8_s <= clk_div_counter(2);
-    --     end if;
-    -- end process;
 
     -------------------------------------------------------------------
     ----------------            ENTITIES               ----------------
@@ -124,17 +111,17 @@ BEGIN
         clk_i   => mclk_i,
         rst_i   => rst_i,
         wr_en_i => cs_mem_write_s(0),
-        d_in    => btctl_d_in_s,
+        d_in    => btctl_d_in_s(7 downto 0),
         q_out   => btctl_o_s
     );
     BTCTL_bidir_ins: entity work.nbit_bidir
-    generic map( width => 8 )
+    generic map( width => DATA_BUS_WIDTH )
     port map
     (
-        Dout => btctl_o_s,
+        Dout => x"000000" & btctl_o_s,
         en => cs_mem_read_s(0),
         Din => btctl_d_in_s,
-        IOpin => data_bus_io(7 downto 0) -- take only the 8 MSB's of the data bus
+        IOpin => data_bus_io
     );
 
     -- BTCNT

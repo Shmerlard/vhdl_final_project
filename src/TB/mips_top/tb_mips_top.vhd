@@ -51,8 +51,8 @@ BEGIN
         CLK_CNT_WIDTH               => CLK_CNT_WIDTH,
         INST_CNT_WIDTH              => INST_CNT_WIDTH,
         
-        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test1/bin/M9K/DTCM.hex",
-        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test1/bin/M9K/ITCM.hex"
+        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test2/bin/M9K/DTCM.hex",
+        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test2/bin/M9K/ITCM.hex"
         -- ITCM_PATH                   => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\vhdl_final_project\src\SW\sw_interrupt_test\ITCM.hex",
         -- DTCM_PATH                   => "C:\Users\nitza\Desktop\School\University\Year_D\Semester_B\CPU lab\vhdl_final_project\src\SW\sw_interrupt_test\DTCM.hex"
 
@@ -87,10 +87,10 @@ BEGIN
     int_proc: process
     begin
         keys_s <= "000";
-        wait for 2325 ns;
-        keys_s <= "010";
-        wait for 300 ns;
-        keys_s <= "000";
+        -- wait for 2325 ns;
+        -- keys_s <= "010";
+        -- wait for 300 ns;
+        -- keys_s <= "000";
         wait;
     end process;
 

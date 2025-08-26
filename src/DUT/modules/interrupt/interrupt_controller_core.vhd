@@ -89,15 +89,31 @@ begin
     data_bus_s(8) <= data_bus_i(6);
 
 
-    set_irq_manual_s(0) <= '0';       --TODO: CREATE A FUNCTION FOR THIS
-    set_irq_manual_s(1) <= data_bus_s(1) when ifg_cs_write_ctl_i = '1' else '0';
-    set_irq_manual_s(2) <= data_bus_s(2) when ifg_cs_write_ctl_i = '1' else '0';
-    set_irq_manual_s(3) <= data_bus_s(3) when ifg_cs_write_ctl_i = '1' else '0';
-    set_irq_manual_s(4) <= data_bus_s(4) when ifg_cs_write_ctl_i = '1' else '0';
-    set_irq_manual_s(5) <= data_bus_s(5) when ifg_cs_write_ctl_i = '1' else '0';
-    set_irq_manual_s(6) <= data_bus_s(6) when ifg_cs_write_ctl_i = '1' else '0';
-    set_irq_manual_s(7) <= '0';
-    set_irq_manual_s(8) <= data_bus_s(8) when ifg_cs_write_ctl_i = '1' else '0';
+    -- set_irq_manual_s(0) <= '0';       --TODO: CREATE A FUNCTION FOR THIS
+    -- set_irq_manual_s(1) <= data_bus_s(1) when ifg_cs_write_ctl_i = '1' and rising_edge(clk_i) else '0';
+    -- set_irq_manual_s(2) <= data_bus_s(2) when ifg_cs_write_ctl_i = '1' and rising_edge(clk_i) else '0';
+    -- set_irq_manual_s(3) <= data_bus_s(3) when ifg_cs_write_ctl_i = '1' and rising_edge(clk_i) else '0';
+    -- set_irq_manual_s(4) <= data_bus_s(4) when ifg_cs_write_ctl_i = '1' and rising_edge(clk_i) else '0';
+    -- set_irq_manual_s(5) <= data_bus_s(5) when ifg_cs_write_ctl_i = '1' and rising_edge(clk_i) else '0';
+    -- set_irq_manual_s(6) <= data_bus_s(6) when ifg_cs_write_ctl_i = '1' and rising_edge(clk_i) else '0';
+    -- set_irq_manual_s(7) <= '0';
+    -- set_irq_manual_s(8) <= data_bus_s(8) when ifg_cs_write_ctl_i = '1' else '0';
+
+    set_irq_manual_proc : process(clk_i)
+    begin
+        if rising_edge(clk_i) then
+            set_irq_manual_s(0) <= '0';
+            set_irq_manual_s(1) <= data_bus_s(1) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(2) <= data_bus_s(2) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(3) <= data_bus_s(3) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(4) <= data_bus_s(4) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(5) <= data_bus_s(5) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(6) <= data_bus_s(6) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(7) <= '0';
+            set_irq_manual_s(8) <= data_bus_s(8) when ifg_cs_write_ctl_i = '1' else '0';
+        end if;
+    end process;
+
 
     en_int_s(0) <= eint_i(0);       --TODO: CREATE A FUNCTION FOR THIS
     en_int_s(1) <= eint_i(0);
