@@ -14,7 +14,7 @@ entity interrupt_controller_core is
     (   
         clk_i               : in std_logic;
         rst_i               : in std_logic;
-        -- inta_i_b            : in std_logic;
+        inta_i_b            : in std_logic;
         int_src_from_periph_i : in std_logic_vector(8 downto 0);
         data_bus_i            : in std_logic_vector(6 downto 0);
         eint_i              : in std_logic_vector(6 downto 0);
@@ -45,7 +45,8 @@ architecture rtl of interrupt_controller_core is
     signal en_irq_s     : std_logic_vector(INT_SRC_COUNT-1 downto 0);
 
     -- signal ifg_s        :  std_logic_vector(INT_SRC_COUNT-1 downto 0);
-    -- signal clr_irq_s    : std_logic_vector(INT_SRC_COUNT-1 downto 0);
+    signal clr_irq_auto    : std_logic_vector(INT_SRC_COUNT-1 downto 0);
+    signal rst_irq_s       : std_logic_vector(INT_SRC_COUNT-1 downto 0);
     signal is_interrupt : std_logic;
     -- signal inta_i_b_not : std_logic;
     --
@@ -73,7 +74,8 @@ begin
 
     end generate;
 
-    int_clr_irq_s <= clr_irq_manual_s;
+    rst_irq_s <= "000000000" when rst_i = '0' else "111111111";
+    int_clr_irq_s <= clr_irq_manual_s or clr_irq_auto or rst_irq_s;
     int_src_s     <= int_src_from_periph_i or set_irq_manual_s;
 
     data_bus_s(0) <= data_bus_i(0);       --TODO: CREATE A FUNCTION FOR THIS
@@ -134,6 +136,15 @@ begin
                         '1' when others;
     int_req_o <= gie_i and is_interrupt;
 
+    clr_irq_auto(0) <= '0';
+    clr_irq_auto(1) <= '0'; 
+    clr_irq_auto(2) <= '0';
+    clr_irq_auto(3) <= not inta_i_b;
+    clr_irq_auto(4) <= '0';
+    clr_irq_auto(5) <= '0';
+    clr_irq_auto(6) <= '0';
+    clr_irq_auto(7) <= not inta_i_b;
+    clr_irq_auto(8) <= not inta_i_b;
     -- clr_irq_manual_s <= data_bus_i
 
     -- irq_proc_gen : for i in 0 to INT_SRC_COUNT-1 generate
@@ -187,10 +198,10 @@ begin
 
 
     -- is_interrupt <= '0' when ifg_s = (others => '0') else '1';
-    with en_irq_s select
-        is_interrupt <= '0' when (8 downto 0 => '0'),
-                        '1' when others;
-    int_req_o <= gie_i and is_interrupt;
+    -- with en_irq_s select
+    --     is_interrupt <= '0' when (8 downto 0 => '0'),
+    --                     '1' when others;
+    -- int_req_o <= gie_i and is_interrupt;
 
     -- enc_pri_int_s <= "0001" when ifg_s(0) = '1' else
     --                  "0010" when ifg_s(1) = '1' else

@@ -725,10 +725,14 @@ package aux_package is
         clk_i               : in std_logic;
         rst_i               : in std_logic;
         inta_i_b            : in std_logic;
-        interrupt_src_i     : in std_logic_vector(8 downto 0);
-        eint_i              : in std_logic_vector(7 downto 0);
+        int_src_from_periph_i : in std_logic_vector(8 downto 0);
+        data_bus_i            : in std_logic_vector(6 downto 0);
+        eint_i              : in std_logic_vector(6 downto 0);
         gie_i               : in std_logic;
+        ifg_cs_write_ctl_i  : in std_logic;
 
+        -- ifg_write_en        : in std_logic;
+        -- ifg_d_in_i          : in std_logic_vector(INT_SRC_COUNT-1 downto 0);
         ifg_o               : out std_logic_vector(6 downto 0);
         type_reg_d_in_o     : out std_logic_vector(7 downto 0);
         int_req_o              : out std_logic
