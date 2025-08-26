@@ -35,7 +35,7 @@ add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/interrupt_handler/int_ac
 add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/interrupt_handler/icc_s
 add wave -noupdate /tb_mips_top/top_proc/mips_core_inst/ID/gie_o
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {12868488 ps} 0}
+WaveRestoreCursors {{Cursor 1} {658711 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -51,5 +51,5 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {12701096 ps} {14068364 ps}
+WaveRestoreZoom {0 ps} {4606671 ps}
 bookmark add wave bookmark0 {{746193 ps} {12451153 ps}} 11
