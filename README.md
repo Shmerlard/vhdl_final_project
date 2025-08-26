@@ -25,11 +25,11 @@
     - [ ] more testing for lw sw and hazards
     - [ ] clean signals
     - [ ] make sure all register are correct
-    - [ ] check on changing the memory after programming
+    - [X] check on changing the memory after programming
 <!---->
 - [ ] interrupts
-    - [ ] add support for writing to ifg reg
-    - [ ] tests
+    - [X] add support for writing to ifg reg
+    - [X] tests
     - [X] make sure the program stops,
     - [X] emulated ins may be a problem
     - [X] save the state
