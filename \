@@ -102,19 +102,15 @@ begin
     set_irq_manual_proc : process(clk_i)
     begin
         if rising_edge(clk_i) then
-            if ifg_cs_write_ctl_i = '1' then
-                set_irq_manual_s(0) <= '0';
-                set_irq_manual_s(1) <= data_bus_s(1);
-                set_irq_manual_s(2) <= data_bus_s(2);
-                set_irq_manual_s(3) <= data_bus_s(3);
-                set_irq_manual_s(4) <= data_bus_s(4);
-                set_irq_manual_s(5) <= data_bus_s(5);
-                set_irq_manual_s(6) <= data_bus_s(6);
-                set_irq_manual_s(7) <= '0';
-                set_irq_manual_s(8) <= data_bus_s(8);
-            else
-                set_irq_manual_s <= (others => '0');
-            end if;
+            set_irq_manual_s(0) <= '0';
+            set_irq_manual_s(1) <= data_bus_s(1) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(2) <= data_bus_s(2) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(3) <= data_bus_s(3) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(4) <= data_bus_s(4) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(5) <= data_bus_s(5) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(6) <= data_bus_s(6) when ifg_cs_write_ctl_i = '1' else '0';
+            set_irq_manual_s(7) <= '0';
+            set_irq_manual_s(8) <= data_bus_s(8) when ifg_cs_write_ctl_i = '1' else '0';
         end if;
     end process;
 
@@ -151,11 +147,9 @@ begin
                      "0000";
 
     type_reg_d_in_o <= "00" & enc_pri_int_s & "00";
-    -- with en_irq_s select
-    --     is_interrupt <= '0' when "000000000", 
-    --                     '1' when others;
-    is_interrupt <= '0' when en_irq_s = "000000000" else
-                    '1';
+    with en_irq_s select
+        is_interrupt <= '0' when (8 downto 0 => '0'),
+                        '1' when others;
     int_req_o <= gie_i and is_interrupt;
 
     clr_irq_auto(0) <= '0';

@@ -640,6 +640,20 @@ package aux_package is
             locked      : OUT STD_LOGIC 
         );
     END component PLL;
+
+    component pll_50 IS
+        PORT
+        (
+            areset		: IN STD_LOGIC  := '0';
+            inclk0		: IN STD_LOGIC  := '0';
+            c0		: OUT STD_LOGIC ;
+            c1		: OUT STD_LOGIC ;
+            c2		: OUT STD_LOGIC ;
+            c3		: OUT STD_LOGIC ;
+            c4		: OUT STD_LOGIC ;
+            locked		: OUT STD_LOGIC 
+        );
+    END component pll_50;
 ---------------------------------------------------------   
     component nbit_dff is
     generic ( n : integer := 8);

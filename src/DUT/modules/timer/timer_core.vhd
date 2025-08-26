@@ -74,19 +74,23 @@ BEGIN
         heu0_o => hue0_s
     );
 
-    BTCL0_LATCH: nbit_latch
+    BTCL0_LATCH: nbit_dff
     generic map( n => n)
     port map
     (
+        rst => rst_i,
+        clk => mclk_i,
         en => btcnt_eq_0_s,
         d_in => BTCCR0,
         q_out => btccr0_latched_s
     );
 
-    BTCL1_LATCH: nbit_latch
+    BTCL1_LATCH: nbit_dff
     generic map( n => n)
     port map
     (
+        rst => rst_i,
+        clk => mclk_i,
         en => btcnt_eq_0_s,
         d_in => BTCCR1,
         q_out => btccr1_latched_s

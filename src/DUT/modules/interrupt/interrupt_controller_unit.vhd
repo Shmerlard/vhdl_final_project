@@ -38,6 +38,7 @@ architecture rtl of interrupt_controller_unit is
     signal cs_mem_read_s    : std_logic_vector(INT_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
     --
     signal ifg_in_s : std_logic_vector(INT_IFG_COUNT-1 downto 0);
+    signal int_req_s : std_logic;
     -- signal ifg_o_s  : std_logic_vector(6 downto 0);
     -- signal ifg_in_from_bus : std_logic_vector(INT_IFG_COUNT-1 downto 0);
     -- signal ifg_in_from_core : std_logic_vector(INT_IFG_COUNT-1 downto 0);
@@ -78,8 +79,9 @@ begin
         ifg_cs_write_ctl_i    => cs_mem_write_s(1),
         ifg_o                 => ifg_in_s,
         type_reg_d_in_o       => type_in_s,
-        int_req_o             => int_req_o
+        int_req_o             => int_req_s
     );
+    int_req_o <= int_req_s;
 
     -- ifg_dff: entity work.nbit_dff
     -- generic map( n => 7)
@@ -121,7 +123,8 @@ begin
     port map(
         clk => clk_i,
         rst => rst_i,
-        en => '1',
+        -- en => '1',
+        en => int_req_s,
         d_in => type_in_s,
         q_out => type_out_s
     );

@@ -16,7 +16,6 @@ ENTITY mips_top IS
         DTCM_ADDR_WIDTH : integer   := G_ADDRWIDTH;
         PC_WIDTH : integer          := 10;
         NEXT_PC_WIDTH : integer     := 8;
-        -- FUNCT_WIDTH : integer       := 6;
         DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
         CLK_CNT_WIDTH : integer     := 16;
         INST_CNT_WIDTH : integer    := 16;
@@ -50,7 +49,7 @@ ENTITY mips_top IS
         RegWrite_ctrl_o     :OUT    STD_LOGIC;
         mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
         inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
-        -- hex_o               :OUT    t_hex_array(0 to 7)
+        pwm_out             : out   std_logic;
         flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
         hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
         strigger_o          :OUT    std_logic;
@@ -77,6 +76,8 @@ ARCHITECTURE rtl OF mips_top IS
 
     signal pwm_out_s    : std_logic;
     signal btifg_out_s  : std_logic;
+
+    -- signal btifg_int_req_s : std_logi
 
 BEGIN
     rst_gen:
@@ -145,15 +146,16 @@ BEGIN
 
     pll_gen:
     if (MODELSIM = 0 and USE_ALT_CLK = false) generate
-        MCLK: entity work.PLL
+        MCLK: entity work.pll_50
         PORT MAP (
             inclk0  => clk_i,
-            c0      => mclk_s,
-            c1      => mclk2_s,
+            -- c0      => mclk_s,
+            -- c1      => mclk2_s,
             -- c0      => mclk2_s,         -- TODO: change later
-            -- c1      => mclk_s,
+            c1      => mclk_s,
             c2      => mclk4_s,
             c3      => mclk8_s);
+        mclk2_s <= mclk_s;
     else generate
         mclk_s <= clk_i;
         mclk2_s <= clk_i;
@@ -213,4 +215,9 @@ BEGIN
     int_ack_o   <= int_ack_s;
     data_bus_o <= data_bus_s;
     int_src_s(6 downto 4) <= keys_i;
+    int_src_s(3) <= btifg_out_s;        -- BUG: connect others
+    int_src_s(2 downto 0) <= "000";
+    int_src_s(8 downto 7) <= "00";
+
+    pwm_out <= pwm_out_s;
 END ARCHITECTURE rtl;
