@@ -73,9 +73,12 @@ ARCHITECTURE rtl OF mips_top IS
     signal mclk2_s      : std_logic;
     signal mclk4_s      : std_logic;
     signal mclk8_s      : std_logic;
+    signal mclk64_s     : std_logic;
 
     signal pwm_out_s    : std_logic;
     signal btifg_out_s  : std_logic;
+    signal fir_ifg_s    : std_logic;
+    signal fifo_empty_s : std_logic;
 
     -- signal btifg_int_req_s : std_logi
 
@@ -151,11 +154,12 @@ BEGIN
             inclk0  => clk_i,
             -- c0      => mclk_s,
             -- c1      => mclk2_s,
-            -- c0      => mclk2_s,         -- TODO: change later
-            c1      => mclk_s,
+            c0      => mclk_s,         -- TODO: change later
+            c1      => mclk2_s,
             c2      => mclk4_s,
-            c3      => mclk8_s);
-        mclk2_s <= mclk_s;
+            c3      => mclk8_s,
+            c4      => mclk64_s
+            );
     else generate
         mclk_s <= clk_i;
         mclk2_s <= clk_i;
@@ -210,6 +214,23 @@ BEGIN
         leds_out      => leds_o
     );
 
+    fir_unit_inst: entity work.fir_unit
+    generic map(
+        DATA_BUS_WIDTH => DATA_BUS_WIDTH,
+        INT_UNIT_ADDRESS_ARRAY => INT_UNIT_ADDRESS_ARRAY
+    )
+    port map(
+        clk_i => clk_i,
+        rst_i => rst_i,
+        mem_write_c_i => ctrl_bus_s(0),
+        mem_read_c_i => ctrl_bus_s(1),
+        address_bus_i => addr_bus_s,
+        data_bus_io => data_bus_s,
+        fifo_clk_i => mclk_s,
+        fir_clk_i => mclk64_s,
+        fir_ifg_o => fir_ifg_s,
+        fifo_empty_o => fifo_empty_s
+    );
 
     int_req_o   <= int_req_s;
     int_ack_o   <= int_ack_s;
@@ -217,7 +238,8 @@ BEGIN
     int_src_s(6 downto 4) <= keys_i;
     int_src_s(3) <= btifg_out_s;        -- BUG: connect others
     int_src_s(2 downto 0) <= "000";
-    int_src_s(8 downto 7) <= "00";
+    int_src_s(7) <= fifo_empty_s;
+    int_src_s(8) <= fir_ifg_s;
 
     pwm_out <= pwm_out_s;
 END ARCHITECTURE rtl;

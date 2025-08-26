@@ -47,7 +47,7 @@ BEGIN
         clk_i => FIRCLK,
         rst_i => FIRRST,
         fir_en_i => FIRENA,
-        x_i => syn_fifo_d_s,
+        x_i => syn_fifo_d_s(w-1 downto 0),
         coeff_i => COEF_I,
         y_o => FIROUT
     );
@@ -61,11 +61,12 @@ BEGIN
         FIFORST => FIFORST,
         FIFOWEN => FIFOWEN,
         FIFOREN => FIFOREN,
-        FIFOIN => FIRIN,
+        FIFOIN => FIRIN(w-1 downto 0),
         FIFOFULL => FIFOFULL,
         FIFOEMPTY => FIFOEMPTY,
-        DATAOUT => syn_fifo_d_s
+        DATAOUT => syn_fifo_d_s(w-1 downto 0)
     );
+    syn_fifo_d_s(w+q-1 downto w) <= x"00";
 
     fir_pulse_sync_inst: entity work.fir_pulse_sync
     port map(

@@ -478,9 +478,12 @@ package aux_package is
 
             address_bus_i       : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
             data_bus_io         : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-            
+
             fifo_clk_i          : in std_logic;
-            fir_clk_i           : in std_logic
+            fir_clk_i           : in std_logic;
+
+            fir_ifg_o           : out std_logic;
+            fifo_empty_o        : out std_logic
         );
     end component fir_unit;
     ---------------------------------------------------------

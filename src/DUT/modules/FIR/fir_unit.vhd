@@ -21,16 +21,19 @@ entity fir_unit is
 
         address_bus_i       : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
         data_bus_io         : inout std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-        
+
         fifo_clk_i          : in std_logic;
-        fir_clk_i           : in std_logic
+        fir_clk_i           : in std_logic;
+
+        fir_ifg_o           : out std_logic;
+        fifo_empty_o        : out std_logic
     );
 end entity fir_unit;
 
 
 architecture rtl of fir_unit is
-    signal cs_mem_write_s   : std_logic_vector(INT_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
-    signal cs_mem_read_s    : std_logic_vector(INT_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
+    signal cs_mem_write_s   : std_logic_vector(FIR_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
+    signal cs_mem_read_s    : std_logic_vector(FIR_UNIT_ADDRESS_ARRAY'length - 1 downto 0);
 
     signal fifo_wen_s : std_logic;
     signal fifo_ren_s : std_logic;
@@ -62,7 +65,7 @@ begin
     fir_unit_addr_decoder_inst: entity work.address_decoder
     generic map(
         ADDRESS_BUS_WIDTH => ADDRESS_BUS_WIDTH,
-        ADDRESS_ARRAY => FIR_UNIT_ADDRESS_ARRAY 
+        ADDRESS_ARRAY => FIR_UNIT_ADDRESS_ARRAY
     )
     port map
     (
@@ -89,7 +92,7 @@ begin
         FIRCLK => fir_clk_i,
         FIRRST => fir_rst_s,
         FIRENA => fir_ena_s,
-        FIRIN => fir_in_s,
+        FIRIN => x"00" & fir_in_s,
         COEF_I => coef_s,
         FIFOFULL => fifo_full_s,
         FIFOEMPTY => fifo_empty_s,
@@ -127,7 +130,7 @@ begin
     fir_ctl_bidi_inst: entity work.nbit_bidir
     generic map( width => DATA_BUS_WIDTH)
     port map(
-        Dout => x"000000" & fir_ctl_s,
+        Dout => x"000000" & "00" & fir_ctl_s,
         en => cs_mem_read_s(0),
         -- Din => Din,
         IOpin => data_bus_io
@@ -192,6 +195,9 @@ begin
         -- Din => Din,
         IOpin => data_bus_io
     );
-    
+
+    fifo_empty_o <= fifo_empty_s;
+    fir_ifg_o <= fir_ifg_s;
+
 end architecture rtl;
 
