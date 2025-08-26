@@ -50,7 +50,7 @@ architecture rtl of fir_pulse_sync is
         q4_reg: entity work.nbit_dff
         generic map(n => 1)
         port map(
-            clk     => not(FIFOCLK),
+            clk     => FIFOCLK,
             rst     => rst_i,
             en      => '1',
             d_in    => q3_s,
