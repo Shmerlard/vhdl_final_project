@@ -5,7 +5,7 @@ use work.aux_package.all;
 
 entity fir_pulse_sync is
     port (
-        FIRRST      : in    std_logic;
+        rst_i       : in    std_logic;
         FIRENA      : in    std_logic;
         FIRCLK      : in    std_logic;
         FIFOCLK     : in    std_logic;
@@ -21,7 +21,7 @@ architecture rtl of fir_pulse_sync is
         generic map(n => 1)
         port map(
             clk     => FIRCLK,
-            rst     => FIRRST,
+            rst     => rst_i,
             en      => '1',
             d_in    => FIRENA_s,
             q_out   => q1_s
@@ -31,7 +31,7 @@ architecture rtl of fir_pulse_sync is
         generic map(n => 1)
         port map(
             clk     => FIFOCLK,
-            rst     => FIRRST,
+            rst     => rst_i,
             en      => '1',
             d_in    => q1_s,
             q_out   => q2_s
@@ -41,7 +41,7 @@ architecture rtl of fir_pulse_sync is
         generic map(n => 1)
         port map(
             clk     => FIFOCLK,
-            rst     => FIRRST,
+            rst     => rst_i,
             en      => '1',
             d_in    => q2_s,
             q_out   => q3_s
@@ -50,8 +50,8 @@ architecture rtl of fir_pulse_sync is
         q4_reg: entity work.nbit_dff
         generic map(n => 1)
         port map(
-            clk     => FIFOCLK,
-            rst     => FIRRST,
+            clk     => not(FIFOCLK),
+            rst     => rst_i,
             en      => '1',
             d_in    => q3_s,
             q_out   => q4_s
