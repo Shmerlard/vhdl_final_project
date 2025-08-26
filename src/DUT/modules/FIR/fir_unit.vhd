@@ -82,10 +82,10 @@ begin
         k_log => 3
     )
     port map(
+        rst_i => rst_i,
         FIFOCLK => fifo_clk_i,
         FIFORST => fifo_rst_s,
         FIFOWEN => fifo_wen_s,
-        FIFOREN => fifo_ren_s,
         FIRCLK => fir_clk_i,
         FIRRST => fir_rst_s,
         FIRENA => fir_ena_s,

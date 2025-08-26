@@ -545,10 +545,11 @@ package aux_package is
         k_log: integer := 3                -- TODO: check this number
     );
     port (
+        rst_i   : in std_logic;
+
         FIFOCLK : in STD_LOGIC;
         FIFORST : in STD_LOGIC;
         FIFOWEN : in STD_LOGIC;
-        FIFOREN : in STD_LOGIC;
 
         FIRCLK : in STD_LOGIC;
         FIRRST : in STD_LOGIC;

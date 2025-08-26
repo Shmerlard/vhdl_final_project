@@ -12,10 +12,11 @@ entity fir_core is
         k_log: integer := 3                -- TODO: check this number
     );
     port (
+        rst_i   : in std_logic;
         FIFOCLK : in STD_LOGIC;
         FIFORST : in STD_LOGIC;
         FIFOWEN : in STD_LOGIC;
-        FIFOREN : in STD_LOGIC;
+        -- FIFOREN : in STD_LOGIC;
 
         FIRCLK : in STD_LOGIC;
         FIRRST : in STD_LOGIC;
@@ -34,10 +35,13 @@ end entity fir_core;
 
 ARCHITECTURE rtl OF fir_core IS
     signal syn_fifo_d_s : STD_LOGIC_VECTOR(w+q-1 downto 0);
+    signal FIFOREN : std_logic;
+
+    signal q1_firena : std_logic;
+    signal q2_firena : std_logic;
 BEGIN
     fir_reg_arr_inst: entity work.fir_reg_arr
-    generic map
-    ( w => w, m => m, q => q)
+    generic map ( w => w, m => m, q => q)
     port map
     (
         clk_i => FIRCLK,
@@ -63,5 +67,35 @@ BEGIN
         DATAOUT => syn_fifo_d_s
     );
 
+    fir_pulse_sync_inst: entity work.fir_pulse_sync
+    port map(
+        rst_i => rst_i,
+        FIRENA => FIRENA,
+        FIRCLK => FIRCLK,
+        FIFOCLK => FIFOCLK,
+        FIFOREN => FIFOREN
+    );
 
+
+    q1_dff_inst: entity work.nbit_dff
+    generic map( n => 1 )
+    port map(
+        clk => FIRCLK,
+        rst => rst_i,
+        en => '1',
+        d_in(0) => FIRENA,
+        q_out(0) => q1_firena
+    );
+    q2_dff_inst: entity work.nbit_dff
+    generic map( n => 1 )
+    port map(
+        clk => FIRCLK,
+        rst => rst_i,
+        en => '1',
+        d_in(0) => q1_firena,
+        q_out(0) => q2_firena
+    );
+
+
+    FIRIFG <= FIRCLK and FIRENA and not q2_firena;
 END ARCHITECTURE rtl;
