@@ -83,6 +83,7 @@ ARCHITECTURE rtl OF mips_top IS
     signal fifo_empty_s : std_logic;
 
     signal DEBUG_nclock_64 : std_logic_vector(9 downto 0);
+    signal fir_clock_s  : std_logic;
 
 BEGIN
     rst_gen:
@@ -160,11 +161,11 @@ BEGIN
             c4      => mclk64_s
             );
         
-        process(clk_i, rst_s)
+        process(mclk_s, rst_s)
         begin
             if rst_s = '1' then
                 DEBUG_nclock_64 <= "0000000000";
-            elsif rising_edge(clk_i) then
+            elsif rising_edge(mclk_s) then
                 DEBUG_nclock_64 <= std_logic_vector(unsigned(DEBUG_nclock_64) + 1);
             end if;
         end process;
@@ -246,7 +247,7 @@ BEGIN
         data_bus_io => data_bus_s,
         -- fifo_clk_i => mclk_s,
         fifo_clk_i => mclk_s,
-        fir_clk_i => mclk64_s,
+        fir_clk_i => fir_clock_s,
 
         fir_ifg_o => fir_ifg_s,
         fifo_empty_o => fifo_empty_s
@@ -260,6 +261,7 @@ BEGIN
     int_src_s(2 downto 0) <= "000";
     int_src_s(7) <= fifo_empty_s;
     int_src_s(8) <= fir_ifg_s;
+    fir_clock_s <= DEBUG_nclock_64(8);
 
     pwm_out <= pwm_out_s;
 END ARCHITECTURE rtl;
