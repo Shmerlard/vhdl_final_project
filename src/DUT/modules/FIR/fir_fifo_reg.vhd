@@ -97,7 +97,7 @@ BEGIN
             if FIFORST = '1' then
                 valid_s <= (others => '0');
                 -- DATAOUT <= (others => '0');
-            elsif rising_edge(FIFOCLK) then
+            elsif falling_edge(FIFOCLK) then
                 if FIFOREN = '1' then
                     valid_s(to_integer(unsigned(rd_ptr_s))) <= '0';
                 end if;
@@ -107,7 +107,8 @@ BEGIN
 
             end if;
     end process;
-        zeros_s <= (others => '0');
+
+    zeros_s <= (others => '0');
     ones_s <= (others => '1');
     FIFOFULL <= '1' when valid_s = ones_s else '0';
     FIFOEMPTY <= '1' when valid_s = zeros_s else '0';

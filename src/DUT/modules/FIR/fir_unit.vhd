@@ -131,7 +131,7 @@ begin
     fir_ctl_bidi_inst: entity work.nbit_bidir
     generic map( width => DATA_BUS_WIDTH)
     port map(
-        Dout => x"000000" & "00" & fir_ctl_s,
+        Dout => x"000000" & "00" & fir_ctl_s(5 downto 4) & fifo_full_s & fifo_empty_s & fir_ctl_s(1 downto 0),
         en => cs_mem_read_s(0),
         -- Din => Din,
         IOpin => data_bus_io

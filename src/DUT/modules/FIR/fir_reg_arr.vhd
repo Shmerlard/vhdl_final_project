@@ -29,7 +29,7 @@ ARCHITECTURE rtl OF fir_reg_arr IS
     signal y_reg_out_s  : std_logic_vector(w+q-1 downto 0);
 BEGIN
     x_i_arr_s(0) <= x_i;
-    mul_arr_s(0) <= std_logic_vector(   signed(coeff_i(0)) * signed(x_i_arr_s(0))  );
+    mul_arr_s(0) <= std_logic_vector(   unsigned(coeff_i(0)) * unsigned(x_i_arr_s(0))  );
     s_i_arr_s(0) <= mul_arr_s(0);
 
     fir_reg_gen : for i in 1 to M-1 generate
@@ -44,8 +44,8 @@ BEGIN
             q_out => x_i_arr_s(i)
         );
 
-        mul_arr_s(i) <= std_logic_vector(  signed(coeff_i(i))     * signed(x_i_arr_s(i))    );
-        s_i_arr_s(i) <= std_logic_vector(  signed(s_i_arr_s(i-1)) + signed(mul_arr_s(i))    );
+        mul_arr_s(i) <= std_logic_vector(  unsigned(coeff_i(i))     * unsigned(x_i_arr_s(i))    );
+        s_i_arr_s(i) <= std_logic_vector(  unsigned(s_i_arr_s(i-1)) + unsigned(mul_arr_s(i))    );
 
     end generate;
 
@@ -60,6 +60,6 @@ BEGIN
         q_out => y_reg_out_s
     );
 
-    y_o <= y_reg_out_s;
+    y_o <= x"00" & y_reg_out_s(w+q-1 downto q);
 
 END ARCHITECTURE rtl;

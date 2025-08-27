@@ -15,7 +15,7 @@ entity fir_pulse_sync is
 end entity fir_pulse_sync;
 
 architecture rtl of fir_pulse_sync is
-    signal q1_s, q2_s, q3_s, q4_s, FIRENA_s   : STD_LOGIC_VECTOR(0 downto 0);
+    signal q1_s, q2_s, q3_s, q4_s, FIRENA_s   : std_logic;
     begin
         q1_reg: entity work.nbit_dff
         generic map(n => 1)
@@ -23,8 +23,8 @@ architecture rtl of fir_pulse_sync is
             clk     => FIRCLK,
             rst     => rst_i,
             en      => '1',
-            d_in    => FIRENA_s,
-            q_out   => q1_s
+            d_in(0)    => FIRENA_s,
+            q_out(0)   => q1_s
         );
 
         q2_reg: entity work.nbit_dff
@@ -33,8 +33,8 @@ architecture rtl of fir_pulse_sync is
             clk     => FIFOCLK,
             rst     => rst_i,
             en      => '1',
-            d_in    => q1_s,
-            q_out   => q2_s
+            d_in(0)    => q1_s,
+            q_out(0)   => q2_s
         );
 
         q3_reg: entity work.nbit_dff
@@ -43,8 +43,8 @@ architecture rtl of fir_pulse_sync is
             clk     => FIFOCLK,
             rst     => rst_i,
             en      => '1',
-            d_in    => q2_s,
-            q_out   => q3_s
+            d_in(0)    => q2_s,
+            q_out(0)   => q3_s
         );
 
         q4_reg: entity work.nbit_dff
@@ -53,11 +53,11 @@ architecture rtl of fir_pulse_sync is
             clk     => FIFOCLK,
             rst     => rst_i,
             en      => '1',
-            d_in    => q3_s,
-            q_out   => q4_s
+            d_in(0)    => q3_s and FIRCLK,
+            q_out(0)   => q4_s
         );
 
-        FIRENA_s(0) <= FIRENA;
-        FIFOREN  <= not(q4_s(0)) and q3_s(0);
+        FIRENA_s <= FIRENA;
+        FIFOREN  <= not(q4_s) and (q3_s and FIRCLK);
 
 end architecture rtl;

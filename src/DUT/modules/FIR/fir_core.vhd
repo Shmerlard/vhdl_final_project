@@ -95,10 +95,10 @@ BEGIN
         clk => FIRCLK,
         rst => rst_i,
         en => '1',
-        d_in(0) => q1_firena,
+        d_in(0) => q1_firena and FIRCLK,
         q_out(0) => q2_firena
     );
 
 
-    FIRIFG <= FIRCLK and FIRENA and not q2_firena;
+    FIRIFG <= (not q2_firena) and q1_firena and FIRCLK;
 END ARCHITECTURE rtl;

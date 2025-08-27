@@ -170,7 +170,7 @@ BEGIN
         mclk2_s <= DEBUG_nclock_64(0);
         mclk4_s <= DEBUG_nclock_64(1);
         mclk8_s <= DEBUG_nclock_64(2);
-        mclk64_s <= DEBUG_nclock_64(5);
+        mclk64_s <= DEBUG_nclock_64(6);
     end generate;
 
     interrupt_controller_unit_inst: entity work.interrupt_controller_unit
