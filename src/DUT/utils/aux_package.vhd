@@ -50,6 +50,7 @@ package aux_package is
             RegWrite_ctrl_o     :OUT    STD_LOGIC;
             mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
             inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
+            is_start_of_int_o   : out   std_logic;
             -- hex_o               :OUT    t_hex_array(0 to 7);
             flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
@@ -269,6 +270,7 @@ package aux_package is
         reg_type_addr_o     : out   std_logic_vector(11 downto 0);
         reg_type_addr_sel   : out   std_logic;
         latch_epc_load_o    : out   std_logic;
+        is_start_of_int_o   : out   std_logic;
 
         int_if_id_flush_req_o : out std_logic;
         int_id_ex_flush_req_o : out std_logic
@@ -674,6 +676,7 @@ package aux_package is
 
             -- ifg_write_en        : in std_logic;
             -- ifg_d_in_i          : in std_logic_vector(INT_SRC_COUNT-1 downto 0);
+            is_start_of_int     : in std_logic;
             ifg_o               : out std_logic_vector(6 downto 0);
             type_reg_d_in_o     : out std_logic_vector(7 downto 0);
             int_req_o              : out std_logic
@@ -697,6 +700,7 @@ package aux_package is
             -- reti_i              : in std_logic;
             gie_i               : in std_logic;
 
+            is_start_of_int_i   : in std_logic;
             mem_write_c_i       : in std_logic;             -- '1' when we want to write to the registers
             mem_read_c_i        : in std_logic;             -- '1' when we want to read from the registers
 

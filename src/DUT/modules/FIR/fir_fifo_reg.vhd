@@ -37,6 +37,11 @@ ARCHITECTURE rtl OF fir_fifo_reg IS
 
     signal reg_wr_sel_s : std_logic_vector(k-1 downto 0);
     signal ones_s, zeros_s: std_logic_vector(k-1 downto 0);
+
+    signal rd_overflow_s    :std_logic;
+    signal wr_overflow_s    :std_logic;
+    signal wr_ptr_out_s     : std_logic_vector(k_log downto 0);
+    signal rd_ptr_out_s     : std_logic_vector(k_log downto 0);
 BEGIN
     -- registers instantiantion
     reg_arr_gen : for i in 0 to k-1 generate
@@ -55,26 +60,28 @@ BEGIN
 
     -- read and write pointers as counters
     wr_ptr: entity work.nbit_counter
-    generic map( n => k_log, CNT_ON_RIS_EDG => true)
+    generic map( n => k_log+1, CNT_ON_RIS_EDG => true)
     port map
     (
         clk_i => FIFOCLK,
         rst => FIFORST or rst_i,
         en => FIFOWEN,
         equy => '0',                                -- NOTE: we might need to replace it with rst
-        q_out => wr_ptr_s,
+        -- q_out => wr_overflow_s & wr_ptr_s,
+        q_out => wr_ptr_out_s,
         w_en_i => '0',
         d_in => (others => '0')
     );
     rd_ptr: entity work.nbit_counter
-    generic map( n => k_log, CNT_ON_RIS_EDG => true)
+    generic map( n => k_log+1, CNT_ON_RIS_EDG => true)
     port map
     (
         clk_i => FIFOCLK,
         rst => FIFORST or rst_i,
         en => FIFOREN,
         equy => '0',                                -- NOTE: we might need to replace it with rst
-        q_out => rd_ptr_s,
+        -- q_out => rd_overflow_s & rd_ptr_s,
+        q_out => rd_ptr_out_s,
         w_en_i => '0',
         d_in => (others => '0')
     );
@@ -90,28 +97,43 @@ BEGIN
                     x"80" when wr_ptr_s = "111";
 
     -- DATAOUT <= x"000000" when FIFOREN = '0' else reg_data_o_arr_s(to_integer(unsigned(rd_ptr_s)));
+    rd_ptr_s <= rd_ptr_out_s(2 downto 0);
+    wr_ptr_s <= wr_ptr_out_s(2 downto 0);
+    rd_overflow_s <= rd_ptr_out_s(3);
+    wr_overflow_s <= wr_ptr_out_s(3);
+
     DATAOUT <= reg_data_o_arr_s(to_integer(unsigned(rd_ptr_s)));
 
-    process(FIFOCLK, FIFORST)
-        begin
-            if FIFORST = '1' then
-                valid_s <= (others => '0');
-                -- DATAOUT <= (others => '0');
-            elsif falling_edge(FIFOCLK) then
-                if FIFOREN = '1' then
-                    valid_s(to_integer(unsigned(rd_ptr_s))) <= '0';
-                end if;
-                if FIFOWEN = '1' then
-                    valid_s(to_integer(unsigned(wr_ptr_s))) <= '1';
-                end if;
+    -- process(FIFOCLK, FIFORST)
+    --     begin
+    --         if FIFORST = '1' then
+    --             valid_s <= (others => '0');
+    --             -- DATAOUT <= (others => '0');
+    --         elsif falling_edge(FIFOCLK) then
+    --             if FIFOREN = '1' then
+    --                 valid_s(to_integer(unsigned(rd_ptr_s))) <= '0';
+    --             end if;
+    --             if FIFOWEN = '1' then
+    --                 valid_s(to_integer(unsigned(wr_ptr_s))) <= '1';
+    --             end if;
+    --
+    --         end if;
+    -- end process;
 
-            end if;
-    end process;
+    -- zeros_s <= (others => '0');
+    -- ones_s <= (others => '1');
+    -- FIFOFULL <= '1' when valid_s = ones_s else '0';
+    -- FIFOEMPTY <= '1' when valid_s = zeros_s else '0';
+    -- FIFOEMPTY <= '1' when rd_ptr_s = wr_ptr_s and rd_overflow_s = wr_overflow_s else '0';
+    -- FIFOFULL <= '1' when rd_ptr_s = wr_ptr_s and rd_overflow_s /= wr_overflow_s else '0';
+    FIFOEMPTY <= '1' when (rd_ptr_s = wr_ptr_s and rd_overflow_s = wr_overflow_s)
+                 or (FIFOREN = '1' and (wr_ptr_s = std_logic_vector((unsigned(rd_ptr_s) + 1))))
+                 else '0';
 
-    zeros_s <= (others => '0');
-    ones_s <= (others => '1');
-    FIFOFULL <= '1' when valid_s = ones_s else '0';
-    FIFOEMPTY <= '1' when valid_s = zeros_s else '0';
+    FIFOFULL <= '1' when (rd_ptr_s = wr_ptr_s and rd_overflow_s /= wr_overflow_s) 
+                 or (FIFOWEN = '1' and (rd_ptr_s = std_logic_vector((unsigned(wr_ptr_s) + 1))))
+                else '0';
+
 
 
     -- used_space_ins: entity work.nbit_counter

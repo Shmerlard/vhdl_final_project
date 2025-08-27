@@ -20,6 +20,7 @@ entity interrupt_controller_core is
         eint_i              : in std_logic_vector(6 downto 0);
         gie_i               : in std_logic;
         ifg_cs_write_ctl_i  : in std_logic;
+        is_start_of_int     : in std_logic;
 
         -- ifg_write_en        : in std_logic;
         -- ifg_d_in_i          : in std_logic_vector(INT_SRC_COUNT-1 downto 0);
@@ -50,7 +51,11 @@ architecture rtl of interrupt_controller_core is
     signal is_interrupt : std_logic;
     -- signal inta_i_b_not : std_logic;
     --
+    signal is_fir_out_handled : std_logic;
+    signal is_fifoempty_handled : std_logic;
+    signal is_btifg_handled : std_logic;
     signal enc_pri_int_s: std_logic_vector(3 downto 0);
+    signal delay_inta_s : std_logic;
     -- signal selected_sync_int: std_logic_vector(3 downto 0);
     -- signal irq_dff_clr: std_logic_vector(INT_SRC_COUNT-1 downto 0);
     --
@@ -161,14 +166,66 @@ begin
     clr_irq_auto(0) <= '0';
     clr_irq_auto(1) <= '0'; 
     clr_irq_auto(2) <= '0';
-    clr_irq_auto(3) <= not inta_i_b;
+    clr_irq_auto(3) <=  is_btifg_handled ;
+    -- clr_irq_auto(3) <=  not inta_i_b ;
     clr_irq_auto(4) <= '0';
     clr_irq_auto(5) <= '0';
     clr_irq_auto(6) <= '0';
-    clr_irq_auto(7) <= not inta_i_b;
-    clr_irq_auto(8) <= not inta_i_b;
+    clr_irq_auto(7) <= is_fifoempty_handled;
+    clr_irq_auto(8) <= is_fir_out_handled;
+    -- clr_irq_auto(7) <= not inta_i_b;
+    -- clr_irq_auto(8) <= not inta_i_b;
     -- clr_irq_manual_s <= data_bus_i
 
+    -- is_btifg_handled <= '1' when inta_i_b = '0' and enc_pri_int_s = "0100" else '0';
+    -- is_fifoempty_handled <= '1' when inta_i_b = '0' and enc_pri_int_s = "1000" else '0';
+    -- is_fir_out_handled <= '1' when inta_i_b = '0' and enc_pri_int_s = "1001" else '0';
+
+    handle_auto_clear : process(rst_i, clk_i)
+    begin
+        if rst_i = '1' then
+            is_btifg_handled   <= '0';
+            is_fifoempty_handled   <= '0';
+            is_fir_out_handled    <= '0';
+        elsif rising_edge(clk_i) then
+            if is_start_of_int = '1' then
+                if enc_pri_int_s = "0100" then
+                    is_btifg_handled <= '1';
+                    -- is_fifoempty_handled   <= '0';
+                    -- is_fir_out_handled    <= '0';
+                elsif enc_pri_int_s = "1000" then
+                    is_fifoempty_handled <= '1';
+                    -- is_btifg_handled   <= '0';
+                    -- is_fir_out_handled    <= '0';
+                elsif enc_pri_int_s = "1001" then
+                    is_fir_out_handled <= '1';
+                    -- is_btifg_handled   <= '0';
+                    -- is_fifoempty_handled   <= '0';
+                -- else
+                    -- is_btifg_handled   <= '0';
+                    -- is_fifoempty_handled   <= '0';
+                    -- is_fir_out_handled    <= '0';
+                end if;
+            else
+                is_btifg_handled   <= '0';
+                is_fifoempty_handled   <= '0';
+                is_fir_out_handled    <= '0';
+            end if;
+        end if;
+    end process;
+    -- is_btifg_handled <= '1' when not inta_i_b = '1' and enc_pri_int_s = "0100" else '0';
+    -- is_fifoempty_handled <= '1' when not inta_i_b = '1' and enc_pri_int_s = "1000" else '0';
+    -- is_fir_out_handled <= '1' when not inta_i_b = '1' and enc_pri_int_s = "1001" else '0';
+
+    -- delay_inta_inst: entity work.nbit_dff
+    -- generic map( n => 1 )
+    -- port map(
+    --     clk => inta_i_b,
+    --     rst => rst_i,
+    --     en => '1',
+    --     d_in(0) => '1',
+    --     q_out(0) => delay_inta_s
+    -- );
     -- irq_proc_gen : for i in 0 to INT_SRC_COUNT-1 generate
     -- begin
     --     irq_proc : process (rst_i, interrupt_src_i(i), clk_i)

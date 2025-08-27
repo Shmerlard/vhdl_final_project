@@ -53,6 +53,7 @@ ENTITY mips_top IS
         flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
         hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
         strigger_o          :OUT    std_logic;
+
         data_bus_o          : out   std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0)
     );
 END mips_top;
@@ -75,12 +76,13 @@ ARCHITECTURE rtl OF mips_top IS
     signal mclk8_s      : std_logic;
     signal mclk64_s     : std_logic;
 
+    signal is_start_of_int_s: std_logic;
     signal pwm_out_s    : std_logic;
     signal btifg_out_s  : std_logic;
     signal fir_ifg_s    : std_logic;
     signal fifo_empty_s : std_logic;
 
-    signal DEBUG_nclock_64 : std_logic_vector(6 downto 0);
+    signal DEBUG_nclock_64 : std_logic_vector(9 downto 0);
 
 BEGIN
     rst_gen:
@@ -140,10 +142,10 @@ BEGIN
         mclk_cnt_o => mclk_cnt_o,
         inst_cnt_o => inst_cnt_o,
         flush_cnt => flush_cnt,
-        hf_cnt => hf_cnt
+        hf_cnt => hf_cnt,
+        is_start_of_int_o => is_start_of_int_s
 
     );
-
     pll_gen:
     if (MODELSIM = 0 and USE_ALT_CLK = false) generate
         MCLK: entity work.pll_50
@@ -157,11 +159,21 @@ BEGIN
             c3      => mclk8_s,
             c4      => mclk64_s
             );
+        
+        process(clk_i, rst_s)
+        begin
+            if rst_s = '1' then
+                DEBUG_nclock_64 <= "0000000000";
+            elsif rising_edge(clk_i) then
+                DEBUG_nclock_64 <= std_logic_vector(unsigned(DEBUG_nclock_64) + 1);
+            end if;
+        end process;
+
     else generate
         process(clk_i, rst_i)
         begin
             if rst_i = '1' then
-                DEBUG_nclock_64 <= "0000000";
+                DEBUG_nclock_64 <= "0000000000";
             elsif rising_edge(clk_i) then
                 DEBUG_nclock_64 <= std_logic_vector(unsigned(DEBUG_nclock_64) + 1);
             end if;
@@ -170,7 +182,7 @@ BEGIN
         mclk2_s <= DEBUG_nclock_64(0);
         mclk4_s <= DEBUG_nclock_64(1);
         mclk8_s <= DEBUG_nclock_64(2);
-        mclk64_s <= DEBUG_nclock_64(6);
+        mclk64_s <= DEBUG_nclock_64(8);
     end generate;
 
     interrupt_controller_unit_inst: entity work.interrupt_controller_unit
@@ -184,6 +196,7 @@ BEGIN
         inta_i => int_ack_s,
         interrupt_src_i => int_src_s,
         gie_i => gie_s,
+        is_start_of_int_i => is_start_of_int_s,
         mem_write_c_i => ctrl_bus_s(0),
         mem_read_c_i => ctrl_bus_s(1),
         address_bus_i => addr_bus_s,
@@ -231,8 +244,10 @@ BEGIN
         mem_read_c_i => ctrl_bus_s(1),
         address_bus_i => addr_bus_s,
         data_bus_io => data_bus_s,
+        -- fifo_clk_i => mclk_s,
         fifo_clk_i => mclk_s,
         fir_clk_i => mclk64_s,
+
         fir_ifg_o => fir_ifg_s,
         fifo_empty_o => fifo_empty_s
     );

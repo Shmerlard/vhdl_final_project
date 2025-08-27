@@ -23,6 +23,7 @@ entity interrupt_controller_unit is
         gie_i               : in std_logic;
 
         mem_write_c_i       : in std_logic;             -- '1' when we want to write to the registers
+        is_start_of_int_i   : in std_logic;
         mem_read_c_i        : in std_logic;             -- '1' when we want to read from the registers
 
         address_bus_i       : in std_logic_vector(ADDRESS_BUS_WIDTH-1 downto 0);
@@ -75,6 +76,8 @@ begin
         data_bus_i            => data_bus_io(6 downto 0),
         inta_i_b              => inta_i,
         eint_i                => int_en_dff_d_out_s,
+        is_start_of_int       => is_start_of_int_i,
+
         gie_i                 => gie_i,
         ifg_cs_write_ctl_i    => cs_mem_write_s(1),
         ifg_o                 => ifg_in_s,

@@ -44,6 +44,7 @@ entity mips_core is
             RegWrite_ctrl_o     :OUT    STD_LOGIC;
             mclk_cnt_o          :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);
             inst_cnt_o          :OUT    STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);
+            is_start_of_int_o   : out   std_logic;
             -- hex_o               :OUT    t_hex_array(0 to 7);
             flush_cnt           :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
             hf_cnt              :OUT    STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 downto 0);
@@ -186,7 +187,7 @@ architecture structure of mips_core is
 
     signal int_if_id_flush_req_o : std_logic;
     signal int_id_ex_flush_req_o : std_logic;
-
+    signal is_start_of_int_s : std_logic;
 
 BEGIN
 -- copy important signals to output pins for easy display in Simulator
@@ -661,6 +662,7 @@ BEGIN
             load_from_type_o    => load_from_type_s,
             c1to3_cmp_o         => c1to3_cmp_s, -- TODO: clear
             c2to5_cmp_o         => c2to5_cmp_s, -- TODO: clear
+            is_start_of_int_o   => is_start_of_int_s,
             reg_type_addr_sel   => reg_type_addr_sel_s,
             reg_type_addr_o     => reg_type_addr_s,
             latch_epc_load_o    => epc_latch_ctrl_s,
@@ -670,6 +672,7 @@ BEGIN
             int_id_ex_flush_req_o => int_id_ex_flush_req_o
         );
 
+        is_start_of_int_o <= is_start_of_int_s;
     -- mem addr mux for interrupts
         mem_alures_si <= data_bus_o when (c3_cmp_s = '1') else mem_alures_wi;
 

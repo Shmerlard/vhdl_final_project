@@ -20,6 +20,7 @@ entity interrupt_handler is
         reg_type_addr_o     : out   std_logic_vector(11 downto 0);
         reg_type_addr_sel   : out   std_logic;
         latch_epc_load_o    : out   std_logic;
+        is_start_of_int_o   : out   std_logic;
 
         int_if_id_flush_req_o : out std_logic;
         int_id_ex_flush_req_o : out std_logic
@@ -37,16 +38,17 @@ architecture struct of interrupt_handler is
 
 begin
 -- interrupt cycle counter FSM (ICC)
-    process(rst_i, clk_i, reti_ctl_i)
+    process(rst_i, clk_i)
     begin
         if (rst_i = '1') then
             icc_s <= "000";
             int_ack_o <= '1';
             gie_mask_s <= '1';
             reg_type_addr_sel <= '0';
-        elsif reti_ctl_i = '1' then
-            gie_mask_s <= '1';
         elsif rising_edge(clk_i) then
+            if reti_ctl_i = '1' then
+                gie_mask_s <= '1';
+            end if;
             case icc_s is
                 when "000" => 
                     if (intr_i = '1') then
@@ -99,4 +101,5 @@ begin
     c3_cmp_o <= c3_cmp_s;
 
     reg_type_addr_o <= x"842";
+    is_start_of_int_o <= c1_cmp_s;
 end struct;
