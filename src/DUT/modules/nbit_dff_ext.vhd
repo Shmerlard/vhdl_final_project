@@ -30,7 +30,8 @@ entity nbit_dff_ext is
         n              : integer := 8;  -- default size = 8 bits
         ASYNC_RST      : boolean := true;
         IGN_BITS       : std_logic_vector := (0 downto 0 => '0');
-        RST_BITS       : std_logic_vector := (0 downto 0 => '0')
+        RST_BITS       : std_logic_vector := (0 downto 0 => '0');
+        RST_BITS_FALL  : std_logic_vector := (0 downto 0 => '0')
     );
     port(
         clk_i       : in  std_logic;
@@ -45,14 +46,18 @@ end entity nbit_dff_ext;
 architecture behavioral of nbit_dff_ext is
     signal q_reg : std_logic_vector(n-1 downto 0) := (others => '0');
     signal need_reset: std_logic;
+    signal need_reset_fall: std_logic;
 
     signal ignore_bits_s : std_logic_vector(n-1 downto 0);
     signal reset_bits_s : std_logic_vector(n-1 downto 0);
+    signal reset_bits_falling_s : std_logic_vector(n-1 downto 0);
 begin
     ignore_bits_s <= (n-1 downto 0 => '0') when IGN_BITS'length = 1 else IGN_BITS;
     reset_bits_s  <= (n-1 downto 0 => '0') when RST_BITS'length = 1 else RST_BITS;
+    reset_bits_falling_s  <= (n-1 downto 0 => '0') when RST_BITS_FALL'length = 1 else RST_BITS_FALL;
 
     need_reset <= '0' when (q_reg and reset_bits_s) = (n-1 downto 0 => '0')  else '1';
+    need_reset_fall <= '0' when (q_reg and reset_bits_falling_s) = (n-1 downto 0 => '0')  else '1';
 
     asyn_proc : if ASYNC_RST generate
     process(clk_i, rst_i)
@@ -67,6 +72,10 @@ begin
                 if need_reset = '1' then                                                    -- use variable
                     q_reg <= q_reg and not reset_bits_s;                                    -- OPTIMIZE: remove latch
                 end if;
+            end if;
+        elsif falling_edge(clk_i) then
+            if need_reset_fall = '1' then
+                    q_reg <= q_reg and not reset_bits_falling_s;                                    -- OPTIMIZE: remove latch
             end if;
         end if;
     end process;

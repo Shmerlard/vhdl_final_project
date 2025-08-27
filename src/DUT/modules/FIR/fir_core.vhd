@@ -57,6 +57,7 @@ BEGIN
     ( w => w, k => k, k_log => k_log)
     port map
     (
+        rst_i => rst_i,
         FIFOCLK => FIFOCLK,
         FIFORST => FIFORST,
         FIFOWEN => FIFOWEN,

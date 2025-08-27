@@ -1,14 +1,9 @@
----------------------------------------------------------------------------------------------
--- Copyright 2025 Hananya Ribo 
--- Advanced CPU architecture and Hardware Accelerators Lab 361-1-4693 BGU
----------------------------------------------------------------------------------------------
---  Dmemory module (implements the data memory for the MIPS computer)
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-LIBRARY altera_mf;
-USE altera_mf.altera_mf_components.all;
+library altera_mf;
+use altera_mf.altera_mf_components.all;
 
 ENTITY dmemory IS
     generic(
@@ -19,7 +14,6 @@ ENTITY dmemory IS
     );
     PORT(   
         clk_i               : in    std_logic;
-        -- rst_i               : in    std_logic;
         dtcm_addr_i         : in    std_logic_vector(DTCM_ADDR_WIDTH-1 DOWNTO 0);
         dtcm_data_wr_i      : in    std_logic_vector(DATA_BUS_WIDTH-1 DOWNTO 0);
         MemRead_ctrl_i      : in    std_logic;
@@ -49,7 +43,7 @@ begin
         clock0 => wrclk_w,
         address_a => dtcm_addr_i,
         data_a => dtcm_data_wr_i,
-        q_a => dtcm_data_rd_o   
+        q_a => dtcm_data_rd_o
     );
 
     wrclk_w <= NOT clk_i;   -- Load memory address register with write clock

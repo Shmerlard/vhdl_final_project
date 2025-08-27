@@ -56,7 +56,7 @@ architecture structure of mips_core is
     SIGNAL bta_w, jta_w     : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL zero_w           : STD_LOGIC;
     -- SIGNAL mem_read_w       : STD_LOGIC;
-    SIGNAL instruction_w    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+    -- SIGNAL instruction_w    : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
     -- SIGNAL clk_i           : STD_LOGIC;
     SIGNAL mclk_cnt_q       : STD_LOGIC_VECTOR(CLK_CNT_WIDTH-1 DOWNTO 0);    
     SIGNAL inst_cnt_w       : STD_LOGIC_VECTOR(INST_CNT_WIDTH-1 DOWNTO 0);  
@@ -108,7 +108,7 @@ architecture structure of mips_core is
         signal ctl_controls_qout_w : STD_LOGIC_VECTOR(17 DOWNTO 0);
     -- ID
         signal id_instruction_wi: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0); 
-        signal id_instruction_si: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
+        -- signal id_instruction_si: STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal id_pc_plus4_wi, if_pc_s_wi   : STD_LOGIC_VECTOR(NEXT_PC_WIDTH-1 DOWNTO 0);
         signal id_rd1_wo, id_rd2_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal id_zeroext_wo, id_signext_wo : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
@@ -119,7 +119,7 @@ architecture structure of mips_core is
         signal ex_memwrite_wi, ex_beq_wi, ex_bne_wi, ex_shamtctl_wi, ex_regwrite_wi, ex_wdsel_wi, ex_memread_wi : std_logic;
         signal ex_memtoreg_wi, ex_alusrc_wi, ex_regdst_wi   : STD_LOGIC_VECTOR(1 DOWNTO 0);
         signal ex_alufn_wi      : STD_LOGIC_VECTOR(4 DOWNTO 0);
-        signal ex_shamt_wi      : STD_LOGIC_VECTOR(4 DOWNTO 0);
+        -- signal ex_shamt_wi      : STD_LOGIC_VECTOR(4 DOWNTO 0);
         signal ex_rd1_wi, ex_rd2_wi, id_rd1_mux_w, id_rd2_mux_w, ex_rd1_final_w, ex_rd2_final_w : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal ex_zeroext_wi, ex_signext_wi : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);
         signal ex_alures_wo     : STD_LOGIC_VECTOR(DATA_BUS_WIDTH-1 DOWNTO 0);

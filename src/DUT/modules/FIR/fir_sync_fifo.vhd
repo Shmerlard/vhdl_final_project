@@ -11,6 +11,7 @@ entity fir_sync_fifo is
         k_log: integer := 3
     );
     port (
+        rst_i   : in std_logic;
         FIFOCLK : in STD_LOGIC;
         FIFORST : in STD_LOGIC;
         FIFOWEN : in STD_LOGIC;
@@ -28,18 +29,12 @@ end entity fir_sync_fifo;
 ARCHITECTURE rtl OF fir_sync_fifo IS
     signal reg_data_o_arr_s: t_vec_array(0 to k-1)(w-1 downto 0);
     signal reg_data_i_arr_s: t_vec_array(0 to k-1)(w-1 downto 0);
-    signal reg_wr_en_s: STD_LOGIC_VECTOR(k-1 downto 0);
-    signal wr_ptr_s: STD_LOGIC_VECTOR(k_log-1 downto 0);
-    signal rd_ptr_s: STD_LOGIC_VECTOR(k_log-1 downto 0);
-    -- signal rd_ptr_latched_s: STD_LOGIC_VECTOR(k_log-1 downto 0);
-    -- signal selected_rd_reg_s: std_logic_vector(k_log-1 downto 0);
-    
+    -- signal reg_wr_en_s: std_logic_vector(k-1 downto 0);
+    signal wr_ptr_s: std_logic_vector(k_log-1 downto 0);
+    signal rd_ptr_s: std_logic_vector(k_log-1 downto 0);
+
     signal valid_s: std_logic_vector(k-1 downto 0);
     signal ones_s, zeros_s: std_logic_vector(k-1 downto 0);
-
-    -- signal used_space_cnt_s: std_logic;
-    -- signal used_space_dir_s: std_logic;
-    -- signal used_space_s:     std_logic_vector(k_log-1 downto 0);
 BEGIN
     -- registers instantiantion
     reg_arr_gen : for i in 0 to k-1 generate
@@ -49,8 +44,7 @@ BEGIN
         port map
         (
             clk => FIFOCLK,
-            rst => FIFORST,
-            -- en => reg_wr_en_s(i),
+            rst => FIFORST or rst_i,
             en => '1',
             d_in => reg_data_i_arr_s(i),
             q_out => reg_data_o_arr_s(i)
@@ -58,7 +52,7 @@ BEGIN
     end generate;
 
     -- read and write pointers as counters
-    wr_ptr: entity work.nbit_counter                
+    wr_ptr: entity work.nbit_counter
     generic map( n => k_log, CNT_ON_RIS_EDG => true)
     port map
     (
@@ -83,25 +77,6 @@ BEGIN
         d_in => (others => '0')
     );
 
-    -- latched_rd_ptr: entity work.nbit_dff
-    -- generic map( n => k_log )
-    -- port map(
-    --     clk => FIFOCLK,
-    --     rst => FIFORST,
-    --     en => FIFOREN,
-    --     d_in => rd_ptr_s,
-    --     q_out => selected_rd_reg_s
-    -- );
-
-    -- decoder for selectign the register to write into
-    -- wr_decoder: entity work.nbit_decoder
-    -- generic map ( n => k_log )
-    -- port map
-    -- (
-    --     d_in => wr_ptr_s,
-    --     out_en => FIFOWEN,
-    --     d_out => reg_wr_en_s
-    -- );
 
     -- used_space_ins: entity work.nbit_counter
     -- generic map( n => k_log )

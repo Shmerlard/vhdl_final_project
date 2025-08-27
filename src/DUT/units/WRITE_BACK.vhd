@@ -27,7 +27,7 @@ ARCHITECTURE structure OF WRITE_BACK IS
     signal rd_addr_w        : STD_LOGIC_VECTOR(4 DOWNTO 0);
     signal pc_sig           : STD_LOGIC_VECTOR(7 DOWNTO 0);
 BEGIN
-    pc_sig      <= std_logic_vector(unsigned(PC_plus_4_i) - 1);
+    pc_sig      <= std_logic_vector(unsigned(PC_plus_4_i));
     slt_res_w   <= x"0000000" & "000" & ALU_Result_i(31);
     imm_w       <= imm_i & x"0000";
     pc_plus4_w  <= x"00000" & "00" & pc_sig & "00";

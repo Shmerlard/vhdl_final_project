@@ -43,9 +43,9 @@ ARCHITECTURE behavior OF Ifetch IS
     signal inst_cnt_q           : std_logic_vector(inst_cnt_width-1 downto 0);
     signal pc_prev_q            : std_logic_vector(pc_width-1 downto 0); 
     signal instruction_w        : std_logic_vector(data_bus_width-1 downto 0);
-    signal pc_s                 : std_logic_vector(next_pc_width-1 downto 0);
-    signal pc_unstalled         : std_logic_vector(next_pc_width-1 downto 0);
-    signal pc_final_s           : std_logic_vector(next_pc_width-1 downto 0); 
+    -- signal pc_s                 : std_logic_vector(next_pc_width-1 downto 0);
+    -- signal pc_unstalled         : std_logic_vector(next_pc_width-1 downto 0);
+    -- signal pc_final_s           : std_logic_vector(next_pc_width-1 downto 0); 
     signal pc_din_sel_s       : std_logic;
     signal alt_pc_s         : std_logic_vector(next_pc_width-1 downto 0);
     -- signal delayed_reset        : std_logic;
@@ -100,7 +100,8 @@ BEGIN
     pc_din_sel_s <= branch_ctl_i or j_ctl_i or jr_ctl_i or c3_cmp_i;
     -- pc_unstalled      <= alt_pc_s when pc_din_sel_s = '1' else pc_s;
 
-    process(branch_ctl_i, j_ctl_i, jr_ctl_i, c3_cmp_i,
+    process(branch_ctl_i, j_ctl_i, jr_ctl_i, 
+            c3_cmp_i,
             bta_i, jta_i, jrta_i, isr_i)
     begin
         if branch_ctl_i = '1' then

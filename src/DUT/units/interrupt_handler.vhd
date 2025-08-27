@@ -29,7 +29,7 @@ end interrupt_handler;
 architecture struct of interrupt_handler is
 -- signals declerations
     signal icc_s            : std_logic_vector(2 downto 0);
-    signal inta_proc1_s, inta_proc2_s, inta_proc3_s: std_logic;
+    -- signal inta_proc1_s, inta_proc2_s, inta_proc3_s: std_logic;
 
     signal gie_mask_s: std_logic;
     signal c1_cmp_s, c2_cmp_s, c3_cmp_s, c4_cmp_s, c5_cmp_s: std_logic;
@@ -82,7 +82,6 @@ begin
 
 
 -- outputs assignments
-    -- int_ack_o   <= not(not(rst_i) and not(inta_proc3_s) and inta_proc1_s);
     gie_mask_o  <= gie_mask_s;
     c1_cmp_s    <= '1' when (icc_s = "001") else '0';
     c2_cmp_s    <= '1' when (icc_s = "010") else '0';
@@ -92,13 +91,10 @@ begin
 
     int_if_id_flush_req_o <= c1_cmp_s or c2_cmp_s or c3_cmp_s;
     int_id_ex_flush_req_o <= c1_cmp_s;
-    -- latch_epc_load_o <= c1_cmp_s;
     latch_epc_load_o <= intr_i;
     load_from_type_o <= c1_cmp_s;
-    -- c1to3_cmp_o <= '1' when ((icc_s > 0) and (icc_s < 4)) else '0';
     c1to3_cmp_o <= c1_cmp_s or c2_cmp_s or c3_cmp_s;
     c2to5_cmp_o <= c2_cmp_s or c3_cmp_s or c4_cmp_s or c5_cmp_s;
-    -- c2to5_cmp_o <= '1' when ((icc_s > 1) and (icc_s < 6)) else '0';
     c1_cmp_o <= c1_cmp_s;
     c3_cmp_o <= c3_cmp_s;
 

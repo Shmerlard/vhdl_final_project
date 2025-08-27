@@ -80,7 +80,7 @@ ARCHITECTURE rtl OF mips_top IS
     signal fir_ifg_s    : std_logic;
     signal fifo_empty_s : std_logic;
 
-    -- signal btifg_int_req_s : std_logi
+    signal DEBUG_nclock_64 : std_logic_vector(6 downto 0);
 
 BEGIN
     rst_gen:
@@ -101,13 +101,11 @@ BEGIN
     mips_core_inst: entity work.mips_core
     generic map(
         WORD_GRANULARITY => WORD_GRANULARITY,
-        -- MODELSIM => MODELSIM,
         DATA_BUS_WIDTH => DATA_BUS_WIDTH,
         ITCM_ADDR_WIDTH => ITCM_ADDR_WIDTH,
         DTCM_ADDR_WIDTH => DTCM_ADDR_WIDTH,
         PC_WIDTH => PC_WIDTH,
         NEXT_PC_WIDTH => NEXT_PC_WIDTH,
-        -- FUNCT_WIDTH => FUNCT_WIDTH,
         DATA_WORDS_NUM => DATA_WORDS_NUM,
         CLK_CNT_WIDTH => CLK_CNT_WIDTH,
         INST_CNT_WIDTH => INST_CNT_WIDTH,
@@ -119,7 +117,6 @@ BEGIN
         clk_i => mclk_s,
         bpaddr_i => bpaddr_i,
         int_req_i => int_req_s,
-        -- interrupt_src_i =>  int_src_s,
 
         data_bus_o => data_bus_s,
         addr_bus_o => addr_bus_s,
@@ -161,11 +158,19 @@ BEGIN
             c4      => mclk64_s
             );
     else generate
+        process(clk_i, rst_i)
+        begin
+            if rst_i = '1' then
+                DEBUG_nclock_64 <= "0000000";
+            elsif rising_edge(clk_i) then
+                DEBUG_nclock_64 <= std_logic_vector(unsigned(DEBUG_nclock_64) + 1);
+            end if;
+        end process;
         mclk_s <= clk_i;
-        mclk2_s <= clk_i;
-        mclk4_s <= clk_i;
-        mclk8_s <= clk_i;
-        -- TODO: connect others
+        mclk2_s <= DEBUG_nclock_64(0);
+        mclk4_s <= DEBUG_nclock_64(1);
+        mclk8_s <= DEBUG_nclock_64(2);
+        mclk64_s <= DEBUG_nclock_64(5);
     end generate;
 
     interrupt_controller_unit_inst: entity work.interrupt_controller_unit
@@ -217,7 +222,7 @@ BEGIN
     fir_unit_inst: entity work.fir_unit
     generic map(
         DATA_BUS_WIDTH => DATA_BUS_WIDTH,
-        INT_UNIT_ADDRESS_ARRAY => INT_UNIT_ADDRESS_ARRAY
+        FIR_UNIT_ADDRESS_ARRAY => FIR_UNIT_ADDRESS_ARRAY
     )
     port map(
         clk_i => clk_i,

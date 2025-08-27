@@ -1,14 +1,9 @@
-
----------------------------------------------------------------------------------------------
--- Copyright 2025 Hananya Ribo 
--- Advanced CPU architecture and Hardware Accelerators Lab 361-1-4693 BGU
----------------------------------------------------------------------------------------------
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-USE work.cond_comilation_package.all;
-USE work.aux_package.all;
+use work.cond_comilation_package.all;
+use work.aux_package.all;
 
 
 ENTITY tb_mips_top IS

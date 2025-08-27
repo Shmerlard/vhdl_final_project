@@ -16,7 +16,7 @@ entity fir_reg_arr is
         x_i       : in std_logic_vector(w-1 downto 0);
         coeff_i   : in t_vec_array(0 to M-1)(q-1 downto 0);
 
-        fir_ifg_o : out std_logic;          -- TODO: implement
+        -- fir_ifg_o : out std_logic;          -- TODO: implement
         y_o       : out STD_LOGIC_VECTOR(w+q-1 downto 0)
 
     );

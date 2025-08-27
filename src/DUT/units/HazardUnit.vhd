@@ -98,17 +98,17 @@ begin
 -- instruction type dff instantiations
 
     IT_EX: entity work.nbit_dff_flush
-    generic map (
-        n => 3
-    )
-    port map (
-        clk    => clk_i,
-        rst    => rst_i,
-        flush => id_ex_flush_ctl_i,
-        en     => '1',
-        d_in   => inst_type_i,
-        q_out  => ex_it_w
-    );
+        generic map (
+            n => 3
+        )
+        port map (
+            clk    => clk_i,
+            rst    => rst_i,
+            flush => id_ex_flush_ctl_i,
+            en     => '1',
+            d_in   => inst_type_i,
+            q_out  => ex_it_w
+        );
 
     IT_MEM: entity work.nbit_dff
     generic map (
@@ -146,8 +146,11 @@ begin
     rx_equal_zero_w     <= '1' when (rx_id_w = "00000") else '0';
 
 -- RD1 selector
-    process(rs_rx_ex_equal_w, rs_rx_mem_equal_w, rs_rx_wb_equal_w, inst_type_i, rst_i,
-            lw_hazard1_w, ex_it_w, mem_it_w, wb_it_w)
+    process(rs_rx_ex_equal_w, rs_rx_mem_equal_w, rs_rx_wb_equal_w, 
+        inst_type_i, 
+        rst_i,
+        lw_hazard1_w,
+        ex_it_w, mem_it_w, wb_it_w)
     -- process(clk_i, rst_i)
     begin
         if rst_i = '1' then 

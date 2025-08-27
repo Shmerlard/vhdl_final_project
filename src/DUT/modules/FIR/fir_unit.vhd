@@ -9,7 +9,7 @@ entity fir_unit is
     generic (
         ADDRESS_BUS_WIDTH: INTEGER := 12;
         DATA_BUS_WIDTH: INTEGER := 32;
-        INT_UNIT_ADDRESS_ARRAY : t_addr_array := FIR_UNIT_ADDRESS_ARRAY
+        FIR_UNIT_ADDRESS_ARRAY : t_addr_array := FIR_UNIT_ADDRESS_ARRAY
     );
     port 
     (
@@ -49,18 +49,6 @@ architecture rtl of fir_unit is
     signal fir_in_s  : std_logic_vector(23 downto 0);
     signal fir_ctl_s : std_logic_vector(5 downto 0);
     signal coef_s    : t_vec_array(0 to 7)(7 downto 0);
-
-    --
-    -- signal ifg_in_s : std_logic_vector(INT_IFG_COUNT-1 downto 0);
-    -- signal int_req_s : std_logic;
-    -- signal ifg_o_s  : std_logic_vector(6 downto 0);
-    -- signal ifg_in_from_bus : std_logic_vector(INT_IFG_COUNT-1 downto 0);
-    -- signal ifg_in_from_core : std_logic_vector(INT_IFG_COUNT-1 downto 0);
-    --
-    -- signal int_en_dff_d_out_s   : std_logic_vector(6 downto 0);
-    -- signal int_en_dff_d_in_s    : std_logic_vector(DATA_BUS_WIDTH-1 downto 0);
-    -- signal type_in_s            : std_logic_vector(7 downto 0);
-    -- signal type_out_s           : std_logic_vector(7 downto 0);
 begin
     fir_unit_addr_decoder_inst: entity work.address_decoder
     generic map(
@@ -114,19 +102,32 @@ begin
     port map(
         Dout => x"00" & fir_in_s,
         en => cs_mem_read_s(1),
-        -- Din => Din,
         IOpin => data_bus_io
     );
 
-    fir_ctl_inst: entity work.nbit_dff
-    generic map( n => 6 )
+    fir_ctl_inst: entity work.nbit_dff_ext
+    generic map(
+        n => 6,
+        IGN_BITS => "001100",
+        RST_BITS_FALL => "100000"
+    )
     port map(
-        clk => clk_i,
-        rst => rst_i,
-        en => cs_mem_write_s(0),
+        clk_i => clk_i,
+        rst_i => rst_i,
+        wr_en_i => cs_mem_write_s(0),
         d_in => data_bus_io(5 downto 0),
+        ign_d_in => "00" & fifo_full_s & fifo_empty_s & "00",
         q_out => fir_ctl_s
     );
+    -- fir_ctl_inst: entity work.nbit_dff
+    -- generic map( n => 6 )
+    -- port map(
+    --     clk => clk_i,
+    --     rst => rst_i,
+    --     en => cs_mem_write_s(0),
+    --     d_in => data_bus_io(5 downto 0),
+    --     q_out => fir_ctl_s
+    -- );
     fir_ctl_bidi_inst: entity work.nbit_bidir
     generic map( width => DATA_BUS_WIDTH)
     port map(
@@ -151,7 +152,6 @@ begin
     port map(
         Dout => fir_out_reg_out_s,
         en => cs_mem_read_s(2),
-        -- Din => Din,
         IOpin => data_bus_io
     );
 
@@ -173,7 +173,7 @@ begin
         (
             clk => clk_i,
             rst => rst_i,
-            en => cs_mem_write_s(3),
+            en => cs_mem_write_s(4),
             d_in => data_bus_io(8*i + 7 downto 8*i),
             q_out => coef_s(i+4)
         );
@@ -184,7 +184,6 @@ begin
     port map(
         Dout => coef_s(7) & coef_s(6) & coef_s(5) & coef_s(4),
         en => cs_mem_read_s(4),
-        -- Din => Din,
         IOpin => data_bus_io
     );
     coeff_reg_3_0_bidir_ins : entity work.nbit_bidir
@@ -192,12 +191,17 @@ begin
     port map(
         Dout => coef_s(3) & coef_s(2) & coef_s(1) & coef_s(0),
         en => cs_mem_read_s(3),
-        -- Din => Din,
         IOpin => data_bus_io
     );
 
     fifo_empty_o <= fifo_empty_s;
     fir_ifg_o <= fir_ifg_s;
 
+    fir_ena_s <= fir_ctl_s(0);
+    fir_rst_s <= fir_ctl_s(1);
+    -- fifo_empty_s <= fir_ctl_s(2);
+    -- fifo_full_s <= fir_ctl_s(3);
+    fifo_rst_s <= fir_ctl_s(4);
+    fifo_wen_s <= fir_ctl_s(5);
 end architecture rtl;
 
