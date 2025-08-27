@@ -114,7 +114,7 @@ BEGIN
     --     leds_o              => leds_s
     -- );
     top_tb: entity work.mips_top
-     generic map(
+    generic map(
         WORD_GRANULARITY => WORD_GRANULARITY,
         -- USE_ALT_CLK => USE_ALT_CLK,
         MODELSIM => MODELSIM,
@@ -126,10 +126,10 @@ BEGIN
         DATA_WORDS_NUM => DATA_WORDS_NUM,
         CLK_CNT_WIDTH => CLK_CNT_WIDTH,
         INST_CNT_WIDTH => INST_CNT_WIDTH,
-        DTCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test4/bin/M9K/DTCM.hex",
-        ITCM_PATH                   => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test4/bin/M9K/ITCM.hex"
+        DTCM_PATH => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test4/bin/M9K/DTCM.hex",
+        ITCM_PATH => "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test4/bin/M9K/ITCM.hex"
     )
-     port map(
+    port map(
         rst_i => s_i_rst_i,
         clk_i => s_i_clk_i,
         bpaddr_i => s_i_bpaddr_i,
@@ -157,7 +157,27 @@ BEGIN
         strigger_o => s_o_strigger_o,
         data_bus_o => s_o_data_bus_o
     );
-    for i in 0 to 25 generate
-        
-    end generate;
+
+    switches_i_dff : entity work.nbit_dff
+     generic map(
+        n => switches_i'length
+    )
+     port map(
+        clk => clk_i,
+        rst => rst_i,
+        en => '1',
+        d_in => switches_i,
+        q_out => s_i_switches_i
+    );
+    -- hf_cnt_dff: entity work.nbit_dff
+    --  generic map(
+    --     n => 
+    -- )
+    --  port map(
+    --     clk => clk,
+    --     rst => rst,
+    --     en => en,
+    --     d_in => d_in,
+    --     q_out => q_out
+    -- );
 END struct;

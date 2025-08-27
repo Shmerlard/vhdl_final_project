@@ -76,7 +76,7 @@ ARCHITECTURE rtl OF mips_top IS
     signal mclk2_s      : std_logic;
     signal mclk4_s      : std_logic;
     signal mclk8_s      : std_logic;
-    signal mclk16_s     : std_logic;
+    signal debug_clk_s     : std_logic;
 
     signal is_start_of_int_s: std_logic;
     signal pwm_out_s    : std_logic;
@@ -84,7 +84,7 @@ ARCHITECTURE rtl OF mips_top IS
     signal fir_ifg_s    : std_logic;
     signal fifo_empty_s : std_logic;
 
-    signal mclk16_counter_s : std_logic_vector(9 downto 0);
+    signal mclk8_counter_s : std_logic_vector(15 downto 0);
     signal fir_clock_s  : std_logic;
 
 BEGIN
@@ -154,14 +154,20 @@ BEGIN
         mclk_pll :  pll
         port map(
             -- areset => areset,
+            -- inclk0 => clk_i,
+            -- c0 => mclk_s,
+            -- c1 => mclk2_s,
+            -- c2 => mclk4_s,
+            -- c3 => mclk8_s,
+            -- c4 => debug_clk_s
             inclk0 => clk_i,
-            c0 => mclk_s,
-            c1 => mclk2_s,
-            c2 => mclk4_s,
-            c3 => mclk8_s,
-            c4 => mclk16_s
+            c1 => mclk_s
+            -- c2 => mclk2_s,
+            -- c3 => mclk4_s,
+            -- c4 => debug_clk_s
             -- locked => locked
         );
+
         -- MCLK: entity work.pll_50
         -- PORT MAP (
         --     inclk0  => clk_i,
@@ -174,31 +180,32 @@ BEGIN
         --     c4      => mclk64_s
         --     );
 
-        process(mclk16_s, rst_s)
+        process(mclk4_s, rst_s)
         begin
             if rst_s = '1' then
-                mclk16_counter_s <= "0000000000";
-            elsif rising_edge(mclk16_s) then
-                mclk16_counter_s <= std_logic_vector(unsigned(mclk16_counter_s) + 1);
+                mclk8_counter_s <= x"0000";
+            elsif rising_edge(debug_clk_s) then
+                mclk8_counter_s <= std_logic_vector(unsigned(mclk8_counter_s) + 1);
             end if;
         end process;
 
-        fir_clock_s <= mclk16_counter_s(6);
+        mclk8_s <= mclk8_counter_s(1);
+        fir_clock_s <= mclk8_counter_s(15);
     else generate
         process(clk_i, rst_i)
         begin
             if rst_i = '1' then
-                mclk16_counter_s <= "0000000000";
+                mclk8_counter_s <= x"0000";
             elsif rising_edge(clk_i) then
-                mclk16_counter_s <= std_logic_vector(unsigned(mclk16_counter_s) + 1);
+                mclk8_counter_s <= std_logic_vector(unsigned(mclk8_counter_s) + 1);
             end if;
         end process;
         mclk_s <= clk_i;
-        mclk2_s <= mclk16_counter_s(0);
-        mclk4_s <= mclk16_counter_s(1);
-        mclk8_s <= mclk16_counter_s(2);
-        mclk16_s <= mclk16_counter_s(8);
-        fir_clock_s <= mclk16_counter_s(8);
+        mclk2_s <= mclk8_counter_s(0);
+        mclk4_s <= mclk8_counter_s(1);
+        mclk8_s <= mclk8_counter_s(2);
+        debug_clk_s <= mclk8_counter_s(8);
+        fir_clock_s <= mclk8_counter_s(8);
     end generate;
 
     interrupt_controller_unit_inst: entity work.interrupt_controller_unit

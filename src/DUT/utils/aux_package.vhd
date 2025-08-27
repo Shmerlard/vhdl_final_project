@@ -826,17 +826,14 @@ end component interrupt_controller_unit;
     end component;
 ---------------------------------------------------------
     component pll IS
-        PORT
-        (
-            areset		: IN STD_LOGIC  := '0';
-            inclk0		: IN STD_LOGIC  := '0';
-            c0		: OUT STD_LOGIC ;
-            c1		: OUT STD_LOGIC ;
-            c2		: OUT STD_LOGIC ;
-            c3		: OUT STD_LOGIC ;
-            c4		: OUT STD_LOGIC ;
-            locked		: OUT STD_LOGIC 
-        );
+	PORT
+	(
+		areset		: IN STD_LOGIC  := '0';
+		inclk0		: IN STD_LOGIC  := '0';
+		c0		: OUT STD_LOGIC ;
+		c1		: OUT STD_LOGIC ;
+		locked		: OUT STD_LOGIC 
+	);
     END component pll;
 ---------------------------------------------------------
     -- component PLL IS
