@@ -52,7 +52,8 @@ BEGIN
         y_o => FIROUT
     );
 
-    fir_sync_fifo_inst: entity work.fir_sync_fifo
+    -- fir_sync_fifo_inst: entity work.fir_sync_fifo
+    fir_sync_fifo_inst: entity work.fir_fifo_reg
     generic map
     ( w => w, k => k, k_log => k_log)
     port map

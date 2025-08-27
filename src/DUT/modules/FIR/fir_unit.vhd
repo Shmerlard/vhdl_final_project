@@ -109,7 +109,7 @@ begin
     generic map(
         n => 6,
         IGN_BITS => "001100",
-        RST_BITS_FALL => "100000"
+        RST_BITS => "100000"
     )
     port map(
         clk_i => clk_i,

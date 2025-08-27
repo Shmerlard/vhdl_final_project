@@ -568,6 +568,28 @@ package aux_package is
         );
     end component fir_core;
 
+    component fir_fifo_reg is
+        generic(
+            w: integer := 24;
+            -- q: integer := 8;
+            k: integer := 8;
+            k_log: integer := 3
+        );
+        port (
+            rst_i   : in std_logic;
+            FIFOCLK : in STD_LOGIC;
+            FIFORST : in STD_LOGIC;
+            FIFOWEN : in STD_LOGIC;
+            FIFOREN : in STD_LOGIC;
+
+            FIFOIN : in STD_LOGIC_VECTOR(w-1 downto 0);
+
+            FIFOFULL : out STD_LOGIC;
+            FIFOEMPTY : out STD_LOGIC;
+
+            DATAOUT     : out STD_LOGIC_VECTOR(w-1 downto 0)
+        );
+    end component fir_fifo_reg;
 
     -- GPIO
     component gpio_unit is
@@ -842,8 +864,7 @@ end component interrupt_controller_unit;
             n              : integer := 8;  -- default size = 8 bits
             ASYNC_RST      : boolean := true;
             IGN_BITS       : std_logic_vector := (0 downto 0 => '0');
-            RST_BITS       : std_logic_vector := (0 downto 0 => '0');
-            RST_BITS_FALL  : std_logic_vector := (0 downto 0 => '0')
+            RST_BITS       : std_logic_vector := (0 downto 0 => '0')
         );
         port(
             clk_i       : in  std_logic;
