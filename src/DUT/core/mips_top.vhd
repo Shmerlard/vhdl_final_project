@@ -19,8 +19,10 @@ ENTITY mips_top IS
         DATA_WORDS_NUM : integer    := G_DATA_WORDS_NUM;
         CLK_CNT_WIDTH : integer     := 16;
         INST_CNT_WIDTH : integer    := 16;
-        DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/DTCM.hex";
-        ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/ITCM.hex"
+        -- DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/DTCM.hex";
+        -- ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/JR_test/ITCM.hex"
+        DTCM_PATH : string          := "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test4/bin/M9K/DTCM.hex";
+        ITCM_PATH : string          := "/home/elad/Desktop/vhdl_final_project/src/SW/interupt_IO/test4/bin/M9K/ITCM.hex"
         -- DTCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/DTCM.hex";
         -- ITCM_PATH : string := "/home/elad/Desktop/vhdl_final_project/src/SW/GPIO/test0/bin/M9K/ITCM.hex"
     );
@@ -74,7 +76,7 @@ ARCHITECTURE rtl OF mips_top IS
     signal mclk2_s      : std_logic;
     signal mclk4_s      : std_logic;
     signal mclk8_s      : std_logic;
-    signal mclk64_s     : std_logic;
+    signal mclk16_s     : std_logic;
 
     signal is_start_of_int_s: std_logic;
     signal pwm_out_s    : std_logic;
@@ -82,7 +84,7 @@ ARCHITECTURE rtl OF mips_top IS
     signal fir_ifg_s    : std_logic;
     signal fifo_empty_s : std_logic;
 
-    signal DEBUG_nclock_64 : std_logic_vector(9 downto 0);
+    signal mclk16_counter_s : std_logic_vector(9 downto 0);
     signal fir_clock_s  : std_logic;
 
 BEGIN
@@ -149,41 +151,54 @@ BEGIN
     );
     pll_gen:
     if (MODELSIM = 0 and USE_ALT_CLK = false) generate
-        MCLK: entity work.pll_50
-        PORT MAP (
-            inclk0  => clk_i,
-            -- c0      => mclk_s,
-            -- c1      => mclk2_s,
-            c0      => mclk_s,         -- TODO: change later
-            c1      => mclk2_s,
-            c2      => mclk4_s,
-            c3      => mclk8_s,
-            c4      => mclk64_s
-            );
-        
-        process(mclk_s, rst_s)
+        mclk_pll :  pll
+        port map(
+            -- areset => areset,
+            inclk0 => clk_i,
+            c0 => mclk_s,
+            c1 => mclk2_s,
+            c2 => mclk4_s,
+            c3 => mclk8_s,
+            c4 => mclk16_s
+            -- locked => locked
+        );
+        -- MCLK: entity work.pll_50
+        -- PORT MAP (
+        --     inclk0  => clk_i,
+        --     -- c0      => mclk_s,
+        --     -- c1      => mclk2_s,
+        --     c0      => mclk_s,         -- TODO: change later
+        --     c1      => mclk2_s,
+        --     c2      => mclk4_s,
+        --     c3      => mclk8_s,
+        --     c4      => mclk64_s
+        --     );
+
+        process(mclk16_s, rst_s)
         begin
             if rst_s = '1' then
-                DEBUG_nclock_64 <= "0000000000";
-            elsif rising_edge(mclk_s) then
-                DEBUG_nclock_64 <= std_logic_vector(unsigned(DEBUG_nclock_64) + 1);
+                mclk16_counter_s <= "0000000000";
+            elsif rising_edge(mclk16_s) then
+                mclk16_counter_s <= std_logic_vector(unsigned(mclk16_counter_s) + 1);
             end if;
         end process;
 
+        fir_clock_s <= mclk16_counter_s(6);
     else generate
         process(clk_i, rst_i)
         begin
             if rst_i = '1' then
-                DEBUG_nclock_64 <= "0000000000";
+                mclk16_counter_s <= "0000000000";
             elsif rising_edge(clk_i) then
-                DEBUG_nclock_64 <= std_logic_vector(unsigned(DEBUG_nclock_64) + 1);
+                mclk16_counter_s <= std_logic_vector(unsigned(mclk16_counter_s) + 1);
             end if;
         end process;
         mclk_s <= clk_i;
-        mclk2_s <= DEBUG_nclock_64(0);
-        mclk4_s <= DEBUG_nclock_64(1);
-        mclk8_s <= DEBUG_nclock_64(2);
-        mclk64_s <= DEBUG_nclock_64(8);
+        mclk2_s <= mclk16_counter_s(0);
+        mclk4_s <= mclk16_counter_s(1);
+        mclk8_s <= mclk16_counter_s(2);
+        mclk16_s <= mclk16_counter_s(8);
+        fir_clock_s <= mclk16_counter_s(8);
     end generate;
 
     interrupt_controller_unit_inst: entity work.interrupt_controller_unit
@@ -261,7 +276,6 @@ BEGIN
     int_src_s(2 downto 0) <= "000";
     int_src_s(7) <= fifo_empty_s;
     int_src_s(8) <= fir_ifg_s;
-    fir_clock_s <= DEBUG_nclock_64(8);
 
     pwm_out <= pwm_out_s;
 END ARCHITECTURE rtl;
