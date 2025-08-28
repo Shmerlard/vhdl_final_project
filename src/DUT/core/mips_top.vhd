@@ -161,10 +161,10 @@ BEGIN
             -- c3 => mclk8_s,
             -- c4 => debug_clk_s
             inclk0 => clk_i,
-            c1 => mclk_s
-            -- c2 => mclk2_s,
-            -- c3 => mclk4_s,
-            -- c4 => debug_clk_s
+            c1 => mclk_s,
+            c2 => mclk2_s,
+            c3 => mclk4_s,
+            c4 => debug_clk_s
             -- locked => locked
         );
 
@@ -184,7 +184,7 @@ BEGIN
         begin
             if rst_s = '1' then
                 mclk8_counter_s <= x"0000";
-            elsif rising_edge(debug_clk_s) then
+            elsif rising_edge(mclk4_s) then
                 mclk8_counter_s <= std_logic_vector(unsigned(mclk8_counter_s) + 1);
             end if;
         end process;
